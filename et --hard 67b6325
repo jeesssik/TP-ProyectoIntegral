@@ -1,0 +1,108 @@
+[33mdcd136b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mjesica[m[33m)[m intento de segundo nivel
+[33medac72f[m nivel 2
+[33m3422354[m new asset, level 2 started
+[33m68d0ee3[m fix: Update visibility settings for UI elements in Menu scene
+[33m9e9367d[m feat: Add new Image component with RectTransform and CanvasRenderer to enhance Menu scene visuals
+[33m4df3bfc[m fix: Update menu music settings and adjust game object visibility in Menu scene
+[33mad731f5[m feat: Add new UI Image component with RectTransform and CanvasRenderer for enhanced visual elements
+[33m67b6325[m[33m ([m[1;31morigin/jesica[m[33m)[m fix: Adjust tutorial prompt visibility duration and clean up coroutine handling
+[33mf90d078[m attack message on screen
+[33m68d6f32[m Refactor code structure for improved readability and maintainability
+[33m78e848c[m feat: Add interaction prompt for potion pickup and improve player proximity detection
+[33mc65ca8f[m feat: Add FloatingItem script for floating effect and adjust potion position
+[33mee2de43[m feat: Add configurable attack key for player and clean up unused methods
+[33m14a6bdf[m Life bar in pumpkin enemy
+[33m4a4ff8c[m Refactor EnemyController to implement IDamageable interface, add lootPrefabFallback for fallback loot handling, and improve damage logging. Update EnemyDamageTrigger to handle player attack damage. Adjust RuneDropLaunch parameters for better drop behavior and add sorting order management. Enhance RuneSpriteAnimator to filter valid frames and increase animation speed.
+[33m40fa971[m Remove unused 32x32 item textures and their associated metadata files; add new WinRune prefab and Forest Palette prefab with metadata, collapsing bridge and enemy loot
+[33mbdd532a[m fix: Update PauseMenuManager references and clean up unused prefab instances
+[33m089a724[m Add new prefab for CanvasOpt with metadata
+[33m9b61338[m Merge branch 'jesica' of https://github.com/jeesssik/ProyectoProducci-n into jesica
+[33m9b74e00[m act fury
+[33mf64a546[m fix: Update texture settings and sprite data for multiple rune assets
+[33m90588d6[m fix: Adjust player attack and walk step sound effect volumes
+[33m1f5b236[m fix: Update FlowerEnemy attack logic and adjust health bar properties
+[33mce1cdeb[m fix: Adjust FlowerEnemy health parameters and add health bar visibility control
+[33m8adde98[m CameraFollow Fixed + sfx and volume on player
+[33m559e234[m Add audio metadata for Powerup 2 sound effect from Pixel Game Essentials SFX Pack
+[33m8c52b2f[m fix: Adjust player walk cycle speed and transition duration; update Level-1 position
+[33m4746f97[m Merge branch 'jesica' of https://github.com/jeesssik/ProyectoProducci-n into jesica
+[33m9c66c28[m en casa
+[33m388abfa[m feat: Add audio feedback for player actions including jump, land, attack, hurt, and death
+[33m05d7c36[m Add audio metadata for flesh sound effect (77_flesh_02.wav)
+[33ma2eea0d[m feat: Add new rune assets including blue, green, red, and yellow variants with corresponding metadata
+[33m31c92bf[m Add new animations and assets for platformer character pack
+[33m14972a1[m feat: Add health bar functionality to FlowerEnemy and include health bar image asset
+[33me83180c[m feat: Refactor attack hitbox enabling logic and add HitEverythingInsideNow method for improved damage handling
+[33m508ba1f[m feat: Add UpdateAttackHitboxPosition method to adjust attack hitbox based on facing direction
+[33m805c2ad[m fix: Update death animation timing and enhance debug message for FlowerEnemy death
+[33ma18612e[m fix: Update pivot and alignment values for animated sprite frames
+[33mf39cc04[m feat: Implement IDamageable interface and update FlowerEnemy and PlayerAttackHitbox for damage handling
+[33m9c35558[m Add FlowerEnemy animations and implement enemy behavior
+[33mff29ad1[m fix: Adjust hit animation speed and transition durations for smoother gameplay
+[33m705dd93[m feat: Adjust enemy health, enhance attack mechanics, and improve pause functionality
+[33m2739cd5[m Toggle active state for menu GameObjects
+[33m8ff946f[m Merge branch 'jesica' of https://github.com/jeesssik/ProyectoProducci-n into jesica
+[33m9f6ef5b[m Add new assets and animations for SHADOW Series - Hallokin
+[33m5811ad4[m Styles corrections
+[33mbc00d51[m styles correction en volume canvas (menu screen)
+[33mf92d537[m Refactor player attack mechanics and add direction facing logic
+[33m9057959[m Toggle active state for menu GameObjects and update game scene name to Level-1
+[33m14a0a21[m Add audio management and UI updates
+[33m33cf941[m Update event targets and modes for audio mute functionality in Menu scene
+[33m885f4fb[m Add audio management system and integrate music into menu
+[33mb4e8681[m Add PauseMenuManager script for game pause functionality
+[33m441a6dc[m Add credit image and associated metadata to Assets
+[33m3e09583[m Rename Canvas GameObject to Background for clarity
+[33mead77dd[m Toggle active state for menu GameObjects to improve visibility control
+[33m1fe59b2[m Add new background and button assets with corresponding metadata files
+[33meed0403[m Refactor code structure for improved readability and maintainability
+[33m6cd5143[m Add debug logging for player grounded state and acceleration values
+[33m4127715[m Sorting order - rune
+[33m9aaf0e1[m Merge pull request #2 from jeesssik/angy
+[33m2874767[m Merge pull request #1 from sparksqueen2/angy
+[33m4133b9a[m Add WinRunePickup meta file and include 'Condition' tag in TagManager
+[33m2030b60[m Player changes - Follow up camera, jump, win condition, fall && Add runes
+[33m8b9a468[m add parallax
+[33m926596c[m Tileset creation
+[33mfb65919[m Remove unused debug log in PlayerController and update playerHealthUI reference in Level-1 scene
+[33meac5d94[m Update player movement speed and adjust collider properties in Level-1 scene
+[33ma4c5d07[m player reactions updated
+[33m730ae38[m Activate GameObject in Level-1 scene
+[33mb0d38ab[m Game Over Canvas Funcional
+[33md3140a6[m Add botones.png and its associated metadata file
+[33mba6f82f[m Add new menu background and game title images
+[33m0b27086[m Add UI elements for exit, menu, and retry buttons in Level-1 scene
+[33m9f692e5[m Add GameOver screen assets and update player health logic
+[33m617b463[m readme update
+[33mc93ecce[m enemy behaves ok
+[33mfcc82e0[m enemy attack animation fixed
+[33mca02cb3[m enemy walk fixed
+[33mdd86e7b[m player hurt loop fixed
+[33m772f4e4[m fixed body collisions on fight
+[33mc369993[m starting a fight
+[33m54a050e[m enemy damage trigger
+[33mbfc7e4d[m order layers for player and enemy
+[33m4165484[m player attacks
+[33md6ab469[m walk and jump OK
+[33m74e4b78[m new player started
+[33m07a509a[m delete unused assets
+[33mb59583a[m clean enemy code
+[33m28c3949[m enemy patrol
+[33mfe18739[m enemy attacks
+[33med498b1[m Update EnemyController to improve player detection and adjust attack logic
+[33m60ff50f[m Refactor EnemyController for improved sPlayer detection
+[33m4356d87[m enemy detects player
+[33m678400f[m Update SHADOW Series - Hallokin asset metadata and adjust collider settings in Level-1 scene
+[33md2cafe3[m Add SHADOW Series - Hallokin assets including textures, animations, and controller
+[33m52f363d[m Refactor EnemyController to streamline detection and attack logic; remove unused variables and improve readability
+[33m63e72c0[m Add SHADOW Series - Hallokin character animations and controller
+[33m3017c14[m Add EnemyController script with movement, patrol, and attack mechanics
+[33m21b368d[m Add Lightning Mage animations and player controller script
+[33m735c9e4[m Add GroundCheck and AttackPoint GameObjects with associated components in Level-1 scene
+[33mf879082[m Refactor Blue Witch animations and player controller
+[33m52bd8a9[m Add animations and animator controller for Blue Witch character
+[33m8a5ef62[m charaters test
+[33m56a7f75[m Add Level-1 scene with initial meta configuration
+[33m03abf8a[m Update README.md with new content and formatting adjustments
+[33me789dda[m Add metadata file for preview.png in Junk Wastelands background assets
+[33m
