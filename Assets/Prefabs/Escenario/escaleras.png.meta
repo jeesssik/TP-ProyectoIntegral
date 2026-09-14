@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -93,9 +93,329 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: escaleras_2
+      rect:
+        serializedVersion: 2
+        x: 657
+        y: 381
+        width: 183
+        height: 687
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81cb304e275a32341b7a3a273d72b3fb
+      internalID: -57350012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_4
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 395
+        width: 178
+        height: 415
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d492263de0145024c9504d9261cd6390
+      internalID: 1286715757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_5
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 393
+        width: 175
+        height: 549
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b95cd3d5cfcdaf49933ff6cb02b4303
+      internalID: -611164797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_7
+      rect:
+        serializedVersion: 2
+        x: 866
+        y: 396
+        width: 168
+        height: 489
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f25002ff65a9d1a4e9cd071a2ab63364
+      internalID: -574221247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_8
+      rect:
+        serializedVersion: 2
+        x: 1068
+        y: 344
+        width: 157
+        height: 567
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75da8ce0dce983e4aa7ec1ae3057b29f
+      internalID: -2128565129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_9
+      rect:
+        serializedVersion: 2
+        x: 1270
+        y: 397
+        width: 151
+        height: 514
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce8b71aceb6cb934184703d87671e576
+      internalID: 1586622456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_10
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 367
+        width: 174
+        height: 273
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9231b13518c92424c9fcdd380d6b7dae
+      internalID: -1961322648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_11
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 117
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c87ef7d3300640d4c8d94db14d4ae166
+      internalID: -1347039417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_12
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 77
+        width: 153
+        height: 172
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61baa0d5e05c7c7468fc1e87d62adcea
+      internalID: -655581645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_13
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 87
+        width: 187
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b47f8fc01923bb4f96761cba715af95
+      internalID: -219776305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_14
+      rect:
+        serializedVersion: 2
+        x: 594
+        y: 48
+        width: 209
+        height: 301
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de5a204bbe16aac4aa822d90b094ceca
+      internalID: -1561378533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_15
+      rect:
+        serializedVersion: 2
+        x: 854
+        y: 61
+        width: 170
+        height: 152
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26128b00ee5dde84a9e70fc33bb76364
+      internalID: -1838517067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_16
+      rect:
+        serializedVersion: 2
+        x: 1046
+        y: 18
+        width: 162
+        height: 271
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4719cc6f9495ff74591d8c14be9f09bb
+      internalID: -356721465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: escaleras_17
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 16
+        width: 166
+        height: 349
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 01e1b3681fcf23a41bcd72e02adfdde6
+      internalID: -1429253298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -106,7 +426,26 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      escaleras_0: -523561194
+      escaleras_1: -975365741
+      escaleras_10: -1961322648
+      escaleras_11: -1347039417
+      escaleras_12: -655581645
+      escaleras_13: -219776305
+      escaleras_14: -1561378533
+      escaleras_15: -1838517067
+      escaleras_16: -356721465
+      escaleras_17: -1429253298
+      escaleras_18: -1912243817
+      escaleras_2: -57350012
+      escaleras_3: 664661776
+      escaleras_4: 1286715757
+      escaleras_5: -611164797
+      escaleras_6: 281008153
+      escaleras_7: -574221247
+      escaleras_8: -2128565129
+      escaleras_9: 1586622456
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
