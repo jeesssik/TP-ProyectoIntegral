@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LanchaPatrulla : MonoBehaviour
+public class LanchaPatrullaIzquierda : MonoBehaviour
 {
     [Header("Patrulla horizontal")]
     public float limiteIzquierdo = -5f;
@@ -15,18 +15,16 @@ public class LanchaPatrulla : MonoBehaviour
     public float amplitudRotacion = 2f;
     public float velocidadRotacion = 1.3f;
 
-    public int direccion = 1;
+    public int direccion = -1;
 
     private float yInicial;
     private Quaternion rotacionInicial;
-
     private SpriteRenderer spriteRenderer;
 
     void Start()
     {
         yInicial = transform.position.y;
         rotacionInicial = transform.rotation;
-
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -59,32 +57,24 @@ public class LanchaPatrulla : MonoBehaviour
     void Flotar()
     {
         float movimientoY =
-            Mathf.Sin(Time.time * velocidadVertical)
-            * amplitudVertical;
+            Mathf.Sin(Time.time * velocidadVertical) * amplitudVertical;
 
         Vector3 posicion = transform.position;
-
-        posicion.y =
-            yInicial + movimientoY;
-
+        posicion.y = yInicial + movimientoY;
         transform.position = posicion;
 
         float rotacionZ =
-            Mathf.Sin(
-                Time.time * velocidadRotacion
-            ) * amplitudRotacion;
+            Mathf.Sin(Time.time * velocidadRotacion) * amplitudRotacion;
 
         transform.rotation =
-            rotacionInicial *
-            Quaternion.Euler(0, 0, rotacionZ);
+            rotacionInicial * Quaternion.Euler(0, 0, rotacionZ);
     }
 
     void GirarLancha()
     {
         if (spriteRenderer != null)
         {
-            spriteRenderer.flipX =
-                direccion == -1;
+            spriteRenderer.flipX = direccion == -1;
         }
     }
 }
