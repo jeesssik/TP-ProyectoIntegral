@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: bc6c3e8c9924c4c939452af53b2eb67e
+guid: 943edffa8d0644f028507a7a4910571d
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,55 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: olasv2_0
+      name: topWave_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 561
-        width: 483
-        height: 442
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 1, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ba064b8a8c5d141e891199ed8a0dc9e4
-      internalID: -903785617
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: olasv2_1
-      rect:
-        serializedVersion: 2
-        x: 524
-        y: 562
-        width: 483
-        height: 437
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 1, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0f38a4542632441f09d7223816844214
-      internalID: 465930771
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: olasv2_2
-      rect:
-        serializedVersion: 2
-        x: 1035
-        y: 564
-        width: 483
-        height: 444
+        x: 888
+        y: 255
+        width: 229
+        height: 340
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,20 +111,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 17ca21aa7df174625b28ee49d1a2dd8d
-      internalID: 772065526
+      spriteID: 211108658f9db46879dd10ed891eb63d
+      internalID: 61322049
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: olasv2_3
+      name: topWave_1
       rect:
         serializedVersion: 2
-        x: 19
-        y: 111
-        width: 483
-        height: 405
+        x: 1123
+        y: 256
+        width: 229
+        height: 340
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -174,20 +132,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9cb42651add434d228753ee8470b575d
-      internalID: 633112025
+      spriteID: a93667e00cbe64b328912130ae18688c
+      internalID: -1419052894
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: olasv2_4
+      name: topWave_2
       rect:
         serializedVersion: 2
-        x: 527
-        y: 113
-        width: 483
-        height: 402
+        x: 1360
+        y: 255
+        width: 202
+        height: 340
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -195,20 +153,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 83cb02f8caf37420da3a2ac2ae9efc68
-      internalID: 2123996639
+      spriteID: e7a38847cee3847c990496733d341f06
+      internalID: 983569036
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: olasv2_5
+      name: topWave_3
       rect:
         serializedVersion: 2
-        x: 1035
-        y: 109
-        width: 483
-        height: 404
+        x: 1563
+        y: 256
+        width: 202
+        height: 340
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,8 +174,92 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b689e2b1b46e843429466d88063a70af
-      internalID: -1749034130
+      spriteID: d8f6330bc3c3342d1bd41ed67c13c0ed
+      internalID: -819352345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: topWave_4
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 256
+        width: 229
+        height: 340
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a0c53e7e3005422d9af9becc3df2193
+      internalID: 1539804106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: topWave_5
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 257
+        width: 229
+        height: 340
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c88911bf614184bf09386dc74b5dc840
+      internalID: 377259870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: topWave_6
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 256
+        width: 229
+        height: 340
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aef8d6095818d4a5c8ce4eaa1cfcf768
+      internalID: -1862537334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: topWave_7
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 255
+        width: 212
+        height: 340
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce478b185c1304276bb1c10276eb1997
+      internalID: 1931489360
       vertices: []
       indices: 
       edges: []
@@ -233,12 +275,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      olasv2_0: -903785617
-      olasv2_1: 465930771
-      olasv2_2: 772065526
-      olasv2_3: 633112025
-      olasv2_4: 2123996639
-      olasv2_5: -1749034130
+      topWave_0: 61322049
+      topWave_1: -1419052894
+      topWave_2: 983569036
+      topWave_3: -819352345
+      topWave_4: 1539804106
+      topWave_5: 377259870
+      topWave_6: -1862537334
+      topWave_7: 1931489360
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
