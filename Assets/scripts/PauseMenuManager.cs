@@ -12,7 +12,10 @@ public class PauseMenuManager : MonoBehaviour
 
     [Header("Optional")]
     [SerializeField] private GameObject pauseCanvas;
+    [SerializeField] private GameObject controlsCanvas;
     [SerializeField] private GameObject optionsCanvas;
+    [SerializeField] private GameObject controlsMapCanvas;
+    [SerializeField] private GameObject audioCanvas;
 
     private bool isPaused;
     private bool listenersBound;
@@ -20,7 +23,7 @@ public class PauseMenuManager : MonoBehaviour
     private void Awake()
     {
         ResolveReferences();
-        HideAllPauseUIs();
+        HideAllManagedCanvases();
         Time.timeScale = 1f;
     }
 
@@ -31,17 +34,36 @@ public class PauseMenuManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        if (!Input.GetKeyDown(KeyCode.Escape) && !Input.GetKeyDown(KeyCode.P))
         {
-            if (optionsCanvas != null && optionsCanvas.activeSelf)
-            {
-                ShowPauseMenu();
-            }
-            else
-            {
-                TogglePause();
-            }
+            return;
         }
+
+        if (IsActive(audioCanvas) || IsActive(controlsMapCanvas))
+        {
+            ShowControlsCanvas();
+            return;
+        }
+
+        if (IsActive(controlsCanvas))
+        {
+            ShowOptionsCanvas();
+            return;
+        }
+
+        if (IsActive(GetOptionsCanvas()))
+        {
+            ShowPauseMenu();
+            return;
+        }
+
+        if (IsActive(pauseCanvas))
+        {
+            TogglePause();
+            return;
+        }
+
+        ShowPauseMenu();
     }
 
     public void TogglePause()
@@ -66,12 +88,8 @@ public class PauseMenuManager : MonoBehaviour
 
         isPaused = true;
         Time.timeScale = 0f;
+        HideAllManagedCanvases();
         pauseCanvas.SetActive(true);
-
-        if (optionsCanvas != null)
-        {
-            optionsCanvas.SetActive(false);
-        }
     }
 
     public void ResumeGame()
@@ -80,30 +98,20 @@ public class PauseMenuManager : MonoBehaviour
 
         isPaused = false;
         Time.timeScale = 1f;
-
-        if (pauseCanvas != null)
-        {
-            pauseCanvas.SetActive(false);
-        }
-
-        if (optionsCanvas != null)
-        {
-            optionsCanvas.SetActive(false);
-        }
+        HideAllManagedCanvases();
     }
 
     public void ShowPauseMenu()
     {
         ResolveReferences();
 
+        isPaused = true;
+        Time.timeScale = 0f;
+        HideAllManagedCanvases();
+
         if (pauseCanvas != null)
         {
             pauseCanvas.SetActive(true);
-        }
-
-        if (optionsCanvas != null)
-        {
-            optionsCanvas.SetActive(false);
         }
     }
 
@@ -111,22 +119,76 @@ public class PauseMenuManager : MonoBehaviour
     {
         ResolveReferences();
 
-        if (optionsCanvas == null)
+        if (GetOptionsCanvas() == null)
         {
             return;
         }
 
-        if (pauseCanvas != null)
+        isPaused = true;
+        Time.timeScale = 0f;
+        HideAllManagedCanvases();
+        SetCanvasActive(GetOptionsCanvas(), true);
+    }
+
+    public void ShowControlsCanvas()
+    {
+        ResolveReferences();
+
+        GameObject canvas = controlsCanvas;
+        if (canvas == null)
         {
-            pauseCanvas.SetActive(false);
+            return;
         }
 
-        optionsCanvas.SetActive(true);
+        isPaused = true;
+        Time.timeScale = 0f;
+        HideAllManagedCanvases();
+        canvas.SetActive(true);
+    }
+
+    public void ShowControlsMapCanvas()
+    {
+        ResolveReferences();
+
+        if (controlsMapCanvas == null)
+        {
+            return;
+        }
+
+        isPaused = true;
+        Time.timeScale = 0f;
+        HideAllManagedCanvases();
+        controlsMapCanvas.SetActive(true);
+    }
+
+    public void ShowAudioCanvas()
+    {
+        ResolveReferences();
+
+        if (audioCanvas == null)
+        {
+            return;
+        }
+
+        isPaused = true;
+        Time.timeScale = 0f;
+        HideAllManagedCanvases();
+        audioCanvas.SetActive(true);
     }
 
     public void ReturnToPauseMenu()
     {
         ShowPauseMenu();
+    }
+
+    public void ReturnToOptionsMenu()
+    {
+        ShowOptionsCanvas();
+    }
+
+    public void ReturnToControlsMenu()
+    {
+        ShowControlsCanvas();
     }
 
     public void RestartLevel()
@@ -159,9 +221,24 @@ public class PauseMenuManager : MonoBehaviour
             pauseCanvas = FindSceneObjectByName(pauseCanvasName);
         }
 
+        if (controlsCanvas == null)
+        {
+            controlsCanvas = FindAnyKnownControlsCanvas();
+        }
+
         if (optionsCanvas == null)
         {
-            optionsCanvas = FindAnyKnownOptionsCanvas();
+            optionsCanvas = controlsCanvas != null ? controlsCanvas : FindAnyKnownOptionsCanvas();
+        }
+
+        if (controlsMapCanvas == null)
+        {
+            controlsMapCanvas = FindAnyKnownControlsMapCanvas();
+        }
+
+        if (audioCanvas == null)
+        {
+            audioCanvas = FindAnyKnownAudioCanvas();
         }
     }
 
@@ -172,7 +249,52 @@ public class PauseMenuManager : MonoBehaviour
             return;
         }
 
-        Button[] buttons = pauseCanvas.GetComponentsInChildren<Button>(true);
+        BindCanvasButtons(
+            pauseCanvas,
+            backAction: null,
+            mapAction: ShowOptionsCanvas,
+            audioAction: null,
+            isPauseMenu: true);
+
+        BindCanvasButtons(
+            GetOptionsCanvas(),
+            backAction: ReturnToPauseMenu,
+            mapAction: ShowControlsCanvas,
+            audioAction: ShowAudioCanvas,
+            isPauseMenu: false);
+
+        BindCanvasButtons(
+            controlsCanvas,
+            backAction: ReturnToOptionsMenu,
+            mapAction: ShowControlsMapCanvas,
+            audioAction: ShowAudioCanvas,
+            isPauseMenu: false);
+
+        BindCanvasButtons(
+            controlsMapCanvas,
+            backAction: ReturnToControlsMenu,
+            mapAction: null,
+            audioAction: null,
+            isPauseMenu: false);
+
+        BindCanvasButtons(
+            audioCanvas,
+            backAction: ReturnToControlsMenu,
+            mapAction: null,
+            audioAction: null,
+            isPauseMenu: false);
+
+        listenersBound = true;
+    }
+
+    private void BindCanvasButtons(GameObject canvas, Action backAction, Action mapAction, Action audioAction, bool isPauseMenu)
+    {
+        if (canvas == null)
+        {
+            return;
+        }
+
+        Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
         foreach (Button button in buttons)
         {
             if (button == null)
@@ -182,6 +304,44 @@ public class PauseMenuManager : MonoBehaviour
 
             string label = GetButtonLabel(button);
             if (string.IsNullOrEmpty(label))
+            {
+                continue;
+            }
+
+            if (label.Contains("volver") || label.Contains("atras") || label.Contains("back") || label.Contains("regresar"))
+            {
+                button.onClick.RemoveAllListeners();
+                if (backAction != null)
+                {
+                    button.onClick.AddListener(() => backAction());
+                }
+
+                continue;
+            }
+
+            if (!isPauseMenu && (label.Contains("mapa") || label.Contains("control")))
+            {
+                if (mapAction != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    button.onClick.AddListener(() => mapAction());
+                }
+
+                continue;
+            }
+
+            if (label.Contains("audio") || label.Contains("sonido"))
+            {
+                if (audioAction != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    button.onClick.AddListener(() => audioAction());
+                }
+
+                continue;
+            }
+
+            if (!isPauseMenu)
             {
                 continue;
             }
@@ -196,7 +356,7 @@ public class PauseMenuManager : MonoBehaviour
             {
                 button.onClick.AddListener(RestartLevel);
             }
-            else if (label.Contains("opcion") || label.Contains("option"))
+            else if (label.Contains("opcion") || label.Contains("option") || label.Contains("control") || label.Contains("ajuste") || label.Contains("config"))
             {
                 button.onClick.AddListener(ShowOptionsCanvas);
             }
@@ -209,47 +369,39 @@ public class PauseMenuManager : MonoBehaviour
                 button.onClick.AddListener(QuitGame);
             }
         }
-
-        if (optionsCanvas != null)
-        {
-            Button[] optionsButtons = optionsCanvas.GetComponentsInChildren<Button>(true);
-            foreach (Button button in optionsButtons)
-            {
-                if (button == null)
-                {
-                    continue;
-                }
-
-                string label = GetButtonLabel(button);
-                if (string.IsNullOrEmpty(label))
-                {
-                    continue;
-                }
-
-                if (label.Contains("volver") || label.Contains("atras") || label.Contains("back") || label.Contains("regresar"))
-                {
-                    button.onClick.RemoveAllListeners();
-                    button.onClick.AddListener(ReturnToPauseMenu);
-                }
-            }
-        }
-
-        listenersBound = true;
     }
 
-    private void HideAllPauseUIs()
+    private void HideAllManagedCanvases()
     {
-        if (pauseCanvas != null)
-        {
-            pauseCanvas.SetActive(false);
-        }
+        SetCanvasActive(pauseCanvas, false);
+        SetCanvasActive(GetOptionsCanvas(), false);
+        SetCanvasActive(controlsCanvas, false);
+        SetCanvasActive(optionsCanvas, false);
+        SetCanvasActive(controlsMapCanvas, false);
+        SetCanvasActive(audioCanvas, false);
+    }
 
-        if (optionsCanvas != null)
-        {
-            optionsCanvas.SetActive(false);
-        }
+    private GameObject GetOptionsCanvas()
+    {
+        return optionsCanvas;
+    }
 
-        isPaused = false;
+    private GameObject GetControlsCanvas()
+    {
+        return controlsCanvas != null ? controlsCanvas : optionsCanvas;
+    }
+
+    private static void SetCanvasActive(GameObject canvas, bool active)
+    {
+        if (canvas != null)
+        {
+            canvas.SetActive(active);
+        }
+    }
+
+    private static bool IsActive(GameObject canvas)
+    {
+        return canvas != null && canvas.activeSelf;
     }
 
     private static string GetButtonLabel(Button button)
@@ -299,6 +451,79 @@ public class PauseMenuManager : MonoBehaviour
             "Canvas-Opt",
             "OptionsCanvas",
             "Opciones"
+        };
+
+        foreach (string candidate in candidates)
+        {
+            GameObject found = FindSceneObjectByName(candidate);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private static GameObject FindAnyKnownControlsCanvas()
+    {
+        string[] candidates =
+        {
+            "CanvasControls",
+            "Canvas-Controls",
+            "CanvasControles",
+            "Canvas-Controles",
+            "ControlsCanvas",
+            "Controles",
+            "Controls"
+        };
+
+        foreach (string candidate in candidates)
+        {
+            GameObject found = FindSceneObjectByName(candidate);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private static GameObject FindAnyKnownControlsMapCanvas()
+    {
+        string[] candidates =
+        {
+            "CanvasControlsMap",
+            "Canvas-Controls-Map",
+            "CanvasControlesMapa",
+            "MapaControles",
+            "ControlsMapCanvas"
+        };
+
+        foreach (string candidate in candidates)
+        {
+            GameObject found = FindSceneObjectByName(candidate);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private static GameObject FindAnyKnownAudioCanvas()
+    {
+        string[] candidates =
+        {
+            "AudioCanvas",
+            "CanvasAudio",
+            "Canvas-Audio",
+            "SoundOptionsCanvas",
+            "CanvasOpt",
+            "Canvas-Opt",
+            "OpcionesAudio"
         };
 
         foreach (string candidate in candidates)
