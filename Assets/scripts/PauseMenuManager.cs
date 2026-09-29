@@ -39,7 +39,13 @@ public class PauseMenuManager : MonoBehaviour
             return;
         }
 
-        if (IsActive(audioCanvas) || IsActive(controlsMapCanvas))
+        if (IsActive(audioCanvas))
+        {
+            ShowOptionsCanvas();
+            return;
+        }
+
+        if (IsActive(controlsMapCanvas))
         {
             ShowControlsCanvas();
             return;
@@ -228,7 +234,7 @@ public class PauseMenuManager : MonoBehaviour
 
         if (optionsCanvas == null)
         {
-            optionsCanvas = controlsCanvas != null ? controlsCanvas : FindAnyKnownOptionsCanvas();
+            optionsCanvas = FindAnyKnownOptionsCanvas();
         }
 
         if (controlsMapCanvas == null)
@@ -256,6 +262,11 @@ public class PauseMenuManager : MonoBehaviour
             audioAction: null,
             isPauseMenu: true);
 
+        EnsureBackButton(GetOptionsCanvas(), ReturnToPauseMenu);
+        EnsureBackButton(controlsCanvas, ReturnToOptionsMenu);
+        EnsureBackButton(controlsMapCanvas, ReturnToControlsMenu);
+        EnsureBackButton(audioCanvas, ReturnToOptionsMenu);
+
         BindCanvasButtons(
             GetOptionsCanvas(),
             backAction: ReturnToPauseMenu,
@@ -279,12 +290,71 @@ public class PauseMenuManager : MonoBehaviour
 
         BindCanvasButtons(
             audioCanvas,
-            backAction: ReturnToControlsMenu,
+            backAction: ReturnToOptionsMenu,
             mapAction: null,
             audioAction: null,
             isPauseMenu: false);
 
         listenersBound = true;
+    }
+
+    private static void EnsureBackButton(GameObject canvas, Action backAction)
+    {
+        if (canvas == null || HasBackButton(canvas))
+        {
+            return;
+        }
+
+        GameObject buttonObject = new GameObject("Button-Volver", typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rectTransform = buttonObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0f, 1f);
+        rectTransform.anchorMax = new Vector2(0f, 1f);
+        rectTransform.pivot = new Vector2(0f, 1f);
+        rectTransform.anchoredPosition = new Vector2(32f, -32f);
+        rectTransform.sizeDelta = new Vector2(180f, 56f);
+
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = new Color(0.12f, 0.12f, 0.12f, 0.9f);
+
+        TMP_Text label = CreateBackButtonLabel(buttonObject.transform);
+        label.text = "Volver";
+
+        Button button = buttonObject.GetComponent<Button>();
+        button.onClick.AddListener(() => backAction());
+    }
+
+    private static bool HasBackButton(GameObject canvas)
+    {
+        Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
+        foreach (Button button in buttons)
+        {
+            if (button != null && IsBackButtonLabel(GetButtonLabel(button)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static TMP_Text CreateBackButtonLabel(Transform parent)
+    {
+        GameObject labelObject = new GameObject("Text-Volver", typeof(RectTransform));
+        labelObject.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = labelObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI label = labelObject.AddComponent<TextMeshProUGUI>();
+        label.alignment = TextAlignmentOptions.Center;
+        label.fontSize = 24f;
+        label.color = Color.white;
+        return label;
     }
 
     private void BindCanvasButtons(GameObject canvas, Action backAction, Action mapAction, Action audioAction, bool isPauseMenu)
@@ -308,7 +378,7 @@ public class PauseMenuManager : MonoBehaviour
                 continue;
             }
 
-            if (label.Contains("volver") || label.Contains("atras") || label.Contains("back") || label.Contains("regresar"))
+            if (IsBackButtonLabel(label))
             {
                 button.onClick.RemoveAllListeners();
                 if (backAction != null)
@@ -415,6 +485,11 @@ public class PauseMenuManager : MonoBehaviour
         return text.text.Trim().ToLowerInvariant();
     }
 
+    private static bool IsBackButtonLabel(string label)
+    {
+        return label.Contains("volver") || label.Contains("atras") || label.Contains("back") || label.Contains("regresar");
+    }
+
     private static GameObject FindSceneObjectByName(string objectName)
     {
         if (string.IsNullOrWhiteSpace(objectName))
@@ -443,6 +518,7 @@ public class PauseMenuManager : MonoBehaviour
     {
         string[] candidates =
         {
+            "Canvas-Config",
             "Canvas-Opciones",
             "CanvasOpciones",
             "Canvas-Options",
@@ -517,12 +593,10 @@ public class PauseMenuManager : MonoBehaviour
     {
         string[] candidates =
         {
+            "Canvas-Audio",
             "AudioCanvas",
             "CanvasAudio",
-            "Canvas-Audio",
             "SoundOptionsCanvas",
-            "CanvasOpt",
-            "Canvas-Opt",
             "OpcionesAudio"
         };
 
