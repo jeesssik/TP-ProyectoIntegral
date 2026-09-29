@@ -8221,6 +8221,9 @@ MonoBehaviour:
   optionsCanvas: {fileID: 0}
   controlsMapCanvas: {fileID: 0}
   audioCanvas: {fileID: 0}
+  backButtonSprite: {fileID: -382815824, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
+  backButtonHighlightedSprite: {fileID: 996451084, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
+  backButtonPressedSprite: {fileID: 214805846, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
 --- !u!1 &1005820488
 GameObject:
   m_ObjectHideFlags: 0
@@ -12277,6 +12280,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 7914783717020786624, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
+    - {fileID: 6185443685661311529, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5296122468365443589, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       insertIndex: 0

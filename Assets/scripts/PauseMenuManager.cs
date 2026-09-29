@@ -17,6 +17,11 @@ public class PauseMenuManager : MonoBehaviour
     [SerializeField] private GameObject controlsMapCanvas;
     [SerializeField] private GameObject audioCanvas;
 
+    [Header("Back Button")]
+    [SerializeField] private Sprite backButtonSprite;
+    [SerializeField] private Sprite backButtonHighlightedSprite;
+    [SerializeField] private Sprite backButtonPressedSprite;
+
     private bool isPaused;
     private bool listenersBound;
 
@@ -298,7 +303,7 @@ public class PauseMenuManager : MonoBehaviour
         listenersBound = true;
     }
 
-    private static void EnsureBackButton(GameObject canvas, Action backAction)
+    private void EnsureBackButton(GameObject canvas, Action backAction)
     {
         if (canvas == null || HasBackButton(canvas))
         {
@@ -309,19 +314,22 @@ public class PauseMenuManager : MonoBehaviour
         buttonObject.transform.SetParent(canvas.transform, false);
 
         RectTransform rectTransform = buttonObject.GetComponent<RectTransform>();
-        rectTransform.anchorMin = new Vector2(0f, 1f);
-        rectTransform.anchorMax = new Vector2(0f, 1f);
-        rectTransform.pivot = new Vector2(0f, 1f);
-        rectTransform.anchoredPosition = new Vector2(32f, -32f);
-        rectTransform.sizeDelta = new Vector2(180f, 56f);
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = new Vector2(637f, -385f);
+        rectTransform.sizeDelta = new Vector2(331f, 90f);
 
         Image image = buttonObject.GetComponent<Image>();
-        image.color = new Color(0.12f, 0.12f, 0.12f, 0.9f);
-
-        TMP_Text label = CreateBackButtonLabel(buttonObject.transform);
-        label.text = "Volver";
+        image.sprite = backButtonSprite;
+        image.color = Color.white;
 
         Button button = buttonObject.GetComponent<Button>();
+        button.spriteState = new SpriteState
+        {
+            highlightedSprite = backButtonHighlightedSprite,
+            pressedSprite = backButtonPressedSprite
+        };
         button.onClick.AddListener(() => backAction());
     }
 
