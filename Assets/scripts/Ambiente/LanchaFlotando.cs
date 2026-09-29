@@ -10,8 +10,8 @@ public class LanchaFlotando : MonoBehaviour
     public float amplitudRotacion = 2f;
     public float velocidadRotacion = 1.2f;
 
-    private Vector3 posicionInicial;
-    private Quaternion rotacionInicial;
+    Vector3 posicionInicial;
+    Quaternion rotacionInicial;
 
     void Start()
     {
@@ -21,19 +21,7 @@ public class LanchaFlotando : MonoBehaviour
 
     void Update()
     {
-        // Subir y bajar
-        float movimientoY =
-            Mathf.Sin(Time.time * velocidadY) * amplitudY;
-
-        transform.position =
-            posicionInicial + new Vector3(0, movimientoY, 0);
-
-        // Inclinar suavemente
-        float rotacionZ =
-            Mathf.Sin(Time.time * velocidadRotacion)
-            * amplitudRotacion;
-
-        transform.rotation =
-            rotacionInicial * Quaternion.Euler(0, 0, rotacionZ);
+        transform.position = posicionInicial + new Vector3(0f, FlotacionAgua.OffsetY(amplitudY, velocidadY), 0f);
+        transform.rotation = FlotacionAgua.Rotacion(rotacionInicial, amplitudRotacion, velocidadRotacion);
     }
 }

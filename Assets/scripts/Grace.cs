@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Grace : MonoBehaviour
 {
@@ -14,99 +15,153 @@ public class Grace : MonoBehaviour
     public float radioSuelo = 0.15f;
     public LayerMask capaSuelo;
 
-    private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
-    private Animator animator;
+    [Header("Ola / muerte")]
+    public Vector2 impulsoOla = new Vector2(2.2f, 5.8f);
+    public float yMuerteMar = -7f;
 
-    private float movimiento;
-    private bool estaEnSuelo;
-    private bool estabaEnSuelo;
-    private bool estaCorriendo;
+    Rigidbody2D rb;
+    SpriteRenderer spriteRenderer;
+    Animator animator;
+    Collider2D colision;
+
+    float movimiento;
+    bool estaEnSuelo;
+    bool estabaEnSuelo;
+    bool estaCorriendo;
+    bool controlBloqueado;
+    bool yaMurio;
+
+    public bool EstaCorriendo => estaCorriendo;
+    public bool EstaEnElAire => !estaEnSuelo;
+
+    public bool EstaFueraDelAlcanceDeLaOla(float xCuandoEmpezoLaOla, float distanciaEsquivaAtras)
+    {
+        if (controlBloqueado)
+            return false;
+
+        if (transform.position.x < xCuandoEmpezoLaOla - distanciaEsquivaAtras)
+            return true;
+
+        bool vaAtras =
+            (rb != null && rb.velocity.x < -0.35f) ||
+            EntradaJuego.Horizontal < -0.1f;
+
+        return !estaEnSuelo && vaAtras;
+    }
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        colision = GetComponent<Collider2D>();
 
-        estaEnSuelo = Physics2D.OverlapCircle(
-            groundCheck.position,
-            radioSuelo,
-            capaSuelo
-        );
+        estaEnSuelo = TocaSuelo() && rb.velocity.y <= 0.1f;
         estabaEnSuelo = estaEnSuelo;
     }
 
     void Update()
     {
-        movimiento = Input.GetAxisRaw("Horizontal");
-
-        estaCorriendo =
-            Input.GetKey(KeyCode.LeftShift) ||
-            Input.GetKey(KeyCode.RightShift);
-
-        // DETECTAR SUELO
-        bool tocaSuelo = Physics2D.OverlapCircle(
-            groundCheck.position,
-            radioSuelo,
-            capaSuelo
-        );
-
-        estaEnSuelo = tocaSuelo && rb.velocity.y <= 0.1f;
-
-        // DETECTAR ATERRIZAJE EXACTO
-        if (!estabaEnSuelo && estaEnSuelo)
+        if (transform.position.y < yMuerteMar)
         {
-            animator.SetTrigger("Land");
-
-            // Si al aterrizar NO hay entrada del jugador, frenar en seco la inercia
-            if (movimiento == 0)
-            {
-                rb.velocity = new Vector2(0f, rb.velocity.y);
-            }
+            MorirPorCaidaAlMar();
+            return;
         }
 
-        // SALTO
-        if (Input.GetKeyDown(KeyCode.Space) && estaEnSuelo)
-        {
-            animator.SetTrigger("Jump");
+        if (controlBloqueado)
+            return;
 
-            rb.velocity = new Vector2(
-                rb.velocity.x,
-                fuerzaSalto
-            );
+        movimiento = EntradaJuego.Horizontal;
+        estaCorriendo = EntradaJuego.Corre;
 
-            estaEnSuelo = false;
-        }
-
-        // CONTROL DE ANIMADOR (Asegura 0 absoluto si no hay Input)
-        float speedParam = (movimiento != 0) ? Mathf.Abs(movimiento) : 0f;
-        animator.SetFloat("Speed", speedParam);
-
-        animator.SetBool("IsGrounded", estaEnSuelo);
-        animator.SetBool("IsRunning", estaCorriendo && movimiento != 0);
-        animator.SetFloat("VerticalSpeed", rb.velocity.y);
-
-        // GIRAR PERSONAJE
-        if (movimiento > 0)
-        {
-            spriteRenderer.flipX = false;
-        }
-        else if (movimiento < 0)
-        {
-            spriteRenderer.flipX = true;
-        }
+        ActualizarSuelo();
+        IntentarSaltar();
+        ActualizarAnimacion();
+        ActualizarOrientacion();
 
         estabaEnSuelo = estaEnSuelo;
     }
 
     void FixedUpdate()
     {
-        float velocidadActual = estaCorriendo ? velocidadCorrer : velocidadCaminar;
+        if (controlBloqueado)
+            return;
 
-        rb.velocity = new Vector2(
-            movimiento * velocidadActual,
-            rb.velocity.y
-        );
+        float velocidadActual = estaCorriendo ? velocidadCorrer : velocidadCaminar;
+        rb.velocity = new Vector2(movimiento * velocidadActual, rb.velocity.y);
+    }
+
+    bool TocaSuelo()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, radioSuelo, capaSuelo);
+    }
+
+    void ActualizarSuelo()
+    {
+        estaEnSuelo = TocaSuelo() && rb.velocity.y <= 0.1f;
+
+        if (estabaEnSuelo || !estaEnSuelo)
+            return;
+
+        animator.SetTrigger("Land");
+
+        if (movimiento == 0f)
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+    }
+
+    void IntentarSaltar()
+    {
+        if (!EntradaJuego.Salto || !estaEnSuelo)
+            return;
+
+        animator.SetTrigger("Jump");
+        rb.velocity = new Vector2(rb.velocity.x, fuerzaSalto);
+        estaEnSuelo = false;
+    }
+
+    void ActualizarAnimacion()
+    {
+        float speedParam = movimiento != 0f ? Mathf.Abs(movimiento) : 0f;
+        animator.SetFloat("Speed", speedParam);
+        animator.SetBool("IsGrounded", estaEnSuelo);
+        animator.SetBool("IsRunning", estaCorriendo && movimiento != 0f);
+        animator.SetFloat("VerticalSpeed", rb.velocity.y);
+    }
+
+    void ActualizarOrientacion()
+    {
+        if (movimiento > 0f)
+            spriteRenderer.flipX = false;
+        else if (movimiento < 0f)
+            spriteRenderer.flipX = true;
+    }
+
+    public void EmpujadaPorOla()
+    {
+        if (controlBloqueado)
+            return;
+
+        controlBloqueado = true;
+        movimiento = 0f;
+
+        if (colision != null)
+            colision.enabled = false;
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Jump");
+            animator.SetBool("IsGrounded", false);
+        }
+
+        rb.velocity = impulsoOla;
+    }
+
+    void MorirPorCaidaAlMar()
+    {
+        if (yaMurio)
+            return;
+
+        yaMurio = true;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

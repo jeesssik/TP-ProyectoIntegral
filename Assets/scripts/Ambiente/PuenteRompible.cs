@@ -5,51 +5,211 @@ public class PuenteRompible : MonoBehaviour
     [Header("Referencias")]
     public Animator animator;
     public BoxCollider2D colliderPuente;
+    public SpriteRenderer spriteRenderer;
+    public Sprite spriteRoto;
 
-    [Header("Collider durante la rotura")]
-    public Vector2 offsetNormal;
-    public Vector2 sizeNormal;
+    [Header("Detección")]
+    public float umbralImpactoSalto = -2f;
+    public float tiempoHastaColapso = 0.2f;
 
-    public Vector2 offsetRoto;
-    public Vector2 sizeRoto;
+    [Header("Collider curvo")]
+    [Tooltip("Cuánto baja el centro de las tablas respecto al puente sano.")]
+    public float profundidadCurva = 0.58f;
+    public float radioBorde = 0.08f;
 
-    [Header("Tiempos")]
-    public float tiempoHastaDesnivel = 0.35f;
-    public float tiempoHastaCaida = 0.8f;
+    private bool agrietado;
+    private bool colapsado;
+    private Grace jugadorSobrePuente;
+    private EdgeCollider2D colliderCurvo;
 
-    private bool activado = false;
-
-    void Start()
+    void Awake()
     {
-        if (colliderPuente != null)
-        {
-            offsetNormal = colliderPuente.offset;
-            sizeNormal = colliderPuente.size;
-        }
+        if (colliderPuente == null)
+            colliderPuente = GetComponent<BoxCollider2D>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        // El animator pisa el sprite sano de puenteTablas; lo apagamos hasta que haga falta.
+        if (animator != null)
+            animator.enabled = false;
+
+        colliderCurvo = GetComponent<EdgeCollider2D>();
+        if (colliderCurvo == null)
+            colliderCurvo = gameObject.AddComponent<EdgeCollider2D>();
+
+        colliderCurvo.enabled = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (activado) return;
+        EvaluarJugador(collision);
+    }
 
-        if (collision.gameObject.CompareTag("Player"))
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        EvaluarJugador(collision);
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.GetComponent<Grace>() == jugadorSobrePuente)
+            jugadorSobrePuente = null;
+    }
+
+    void Update()
+    {
+        if (colapsado || jugadorSobrePuente == null)
+            return;
+
+        if (DebeColapsar(jugadorSobrePuente, 0f) || EntradaJuego.Salto)
+            IniciarColapso();
+    }
+
+    void EvaluarJugador(Collision2D collision)
+    {
+        if (colapsado)
+            return;
+
+        Grace grace = collision.gameObject.GetComponent<Grace>();
+        if (grace == null || !EstaPisandoDesdeArriba(collision))
+            return;
+
+        jugadorSobrePuente = grace;
+        MostrarRoto();
+
+        float impactoVertical = collision.relativeVelocity.y;
+        if (DebeColapsar(grace, impactoVertical))
+            IniciarColapso();
+    }
+
+    Collider2D ColliderActivo()
+    {
+        if (colliderCurvo != null && colliderCurvo.enabled)
+            return colliderCurvo;
+
+        return colliderPuente;
+    }
+
+    bool EstaPisandoDesdeArriba(Collision2D collision)
+    {
+        Collider2D activo = ColliderActivo();
+        if (activo == null)
+            return true;
+
+        float caraSuperior = activo.bounds.max.y;
+        for (int i = 0; i < collision.contactCount; i++)
         {
-            activado = true;
-            animator.SetTrigger("Romper");
-
-            Invoke(nameof(BajarCollider), tiempoHastaDesnivel);
-            Invoke(nameof(QuitarCollider), tiempoHastaCaida);
+            if (collision.GetContact(i).point.y >= caraSuperior - 0.35f)
+                return true;
         }
+
+        return false;
     }
 
-    void BajarCollider()
+    bool DebeColapsar(Grace grace, float impactoVertical)
     {
-        colliderPuente.offset = offsetRoto;
-        colliderPuente.size = sizeRoto;
+        if (grace.EstaCorriendo && EntradaJuego.HayMovimientoHorizontal)
+            return true;
+
+        if (impactoVertical < umbralImpactoSalto)
+            return true;
+
+        return false;
     }
 
-    void QuitarCollider()
+    void MostrarRoto()
     {
+        if (agrietado)
+            return;
+
+        agrietado = true;
+
+        if (animator != null)
+            animator.enabled = false;
+
+        if (spriteRenderer != null && spriteRoto != null)
+            spriteRenderer.sprite = SpriteAlineadoAlSano(spriteRenderer.sprite, spriteRoto);
+
+        AplicarColliderCurvo();
+    }
+
+    void AplicarColliderCurvo()
+    {
+        if (colliderPuente == null || colliderCurvo == null)
+            return;
+
+        Vector2 offset = colliderPuente.offset;
+        Vector2 size = colliderPuente.size;
+        float yTop = offset.y + size.y * 0.5f - radioBorde;
+        float xMin = offset.x - size.x * 0.5f + 0.12f;
+        float xMax = offset.x + size.x * 0.5f - 0.12f;
+
+        // Perfil de puenteTablas_2: los postes quedan altos y el centro se hunde un poco a la derecha.
+        float[] hundimiento =
+        {
+            0.00f, 0.06f, 0.22f, 0.52f, 0.88f, 1.00f, 0.72f, 0.32f, 0.08f, 0.00f
+        };
+
+        var puntos = new Vector2[hundimiento.Length];
+        for (int i = 0; i < hundimiento.Length; i++)
+        {
+            float t = i / (hundimiento.Length - 1f);
+            puntos[i] = new Vector2(
+                Mathf.Lerp(xMin, xMax, t),
+                yTop - profundidadCurva * hundimiento[i]);
+        }
+
+        colliderCurvo.points = puntos;
+        colliderCurvo.edgeRadius = radioBorde;
         colliderPuente.enabled = false;
+        colliderCurvo.enabled = true;
+    }
+
+    static Sprite SpriteAlineadoAlSano(Sprite sano, Sprite roto)
+    {
+        float pivotY = roto.pivot.y / roto.rect.height;
+
+        // Los cortes del spritesheet no tienen la misma altura; el pivote central
+        // sube el puente roto. Usamos la misma Y de textura que el sprite sano.
+        if (sano != null && sano.texture == roto.texture && roto.rect.height > 0f)
+        {
+            float yTexturaPivoteSano = sano.rect.y + sano.pivot.y;
+            pivotY = (yTexturaPivoteSano - roto.rect.y) / roto.rect.height;
+        }
+
+        return Sprite.Create(
+            roto.texture,
+            roto.rect,
+            new Vector2(0.5f, pivotY),
+            roto.pixelsPerUnit,
+            0,
+            SpriteMeshType.FullRect
+        );
+    }
+
+    void IniciarColapso()
+    {
+        if (colapsado)
+            return;
+
+        colapsado = true;
+        MostrarRoto();
+        Invoke(nameof(Desaparecer), tiempoHastaColapso);
+    }
+
+    void Desaparecer()
+    {
+        if (colliderPuente != null)
+            colliderPuente.enabled = false;
+
+        if (colliderCurvo != null)
+            colliderCurvo.enabled = false;
+
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false;
     }
 }
