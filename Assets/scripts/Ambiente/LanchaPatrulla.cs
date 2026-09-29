@@ -17,16 +17,14 @@ public class LanchaPatrulla : MonoBehaviour
 
     public int direccion = 1;
 
-    private float yInicial;
-    private Quaternion rotacionInicial;
-
-    private SpriteRenderer spriteRenderer;
+    float yInicial;
+    Quaternion rotacionInicial;
+    SpriteRenderer spriteRenderer;
 
     void Start()
     {
         yInicial = transform.position.y;
         rotacionInicial = transform.rotation;
-
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -38,11 +36,7 @@ public class LanchaPatrulla : MonoBehaviour
 
     void MoverHorizontalmente()
     {
-        transform.position +=
-            Vector3.right *
-            direccion *
-            velocidadHorizontal *
-            Time.deltaTime;
+        transform.position += Vector3.right * direccion * velocidadHorizontal * Time.deltaTime;
 
         if (transform.position.x >= limiteDerecho)
         {
@@ -58,33 +52,15 @@ public class LanchaPatrulla : MonoBehaviour
 
     void Flotar()
     {
-        float movimientoY =
-            Mathf.Sin(Time.time * velocidadVertical)
-            * amplitudVertical;
-
         Vector3 posicion = transform.position;
-
-        posicion.y =
-            yInicial + movimientoY;
-
+        posicion.y = yInicial + FlotacionAgua.OffsetY(amplitudVertical, velocidadVertical);
         transform.position = posicion;
-
-        float rotacionZ =
-            Mathf.Sin(
-                Time.time * velocidadRotacion
-            ) * amplitudRotacion;
-
-        transform.rotation =
-            rotacionInicial *
-            Quaternion.Euler(0, 0, rotacionZ);
+        transform.rotation = FlotacionAgua.Rotacion(rotacionInicial, amplitudRotacion, velocidadRotacion);
     }
 
     void GirarLancha()
     {
         if (spriteRenderer != null)
-        {
-            spriteRenderer.flipX =
-                direccion == -1;
-        }
+            spriteRenderer.flipX = direccion == -1;
     }
 }

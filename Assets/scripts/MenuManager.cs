@@ -10,22 +10,20 @@ public class MenuManager : MonoBehaviour
     public GameObject soundOptionsCanvas;
     public GameObject controlsCanvas;
 
-    private GameObject currentCanvas;
-    private GameObject previousCanvas;
-
     [Header("Scene")]
     public string gameSceneName = "Level-1";
 
-    [SerializeField] private AudioClip menuMusic;
+    [SerializeField] AudioClip menuMusic;
 
-    private void Start()
+    GameObject currentCanvas;
+    GameObject previousCanvas;
+
+    void Start()
     {
         ShowMainMenu();
 
         if (AudioManager.Instance != null && menuMusic != null)
-        {
             AudioManager.Instance.PlayMusic(menuMusic);
-        }
     }
 
     public void OnStartButton()
@@ -33,25 +31,10 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene(gameSceneName);
     }
 
-    public void OnOptionsButton()
-    {
-        OpenCanvas(optionsCanvas);
-    }
-
-    public void OnCreditsButton()
-    {
-        OpenCanvas(creditsCanvas);
-    }
-
-    public void OnSoundButton()
-    {
-        OpenCanvas(soundOptionsCanvas);
-    }
-
-    public void OnControlsButton()
-    {
-        OpenCanvas(controlsCanvas);
-    }
+    public void OnOptionsButton() => OpenCanvas(optionsCanvas);
+    public void OnCreditsButton() => OpenCanvas(creditsCanvas);
+    public void OnSoundButton() => OpenCanvas(soundOptionsCanvas);
+    public void OnControlsButton() => OpenCanvas(controlsCanvas);
 
     public void OnExitButton()
     {
@@ -72,33 +55,36 @@ public class MenuManager : MonoBehaviour
 
         currentCanvas.SetActive(false);
         previousCanvas.SetActive(true);
-
         currentCanvas = previousCanvas;
         previousCanvas = mainMenuCanvas;
     }
 
-    private void OpenCanvas(GameObject newCanvas)
+    void OpenCanvas(GameObject newCanvas)
     {
         previousCanvas = currentCanvas;
 
         if (currentCanvas != null)
-        {
             currentCanvas.SetActive(false);
-        }
 
         currentCanvas = newCanvas;
         currentCanvas.SetActive(true);
     }
 
-    private void ShowMainMenu()
+    void ShowMainMenu()
     {
-        mainMenuCanvas.SetActive(true);
-        optionsCanvas.SetActive(false);
-        creditsCanvas.SetActive(false);
-        soundOptionsCanvas.SetActive(false);
-        if (controlsCanvas != null) controlsCanvas.SetActive(false);
+        SetCanvas(mainMenuCanvas, true);
+        SetCanvas(optionsCanvas, false);
+        SetCanvas(creditsCanvas, false);
+        SetCanvas(soundOptionsCanvas, false);
+        SetCanvas(controlsCanvas, false);
 
         currentCanvas = mainMenuCanvas;
         previousCanvas = null;
+    }
+
+    static void SetCanvas(GameObject canvas, bool activo)
+    {
+        if (canvas != null)
+            canvas.SetActive(activo);
     }
 }

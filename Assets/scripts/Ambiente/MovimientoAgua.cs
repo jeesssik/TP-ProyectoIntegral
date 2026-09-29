@@ -6,7 +6,7 @@ public class MovimientoAgua : MonoBehaviour
     public float amplitudY = 0.03f;
     public float velocidadY = 1f;
 
-    private Vector3 posicionInicial;
+    Vector3 posicionInicial;
 
     void Start()
     {
@@ -15,9 +15,9 @@ public class MovimientoAgua : MonoBehaviour
 
     void Update()
     {
-        float x = Time.time * velocidadX;
-        float y = Mathf.Sin(Time.time * velocidadY) * amplitudY;
-
-        transform.position = posicionInicial + new Vector3(x, y, 0);
+        transform.position = posicionInicial + new Vector3(
+            Time.time * velocidadX,
+            FlotacionAgua.OffsetY(amplitudY, velocidadY),
+            0f);
     }
 }
