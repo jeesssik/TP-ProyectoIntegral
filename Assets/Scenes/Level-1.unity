@@ -1173,7 +1173,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 107851365}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: ReturnToOptionsMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &107851365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1867,7 +1879,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 195498677}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: ShowAudioCanvas
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &195498677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4035,7 +4059,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 380675264}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: ShowControlsCanvas
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &380675264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10338,6 +10374,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1151122584 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8420792547972406803, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
+  m_PrefabInstance: {fileID: 1379430683}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1174795407
 GameObject:
   m_ObjectHideFlags: 0
@@ -10984,7 +11025,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1224252345}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: RestartLevel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1224252345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11745,7 +11798,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1296970581}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: QuitGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1296970581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12336,7 +12401,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1364889279}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1364889279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12585,7 +12662,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 104510093629576952, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -29
+      value: -67
       objectReference: {fileID: 0}
     - target: {fileID: 1089121987364780044, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_SizeDelta.y
@@ -12593,7 +12670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1089121987364780044, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 104
+      value: 66
       objectReference: {fileID: 0}
     - target: {fileID: 1212153834272664090, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_Sprite
@@ -12605,7 +12682,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1688784232081661644, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 200
+      value: 162
       objectReference: {fileID: 0}
     - target: {fileID: 1705672659233722827, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_fontSize
@@ -12645,15 +12722,15 @@ PrefabInstance:
       objectReference: {fileID: 879961300, guid: e8dc005c3b43b264d9a778a99c85e31f, type: 3}
     - target: {fileID: 2210381583262437943, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 108
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 2300786319074904004, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 2300786319074904004, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3405377715022852851, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_Sprite
@@ -12665,11 +12742,11 @@ PrefabInstance:
       objectReference: {fileID: 364776007, guid: e8dc005c3b43b264d9a778a99c85e31f, type: 3}
     - target: {fileID: 3746465834854065895, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3746465834854065895, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3945347341131009070, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -12677,19 +12754,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3945347341131009070, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -29
+      value: -67
       objectReference: {fileID: 0}
     - target: {fileID: 4259160233232491946, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4259160233232491946, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4259160233232491946, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4259160233232491946, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_SizeDelta.x
@@ -12697,7 +12774,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5008291888623550222, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -161
+      value: -199
       objectReference: {fileID: 0}
     - target: {fileID: 5296122468365443589, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_Pivot.x
@@ -12833,7 +12910,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6649363283592415941, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -28
+      value: -66
       objectReference: {fileID: 0}
     - target: {fileID: 6693343316305983473, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_Sprite
@@ -12841,15 +12918,15 @@ PrefabInstance:
       objectReference: {fileID: 735488805, guid: e3db21702d8973f428ad2591bf95309e, type: 3}
     - target: {fileID: 6739797508340506235, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6739797508340506235, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6739797508340506235, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6739797508340506235, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_SizeDelta.x
@@ -12861,7 +12938,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6786462834883286585, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 107
+      value: 69
       objectReference: {fileID: 0}
     - target: {fileID: 7176904292211784364, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_fontSize
@@ -12893,15 +12970,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7582521238446120162, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -158
+      value: -196
       objectReference: {fileID: 0}
     - target: {fileID: 7592127165779574462, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7592127165779574462, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7871165163410894175, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_SizeDelta.y
@@ -12909,7 +12986,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7871165163410894175, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -158
+      value: -196
       objectReference: {fileID: 0}
     - target: {fileID: 8133225322828013799, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_Sprite
@@ -12921,19 +12998,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8420792547972406803, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8725419210257897523, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8725419210257897523, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8725419210257897523, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8725419210257897523, guid: 884065a59f49a184fbfab0b084eae315, type: 3}
       propertyPath: m_SizeDelta.x
@@ -13136,7 +13213,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1396866734}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1699398678}
+        m_TargetAssemblyTypeName: PauseMenuManager, Assembly-CSharp
+        m_MethodName: LoadMainMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1396866734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15889,7 +15978,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1639181355
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16401,6 +16490,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1699398677}
+  - component: {fileID: 1699398678}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -16427,6 +16517,28 @@ Transform:
   - {fileID: 85326888}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1699398678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699398676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4a7f51c0e84a0dbbcb5b914f8d27ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseCanvasName: Canvas-Pausa
+  mainMenuSceneName: Menu
+  pauseCanvas: {fileID: 1505909191}
+  controlsCanvas: {fileID: 466088118}
+  optionsCanvas: {fileID: 1639181354}
+  controlsMapCanvas: {fileID: 466088118}
+  audioCanvas: {fileID: 1151122584}
+  backButtonSprite: {fileID: -382815824, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
+  backButtonHighlightedSprite: {fileID: 996451084, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
+  backButtonPressedSprite: {fileID: 214805846, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
 --- !u!1 &1728668180
 GameObject:
   m_ObjectHideFlags: 0
