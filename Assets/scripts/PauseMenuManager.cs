@@ -255,6 +255,8 @@ public class PauseMenuManager : MonoBehaviour
 
     private void BindButtons()
     {
+        ResolveReferences();
+
         if (listenersBound || pauseCanvas == null)
         {
             return;
@@ -424,26 +426,29 @@ public class PauseMenuManager : MonoBehaviour
                 continue;
             }
 
-            button.onClick.RemoveAllListeners();
-
             if (label.Contains("continuar") || label.Contains("continue"))
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(ResumeGame);
             }
             else if (label.Contains("rein") || label.Contains("restart") || label.Contains("volver a empezar"))
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(RestartLevel);
             }
             else if (label.Contains("opcion") || label.Contains("option") || label.Contains("control") || label.Contains("ajuste") || label.Contains("config"))
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(ShowOptionsCanvas);
             }
             else if (label.Contains("menu") && label.Contains("principal") || label == "menu")
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(LoadMainMenu);
             }
             else if (label.Contains("salir") || label.Contains("exit") || label.Contains("quit"))
             {
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(QuitGame);
             }
         }
