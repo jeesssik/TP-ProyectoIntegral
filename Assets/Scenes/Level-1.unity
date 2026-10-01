@@ -16534,7 +16534,7 @@ MonoBehaviour:
   pauseCanvas: {fileID: 1505909191}
   controlsCanvas: {fileID: 466088118}
   optionsCanvas: {fileID: 1639181354}
-  controlsMapCanvas: {fileID: 466088118}
+  controlsMapCanvas: {fileID: 0}
   audioCanvas: {fileID: 1151122584}
   backButtonSprite: {fileID: -382815824, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}
   backButtonHighlightedSprite: {fileID: 996451084, guid: 0a3c519c4b653a644a9fe28402a6fc13, type: 3}

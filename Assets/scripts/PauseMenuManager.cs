@@ -559,6 +559,7 @@ public class PauseMenuManager : MonoBehaviour
         string[] candidates =
         {
             "CanvasControls",
+            "CanvasControls 1",
             "Canvas-Controls",
             "CanvasControles",
             "Canvas-Controles",
