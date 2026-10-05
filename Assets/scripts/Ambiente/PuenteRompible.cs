@@ -7,6 +7,7 @@ public class PuenteRompible : MonoBehaviour
     public BoxCollider2D colliderPuente;
     public SpriteRenderer spriteRenderer;
     public Sprite spriteRoto;
+    public bool soloCasiRompe;
 
     [Header("Detección")]
     public float umbralImpactoSalto = -2f;
@@ -65,7 +66,7 @@ public class PuenteRompible : MonoBehaviour
         if (colapsado || jugadorSobrePuente == null)
             return;
 
-        if (DebeColapsar(jugadorSobrePuente, 0f) || EntradaJuego.Salto)
+        if (!soloCasiRompe && (DebeColapsar(jugadorSobrePuente, 0f) || EntradaJuego.Salto))
             IniciarColapso();
     }
 
@@ -82,7 +83,7 @@ public class PuenteRompible : MonoBehaviour
         MostrarRoto();
 
         float impactoVertical = collision.relativeVelocity.y;
-        if (DebeColapsar(grace, impactoVertical))
+        if (!soloCasiRompe && DebeColapsar(grace, impactoVertical))
             IniciarColapso();
     }
 
@@ -128,10 +129,17 @@ public class PuenteRompible : MonoBehaviour
 
         agrietado = true;
 
-        if (animator != null)
+        if (soloCasiRompe && animator != null)
+        {
+            animator.enabled = true;
+            animator.Play("casiRompe", 0, 0f);
+        }
+        else if (animator != null)
+        {
             animator.enabled = false;
+        }
 
-        if (spriteRenderer != null && spriteRoto != null)
+        if (!soloCasiRompe && spriteRenderer != null && spriteRoto != null)
             spriteRenderer.sprite = SpriteAlineadoAlSano(spriteRenderer.sprite, spriteRoto);
 
         AplicarColliderCurvo();

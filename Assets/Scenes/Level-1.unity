@@ -5415,7 +5415,7 @@ Animator:
   m_GameObject: {fileID: 521281657}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 7d558dec2f7e2884c9c5ae05fa5f078b, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2175016af26614049b2e87f6ee4dde40, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5554,6 +5554,7 @@ MonoBehaviour:
   colliderPuente: {fileID: 521281661}
   spriteRenderer: {fileID: 521281659}
   spriteRoto: {fileID: -1461427818, guid: cf739ac296aeb2b4eb1354681f287f31, type: 3}
+  soloCasiRompe: 1
   umbralImpactoSalto: -2
   tiempoHastaColapso: 0.2
   profundidadCurva: 0.58
@@ -11181,6 +11182,7 @@ MonoBehaviour:
   colliderPuente: {fileID: 1206876010}
   spriteRenderer: {fileID: 1206876013}
   spriteRoto: {fileID: -1461427818, guid: cf739ac296aeb2b4eb1354681f287f31, type: 3}
+  soloCasiRompe: 0
   umbralImpactoSalto: -2
   tiempoHastaColapso: 0.2
   profundidadCurva: 0.58
