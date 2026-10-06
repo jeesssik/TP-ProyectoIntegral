@@ -31,6 +31,7 @@ public class Grace : MonoBehaviour
     bool controlBloqueado;
     bool yaMurio;
     float rotacionInicialMuerte;
+    Vector3 pivotePiesMuerte;
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
@@ -169,15 +170,19 @@ public class Grace : MonoBehaviour
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.gravityScale = 1f;
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
             rb.angularVelocity = 0f;
             rotacionInicialMuerte = rb.rotation;
         }
 
         if (colision != null)
+        {
             colision.enabled = true;
+            Vector3 puntoPies = new Vector3(colision.bounds.center.x, colision.bounds.min.y, transform.position.z);
+            pivotePiesMuerte = transform.InverseTransformPoint(puntoPies);
+        }
 
         if (animator != null)
             animator.SetTrigger("Dead");
@@ -195,15 +200,27 @@ public class Grace : MonoBehaviour
             tiempo += Time.deltaTime;
             float progreso = Mathf.Clamp01(tiempo / duracion);
             float angulo = Mathf.LerpAngle(rotacionInicialMuerte, rotacionInicialMuerte + 90f, progreso);
+            Vector3 pivoteMundo = transform.TransformPoint(pivotePiesMuerte);
+            float giroRelativo = angulo - rotacionInicialMuerte;
+            Vector3 desplazamientoPivote = Quaternion.Euler(0f, 0f, giroRelativo) * pivotePiesMuerte;
 
             if (rb != null)
+            {
                 rb.MoveRotation(angulo);
+                rb.MovePosition(pivoteMundo - desplazamientoPivote);
+            }
 
             yield return null;
         }
 
         if (rb != null)
-            rb.MoveRotation(rotacionInicialMuerte + 90f);
+        {
+            float anguloFinal = rotacionInicialMuerte + 90f;
+            Vector3 pivoteMundo = transform.TransformPoint(pivotePiesMuerte);
+            Vector3 desplazamientoPivote = Quaternion.Euler(0f, 0f, 90f) * pivotePiesMuerte;
+            rb.MoveRotation(anguloFinal);
+            rb.MovePosition(pivoteMundo - desplazamientoPivote);
+        }
     }
 
     void MorirPorCaidaAlMar()
