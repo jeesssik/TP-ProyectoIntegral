@@ -30,6 +30,7 @@ public class Grace : MonoBehaviour
     bool estaCorriendo;
     bool controlBloqueado;
     bool yaMurio;
+    float rotacionInicialMuerte;
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
@@ -154,6 +155,55 @@ public class Grace : MonoBehaviour
         }
 
         rb.velocity = impulsoOla;
+    }
+
+    public void MorirPorContainer()
+    {
+        if (yaMurio)
+            return;
+
+        yaMurio = true;
+        controlBloqueado = true;
+        movimiento = 0f;
+
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.gravityScale = 1f;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX;
+            rb.angularVelocity = 0f;
+            rotacionInicialMuerte = rb.rotation;
+        }
+
+        if (colision != null)
+            colision.enabled = true;
+
+        if (animator != null)
+            animator.SetTrigger("Dead");
+
+        StartCoroutine(RotarHastaQuedarRecostada());
+    }
+
+    System.Collections.IEnumerator RotarHastaQuedarRecostada()
+    {
+        const float duracion = 1.65f;
+        float tiempo = 0f;
+
+        while (tiempo < duracion)
+        {
+            tiempo += Time.deltaTime;
+            float progreso = Mathf.Clamp01(tiempo / duracion);
+            float angulo = Mathf.LerpAngle(rotacionInicialMuerte, rotacionInicialMuerte + 90f, progreso);
+
+            if (rb != null)
+                rb.MoveRotation(angulo);
+
+            yield return null;
+        }
+
+        if (rb != null)
+            rb.MoveRotation(rotacionInicialMuerte + 90f);
     }
 
     void MorirPorCaidaAlMar()

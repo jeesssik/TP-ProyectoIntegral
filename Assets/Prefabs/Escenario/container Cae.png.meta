@@ -290,6 +290,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: container Cae_8
+      rect:
+        serializedVersion: 2
+        x: 1531
+        y: 679
+        width: 413
+        height: 245
+      alignment: 9
+      pivot: {x: 0.54833335, y: 0.73276746}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a82928795236714a8b777ee94d33bcf
+      internalID: -1774603516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -309,6 +330,7 @@ TextureImporter:
       container Cae_5: -1559002033
       container Cae_6: -1402498477
       container Cae_7: -145950197
+      container Cae_8: -1774603516
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
