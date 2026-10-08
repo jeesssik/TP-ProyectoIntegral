@@ -113,6 +113,9 @@ public class PuenteRompible : MonoBehaviour
 
     bool DebeColapsar(Grace grace, float impactoVertical)
     {
+        if (soloCasiRompe)
+            return false;
+
         if (grace.EstaCorriendo && EntradaJuego.HayMovimientoHorizontal)
             return true;
 
@@ -129,14 +132,11 @@ public class PuenteRompible : MonoBehaviour
 
         agrietado = true;
 
-        if (soloCasiRompe && animator != null)
+        // Caminando: cruje. Correr / saltar / aterrizar encima: colapsa (salvo soloCasiRompe).
+        if (animator != null)
         {
             animator.enabled = true;
             animator.Play("casiRompe", 0, 0f);
-        }
-        else if (animator != null)
-        {
-            animator.enabled = false;
         }
 
         if (!soloCasiRompe && spriteRenderer != null && spriteRoto != null)

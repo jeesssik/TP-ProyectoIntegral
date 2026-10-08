@@ -3,25 +3,27 @@ using UnityEngine;
 
 public class OlaSalpicon : MonoBehaviour
 {
-    [Header("Sprites")]
-    public Sprite[] frames;
+    [Header("Capas (animacion generada)")]
+    public Sprite[] framesDetras;
+    public Sprite[] framesDelante;
+    public SpriteRenderer olaDetras;
+    public SpriteRenderer olaDelante;
 
-    [Header("Ancla en el muelle")]
+    [Header("Ancla en el agua, en la popa de la lancha")]
     public Transform lancha;
-    [Tooltip("Desde el centro de la lancha: abajo al agua, un poco hacia Grace.")]
-    public Vector2 offsetAgua = new Vector2(-1.1f, -1.7f);
+    public Vector2 offsetAgua = new Vector2(-4.1f, -1.55f);
 
-    [Header("Golpe sobre la plataforma")]
-    public Vector2 tamanoGolpe = new Vector2(9f, 4.6f);
-    public Vector2 offsetGolpe = new Vector2(-0.6f, 2.3f);
+    [Header("Golpe que sigue el frente de la ola")]
+    public Vector2 tamanoGolpe = new Vector2(3.6f, 5.2f);
+    public float offsetGolpeY = 2.4f;
+    public float anchoSpriteUnidades = 11.43f;
+    public float pivoteX = 0.9f;
 
     [Header("Tiempos")]
-    public float duracion = 1.25f;
-    public float inicioImpacto = 0.32f;
-    public float finImpacto = 0.95f;
+    public float duracion = 1.7f;
+    public float inicioImpacto = 0.28f;
+    public float finImpacto = 1.05f;
 
-    SpriteRenderer dibujo;
-    BoxCollider2D golpe;
     Vector3 ancla;
     float tiempo = -1f;
     bool yaGolpeo;
@@ -29,17 +31,15 @@ public class OlaSalpicon : MonoBehaviour
 
     void Awake()
     {
-        dibujo = GetComponent<SpriteRenderer>();
-        golpe = GetComponent<BoxCollider2D>();
+        if (olaDetras == null)
+            olaDetras = GetComponent<SpriteRenderer>();
+        if (olaDelante == null && transform.childCount > 0)
+            olaDelante = transform.GetChild(0).GetComponent<SpriteRenderer>();
 
-        if (frames == null || frames.Length == 0)
-            frames = CargarFrames();
-
-        if (golpe != null)
-        {
-            golpe.isTrigger = true;
-            golpe.enabled = false;
-        }
+        if (framesDetras == null || framesDetras.Length == 0)
+            framesDetras = Cargar("Ola/estela/detras");
+        if (framesDelante == null || framesDelante.Length == 0)
+            framesDelante = Cargar("Ola/estela/delante");
 
         Ocultar();
     }
@@ -53,33 +53,30 @@ public class OlaSalpicon : MonoBehaviour
         tiempo += Time.deltaTime;
 
         float t = Mathf.Clamp01(tiempo / duracion);
-        int indice = Mathf.Min(frames.Length - 1, Mathf.FloorToInt(t * frames.Length));
-        if (dibujo != null && frames != null && frames.Length > 0)
-            dibujo.sprite = frames[indice];
+        MostrarCuadro(t);
 
-        bool enImpacto = tiempo >= inicioImpacto && tiempo <= finImpacto;
-        if (enImpacto && !yaGolpeo)
-            IntentarTirarAGrace();
+        bool yaInundo = tiempo >= inicioImpacto && tiempo <= finImpacto;
+        if (yaInundo && !yaGolpeo)
+            IntentarTirarAGrace(t);
 
         if (tiempo < duracion)
             return;
 
         tiempo = -1f;
         Ocultar();
-        if (golpe != null)
-            golpe.enabled = false;
     }
 
     public void Reproducir()
     {
-        if (frames == null || frames.Length == 0)
+        if (framesDetras == null || framesDetras.Length == 0)
+            framesDetras = Cargar("Ola/estela/detras");
+        if (framesDelante == null || framesDelante.Length == 0)
+            framesDelante = Cargar("Ola/estela/delante");
+
+        if (framesDetras.Length == 0)
         {
-            frames = CargarFrames();
-            if (frames == null || frames.Length == 0)
-            {
-                Debug.LogError("OlaSalpicon: faltan sprites.", this);
-                return;
-            }
+            Debug.LogError("OlaSalpicon: faltan sprites de la inundacion.", this);
+            return;
         }
 
         ancla = lancha != null ? lancha.position : transform.position;
@@ -87,20 +84,34 @@ public class OlaSalpicon : MonoBehaviour
         ancla.y += offsetAgua.y;
         ancla.z = 0f;
         transform.position = ancla;
+        transform.localScale = Vector3.one;
 
         tiempo = 0f;
         yaGolpeo = false;
+        MostrarCuadro(0f);
+    }
 
-        if (dibujo != null)
+    void MostrarCuadro(float t)
+    {
+        int indice = Indice(t, framesDetras.Length);
+
+        if (olaDetras != null)
         {
-            dibujo.enabled = true;
-            dibujo.sprite = frames[0];
+            olaDetras.enabled = true;
+            olaDetras.sprite = framesDetras[indice];
+        }
+
+        if (olaDelante != null && framesDelante != null && framesDelante.Length > 0)
+        {
+            int iDelante = Indice(t, framesDelante.Length);
+            olaDelante.enabled = true;
+            olaDelante.sprite = framesDelante[iDelante];
         }
     }
 
-    void IntentarTirarAGrace()
+    void IntentarTirarAGrace(float t)
     {
-        Vector2 centro = (Vector2)transform.position + offsetGolpe;
+        Vector2 centro = CentroGolpe(t);
         int n = Physics2D.OverlapBoxNonAlloc(centro, tamanoGolpe, 0f, bufferGolpe);
         for (int i = 0; i < n; i++)
         {
@@ -111,10 +122,7 @@ public class OlaSalpicon : MonoBehaviour
             Grace grace = col.GetComponent<Grace>();
             if (grace == null)
                 grace = col.GetComponentInParent<Grace>();
-            if (grace == null)
-                continue;
-
-            if (grace.EstaEnElAire)
+            if (grace == null || grace.EstaEnElAire)
                 continue;
 
             yaGolpeo = true;
@@ -123,18 +131,45 @@ public class OlaSalpicon : MonoBehaviour
         }
     }
 
-    void Ocultar()
+    Vector2 CentroGolpe(float t)
     {
-        if (dibujo == null)
-            return;
-
-        dibujo.sprite = null;
-        dibujo.enabled = false;
+        float frente = FrenteRelativo(t);
+        float xLocal = (frente - pivoteX) * anchoSpriteUnidades;
+        return (Vector2)ancla + new Vector2(xLocal, offsetGolpeY);
     }
 
-    static Sprite[] CargarFrames()
+    // Tiene que coincidir con front_x(p) del generador Python.
+    static float FrenteRelativo(float p)
     {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Ola/salpicon");
+        float q = Mathf.Clamp01((p - 0.08f) / 0.72f);
+        return 0.86f - 0.8f * (1f - Mathf.Pow(1f - q, 1.7f));
+    }
+
+    static int Indice(float t, int cantidad)
+    {
+        if (cantidad <= 1)
+            return 0;
+        return Mathf.Min(cantidad - 1, Mathf.FloorToInt(t * cantidad));
+    }
+
+    void Ocultar()
+    {
+        if (olaDetras != null)
+        {
+            olaDetras.sprite = null;
+            olaDetras.enabled = false;
+        }
+
+        if (olaDelante != null)
+        {
+            olaDelante.sprite = null;
+            olaDelante.enabled = false;
+        }
+    }
+
+    static Sprite[] Cargar(string ruta)
+    {
+        Sprite[] sprites = Resources.LoadAll<Sprite>(ruta);
         if (sprites == null || sprites.Length == 0)
             return Array.Empty<Sprite>();
 
@@ -144,9 +179,11 @@ public class OlaSalpicon : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(0.2f, 0.7f, 1f, 0.35f);
-        Vector3 origen = Application.isPlaying ? ancla : transform.position;
-        Vector3 centro = origen + (Vector3)offsetGolpe;
-        Gizmos.DrawWireCube(centro, tamanoGolpe);
+        Vector3 origen = Application.isPlaying && tiempo >= 0f ? ancla : transform.position;
+        float t = Application.isPlaying && tiempo >= 0f ? Mathf.Clamp01(tiempo / duracion) : 0.35f;
+        float frente = FrenteRelativo(t);
+        float xLocal = (frente - pivoteX) * anchoSpriteUnidades;
+        Gizmos.color = new Color(0.15f, 0.55f, 1f, 0.35f);
+        Gizmos.DrawWireCube(origen + new Vector3(xLocal, offsetGolpeY, 0f), tamanoGolpe);
     }
 }
