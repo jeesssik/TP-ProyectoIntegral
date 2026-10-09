@@ -21,6 +21,7 @@ public class ContainerCaeTrigger : MonoBehaviour
     float xZonaImpacto;
     Vector3 posicionTirantesInicial;
     Quaternion rotacionTirantesInicial;
+    Vector3 escalaTirantesInicial;
 
     void Awake()
     {
@@ -31,6 +32,8 @@ public class ContainerCaeTrigger : MonoBehaviour
         {
             posicionTirantesInicial = containerAnimator.transform.position;
             rotacionTirantesInicial = containerAnimator.transform.rotation;
+            // El clip está pensado a escala 1; sin esto el Animator pisa el scale de escena.
+            escalaTirantesInicial = containerAnimator.transform.localScale;
             containerAnimator.enabled = true;
             containerAnimator.Play(estadoNormal, 0, 0f);
         }
@@ -45,14 +48,20 @@ public class ContainerCaeTrigger : MonoBehaviour
         }
     }
 
-    void Update()
+    void LateUpdate()
     {
-        // Mientras corre el clip de cables, el pivot se queda fijo (como antes).
-        if (activado && containerAnimator != null && containerAnimator.enabled)
-        {
-            containerAnimator.transform.position = posicionTirantesInicial;
-            containerAnimator.transform.rotation = rotacionTirantesInicial;
-        }
+        if (containerAnimator == null || !containerAnimator.enabled)
+            return;
+
+        // El clip asume scale 1; reaplicamos la escala de escena siempre que anime.
+        Transform t = containerAnimator.transform;
+        t.localScale = escalaTirantesInicial;
+
+        if (!activado)
+            return;
+
+        t.position = posicionTirantesInicial;
+        t.rotation = rotacionTirantesInicial;
     }
 
     void OnTriggerEnter2D(Collider2D other)

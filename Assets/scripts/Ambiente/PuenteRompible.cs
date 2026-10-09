@@ -66,7 +66,8 @@ public class PuenteRompible : MonoBehaviour
         if (colapsado || jugadorSobrePuente == null)
             return;
 
-        if (!soloCasiRompe && (DebeColapsar(jugadorSobrePuente, 0f) || EntradaJuego.Salto))
+        // Correr encima lo rompe; saltar NO (solo el aterrizaje, en EvaluarJugador).
+        if (!soloCasiRompe && DebeColapsarPorCorrer(jugadorSobrePuente))
             IniciarColapso();
     }
 
@@ -82,8 +83,11 @@ public class PuenteRompible : MonoBehaviour
         jugadorSobrePuente = grace;
         MostrarRoto();
 
+        // relativeVelocity.y < 0 = Grace aterrizando sobre el puente.
         float impactoVertical = collision.relativeVelocity.y;
-        if (!soloCasiRompe && DebeColapsar(grace, impactoVertical))
+        if (!soloCasiRompe && DebeColapsarPorAterrizaje(impactoVertical))
+            IniciarColapso();
+        else if (!soloCasiRompe && DebeColapsarPorCorrer(grace))
             IniciarColapso();
     }
 
@@ -111,18 +115,21 @@ public class PuenteRompible : MonoBehaviour
         return false;
     }
 
-    bool DebeColapsar(Grace grace, float impactoVertical)
+    bool DebeColapsarPorCorrer(Grace grace)
+    {
+        if (soloCasiRompe || grace == null)
+            return false;
+
+        return grace.EstaCorriendo && EntradaJuego.HayMovimientoHorizontal;
+    }
+
+    bool DebeColapsarPorAterrizaje(float impactoVertical)
     {
         if (soloCasiRompe)
             return false;
 
-        if (grace.EstaCorriendo && EntradaJuego.HayMovimientoHorizontal)
-            return true;
-
-        if (impactoVertical < umbralImpactoSalto)
-            return true;
-
-        return false;
+        // Solo cuando cae encima (impacto hacia abajo), no al impulsarse a saltar.
+        return impactoVertical < umbralImpactoSalto;
     }
 
     void MostrarRoto()
@@ -132,7 +139,7 @@ public class PuenteRompible : MonoBehaviour
 
         agrietado = true;
 
-        // Caminando: cruje. Correr / saltar / aterrizar encima: colapsa (salvo soloCasiRompe).
+        // Caminando: cruje. Correr o aterrizar encima: colapsa (salvo soloCasiRompe).
         if (animator != null)
         {
             animator.enabled = true;

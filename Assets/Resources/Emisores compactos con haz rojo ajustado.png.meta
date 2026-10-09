@@ -1,0 +1,655 @@
+fileFormatVersion: 2
+guid: 9a0ff1c548e49644b8b4da0c1e878d89
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 13
+        width: 1042
+        height: 851
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbfd04c31ef1d354fa2a4b5379eb6ea9
+      internalID: -252348330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_1
+      rect:
+        serializedVersion: 2
+        x: 1043
+        y: 24
+        width: 710
+        height: 844
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8dcc01a30ea6d424eb9da124fe9fb316
+      internalID: -1953553887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_2
+      rect:
+        serializedVersion: 2
+        x: 1454
+        y: 806
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8019407781a7c148b7bc653cd5bc074
+      internalID: 948354279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_3
+      rect:
+        serializedVersion: 2
+        x: 1463
+        y: 808
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d285efd8c6b5071428f5381c5ed6346a
+      internalID: -587428254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_4
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 564
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 728ddbc829d6990498125b53c4608246
+      internalID: 234675808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_5
+      rect:
+        serializedVersion: 2
+        x: 1208
+        y: 232
+        width: 26
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 31f109a2118fd5f40aaaf413794ac602
+      internalID: 1688534177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_6
+      rect:
+        serializedVersion: 2
+        x: 1301
+        y: 233
+        width: 17
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf2f21fa6fee92841a88cad0ebc1264e
+      internalID: 121935625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_7
+      rect:
+        serializedVersion: 2
+        x: 1346
+        y: 232
+        width: 19
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4dec71310decb449aaefa58f4d06d7a
+      internalID: 1422704668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_8
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 226
+        width: 33
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e6f257a4611b11b47a0a34b331547d57
+      internalID: -496811160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_9
+      rect:
+        serializedVersion: 2
+        x: 1432
+        y: 240
+        width: 78
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71562cde0163dd34281e050324eda6b5
+      internalID: 361438619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_10
+      rect:
+        serializedVersion: 2
+        x: 1442
+        y: 225
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61b38bdce6711534da13e4495498aacd
+      internalID: 1808709564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_11
+      rect:
+        serializedVersion: 2
+        x: 1057
+        y: 197
+        width: 20
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c97a0f307c64404ca4c90ea915851b5
+      internalID: -2116164540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_12
+      rect:
+        serializedVersion: 2
+        x: 1071
+        y: 187
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed26a981c6854514085e3453c7a1989e
+      internalID: -742263994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_13
+      rect:
+        serializedVersion: 2
+        x: 1251
+        y: 204
+        width: 5
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a60a7785d86caad489c45654c96ab1f0
+      internalID: -219300381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_14
+      rect:
+        serializedVersion: 2
+        x: 1257
+        y: 189
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7ebcfd9a201702d418bbf1c08c7c6c16
+      internalID: -155833508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_15
+      rect:
+        serializedVersion: 2
+        x: 1289
+        y: 209
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 636447d480b26e34f95bbc6b56163e52
+      internalID: 669134792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_16
+      rect:
+        serializedVersion: 2
+        x: 1458
+        y: 198
+        width: 13
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a34b4bafea09db4f9b7cf5b553c852d
+      internalID: 476340928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_17
+      rect:
+        serializedVersion: 2
+        x: 1466
+        y: 193
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e6914cce70b9ee4a887c54e1895bee9
+      internalID: 1795860509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_18
+      rect:
+        serializedVersion: 2
+        x: 1473
+        y: 196
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c192c93bdf5fee8499a85a119f66c838
+      internalID: 1352773261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_19
+      rect:
+        serializedVersion: 2
+        x: 1065
+        y: 175
+        width: 20
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26f0e00c7fdbbee4bbcb4013c6b80602
+      internalID: 608743942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_20
+      rect:
+        serializedVersion: 2
+        x: 1227
+        y: 177
+        width: 5
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9052f7cfc48893444a0f5cab136d9fa3
+      internalID: 1301128956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_21
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 165
+        width: 5
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c0ce9a966d091f444b8ee183a95fd2a9
+      internalID: 228651876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_22
+      rect:
+        serializedVersion: 2
+        x: 1071
+        y: 142
+        width: 4
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c624af7028fbe9f4f9ac82712e88fef5
+      internalID: -461548473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emisores compactos con haz rojo ajustado_23
+      rect:
+        serializedVersion: 2
+        x: 1073
+        y: 138
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c63cf15a5d837b4a91d806a1f0155eb
+      internalID: 1634827191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Emisores compactos con haz rojo ajustado_0: -252348330
+      Emisores compactos con haz rojo ajustado_1: -1953553887
+      Emisores compactos con haz rojo ajustado_10: 1808709564
+      Emisores compactos con haz rojo ajustado_11: -2116164540
+      Emisores compactos con haz rojo ajustado_12: -742263994
+      Emisores compactos con haz rojo ajustado_13: -219300381
+      Emisores compactos con haz rojo ajustado_14: -155833508
+      Emisores compactos con haz rojo ajustado_15: 669134792
+      Emisores compactos con haz rojo ajustado_16: 476340928
+      Emisores compactos con haz rojo ajustado_17: 1795860509
+      Emisores compactos con haz rojo ajustado_18: 1352773261
+      Emisores compactos con haz rojo ajustado_19: 608743942
+      Emisores compactos con haz rojo ajustado_2: 948354279
+      Emisores compactos con haz rojo ajustado_20: 1301128956
+      Emisores compactos con haz rojo ajustado_21: 228651876
+      Emisores compactos con haz rojo ajustado_22: -461548473
+      Emisores compactos con haz rojo ajustado_23: 1634827191
+      Emisores compactos con haz rojo ajustado_3: -587428254
+      Emisores compactos con haz rojo ajustado_4: 234675808
+      Emisores compactos con haz rojo ajustado_5: 1688534177
+      Emisores compactos con haz rojo ajustado_6: 121935625
+      Emisores compactos con haz rojo ajustado_7: 1422704668
+      Emisores compactos con haz rojo ajustado_8: -496811160
+      Emisores compactos con haz rojo ajustado_9: 361438619
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

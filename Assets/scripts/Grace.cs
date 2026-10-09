@@ -26,7 +26,7 @@ public class Grace : MonoBehaviour
     public LayerMask capaSuelo;
 
     [Header("Ola / muerte")]
-    public Vector2 impulsoOla = new Vector2(7.5f, 1.6f);
+    public Vector2 impulsoOla = new Vector2(9.5f, 2.2f);
     public float yMuerteMar = -7f;
 
     Rigidbody2D rb;
@@ -39,6 +39,7 @@ public class Grace : MonoBehaviour
     bool estabaEnSuelo;
     bool estaCorriendo;
     bool controlBloqueado;
+    bool enCinematica;
     bool yaMurio;
     bool saltoPedido;
     float ignorarSueloHasta;
@@ -50,6 +51,14 @@ public class Grace : MonoBehaviour
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
+
+    /// <summary>
+    /// Salto / aire real: no confía solo en el overlap de suelo (a veces falla).
+    /// </summary>
+    public bool EstaEsquivandoOla =>
+        !estaEnSuelo ||
+        Time.time < ignorarSueloHasta ||
+        (rb != null && rb.velocity.y > 0.5f);
 
     public bool EstaFueraDelAlcanceDeLaOla(float xCuandoEmpezoLaOla, float distanciaEsquivaAtras)
     {
@@ -95,6 +104,9 @@ public class Grace : MonoBehaviour
 
     void Update()
     {
+        if (enCinematica)
+            return;
+
         if (transform.position.y < yMuerteMar)
         {
             MorirPorCaidaAlMar();
@@ -119,7 +131,7 @@ public class Grace : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (controlBloqueado || rb == null)
+        if (enCinematica || controlBloqueado || rb == null)
             return;
 
         // Por si algo del inspector o la física lo pisó.
@@ -234,9 +246,81 @@ public class Grace : MonoBehaviour
             spriteRenderer.flipX = true;
     }
 
+    /// <param name="offsetPiesLocal">Donde van los pies, en espacio local del asiento.</param>
+    /// <param name="ordenSorting">Orden de dibujo (menor que la lancha = detrás del casco).</param>
+    public void SubirseALancha(Transform asiento, Vector3 offsetPiesLocal, int ordenSorting = 4)
+    {
+        if (yaMurio || enCinematica)
+            return;
+
+        enCinematica = true;
+        controlBloqueado = true;
+        movimiento = 0f;
+        estaCorriendo = false;
+        saltoPedido = false;
+
+        if (colision != null)
+            colision.enabled = false;
+
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.simulated = false;
+        }
+
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetBool("IsGrounded", true);
+            animator.SetBool("IsRunning", false);
+            animator.SetFloat("VerticalSpeed", 0f);
+            animator.ResetTrigger("Jump");
+            animator.ResetTrigger("Land");
+            animator.Play("graceIdle", 0, 0f);
+        }
+
+        Vector3 piesMundo = asiento.TransformPoint(offsetPiesLocal);
+        Vector3 offsetPiesDesdeCentro = EstimarOffsetPiesDesdeCentro();
+
+        transform.SetParent(asiento, true);
+        // En escena Grace usa ~180° en Y; identity la deja mirando al revés de la lancha.
+        transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        transform.position = piesMundo - offsetPiesDesdeCentro;
+
+        if (spriteRenderer != null)
+        {
+            // Misma convención que caminar a la derecha (la lancha avanza +X).
+            spriteRenderer.flipX = false;
+            spriteRenderer.sortingOrder = ordenSorting;
+        }
+    }
+
+    /// <summary>
+    /// Offset mundo desde el transform hasta los pies visibles (contenido opaco del sprite).
+    /// Los frames de Grace tienen mucho padding transparente.
+    /// </summary>
+    Vector3 EstimarOffsetPiesDesdeCentro()
+    {
+        if (spriteRenderer == null || spriteRenderer.sprite == null)
+            return Vector3.zero;
+
+        Sprite s = spriteRenderer.sprite;
+        // Contenido medido en idle/0001: pies ~175px desde abajo del rect 1080, pivot al centro.
+        const float pieDesdeAbajoPx = 175f;
+        float altura = s.rect.height;
+        float pivotY = s.pivot.y;
+        float pieDesdePivotPx = pieDesdeAbajoPx - pivotY;
+        float unidades = pieDesdePivotPx / s.pixelsPerUnit;
+        float escalaY = Mathf.Abs(transform.lossyScale.y);
+        return new Vector3(0f, unidades * escalaY, 0f);
+    }
+
     public void EmpujadaPorOla()
     {
-        if (controlBloqueado)
+        if (controlBloqueado || enCinematica)
             return;
 
         controlBloqueado = true;
@@ -263,19 +347,10 @@ public class Grace : MonoBehaviour
         movimiento = 0f;
         saltoPedido = false;
 
-        sentidoCaidaMuerte = spriteRenderer != null && spriteRenderer.flipX ? -1f : 1f;
-
+        // La animación Dead ya desploma el cuerpo en el sprite.
+        // No rotar el transform: eso la enterraba y dejaba los pies colgando.
         if (colision != null)
-        {
-            colision.enabled = true;
-            pivotePiesMundo = new Vector3(colision.bounds.center.x, colision.bounds.min.y, transform.position.z);
-        }
-        else
-        {
-            pivotePiesMundo = transform.position;
-        }
-
-        offsetDesdePies = transform.position - pivotePiesMundo;
+            colision.enabled = false;
 
         if (rb != null)
         {
@@ -283,42 +358,15 @@ public class Grace : MonoBehaviour
             rb.angularVelocity = 0f;
             rb.bodyType = RigidbodyType2D.Kinematic;
             rb.gravityScale = 0f;
-            rb.constraints = RigidbodyConstraints2D.None;
-            rotacionInicialMuerte = rb.rotation;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
         if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetBool("IsRunning", false);
+            animator.SetBool("IsGrounded", true);
             animator.SetTrigger("Dead");
-
-        StartCoroutine(RotarHastaQuedarRecostada());
-    }
-
-    System.Collections.IEnumerator RotarHastaQuedarRecostada()
-    {
-        float tiempo = 0f;
-        float anguloFinal = rotacionInicialMuerte + 90f * sentidoCaidaMuerte;
-
-        while (tiempo < DuracionAnimacionMuerte)
-        {
-            tiempo += Time.deltaTime;
-            float progreso = Mathf.Clamp01(tiempo / DuracionAnimacionMuerte);
-            float angulo = Mathf.LerpAngle(rotacionInicialMuerte, anguloFinal, progreso);
-            float giroRelativo = angulo - rotacionInicialMuerte;
-            Vector3 nuevaPos = pivotePiesMundo + Quaternion.Euler(0f, 0f, giroRelativo) * offsetDesdePies;
-
-            if (rb != null)
-            {
-                rb.MoveRotation(angulo);
-                rb.MovePosition(nuevaPos);
-            }
-
-            yield return null;
-        }
-
-        if (rb != null)
-        {
-            rb.MoveRotation(anguloFinal);
-            rb.MovePosition(pivotePiesMundo + Quaternion.Euler(0f, 0f, 90f * sentidoCaidaMuerte) * offsetDesdePies);
         }
     }
 
