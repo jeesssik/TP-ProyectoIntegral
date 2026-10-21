@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Plataforma del tramo final: al pisarla (armada), cae tras un delay ajustable.
+/// Al pisarla, cae tras un delay. No depende del tótem.
 /// Soporta collider sólido, trigger, o solo sprite (bounds).
 /// </summary>
 public class PlataformaQueCae : MonoBehaviour
@@ -18,7 +18,7 @@ public class PlataformaQueCae : MonoBehaviour
     Collider2D colision;
     SpriteRenderer spriteRenderer;
     Grace grace;
-    bool armada;
+    bool armada = true;
     bool cayendo;
     bool pendienteCaida;
     float tiempoPendiente;
@@ -125,7 +125,7 @@ public class PlataformaQueCae : MonoBehaviour
         }
 
         Bounds zona = ObtenerZonaPiso();
-        Collider2D colGrace = grace.GetComponent<Collider2D>();
+        Collider2D colGrace = grace.ColisionCuerpo;
 
         float x = grace.transform.position.x;
         float pieY = colGrace != null && colGrace.enabled

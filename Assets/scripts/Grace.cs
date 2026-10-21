@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -33,6 +34,15 @@ public class Grace : MonoBehaviour
     SpriteRenderer spriteRenderer;
     Animator animator;
     Collider2D colision;
+    PolygonCollider2D colliderCuerpo;
+    readonly Dictionary<int, Vector2[]> cacheFormasSprite = new Dictionary<int, Vector2[]>();
+    readonly List<Vector2> bufferForma = new List<Vector2>(64);
+    readonly List<Vector2> bufferAplicar = new List<Vector2>(64);
+    Sprite spriteColliderActual;
+    bool colliderEspejado;
+    bool colliderAnclado;
+    float pieLocalY = float.NaN;
+    Vector2[] formaReposo;
 
     float movimiento;
     bool estaEnSuelo;
@@ -44,6 +54,7 @@ public class Grace : MonoBehaviour
     bool saltoPedido;
     float ignorarSueloHasta;
     float ultimoSueloTime = -10f;
+    float marcaSalto = -100f;
     float rotacionInicialMuerte;
     float sentidoCaidaMuerte = 1f;
     Vector3 pivotePiesMundo;
@@ -51,6 +62,8 @@ public class Grace : MonoBehaviour
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
+    public bool VieneDeUnSalto => Time.time - marcaSalto < 1.35f;
+    public Collider2D ColisionCuerpo => colision;
 
     /// <summary>
     /// Salto / aire real: no confía solo en el overlap de suelo (a veces falla).
@@ -80,7 +93,7 @@ public class Grace : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        colision = GetComponent<Collider2D>();
+        ConfigurarColliderCuerpo();
 
         if (rb != null)
         {
@@ -88,9 +101,6 @@ public class Grace : MonoBehaviour
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
-
-        if (colision is BoxCollider2D caja && caja.edgeRadius < 0.05f)
-            caja.edgeRadius = 0.12f;
     }
 
     void Start()
@@ -125,12 +135,24 @@ public class Grace : MonoBehaviour
         ActualizarSuelo();
         ActualizarAnimacion();
         ActualizarOrientacion();
+        SincronizarColliderConSprite();
 
         estabaEnSuelo = estaEnSuelo;
     }
 
+    void LateUpdate()
+    {
+        if (enCinematica || yaMurio)
+            return;
+
+        SincronizarColliderConSprite();
+    }
+
     void FixedUpdate()
     {
+        if (!enCinematica && !yaMurio)
+            SincronizarColliderConSprite();
+
         if (enCinematica || controlBloqueado || rb == null)
             return;
 
@@ -142,6 +164,12 @@ public class Grace : MonoBehaviour
             saltoPedido = false;
             if (PuedeSaltar())
                 EjecutarSalto();
+        }
+
+        if (EntradaJuego.ConsumirFrenoPorCambioDeZona())
+        {
+            movimiento = 0f;
+            rb.velocity = new Vector2(0f, rb.velocity.y);
         }
 
         float velocidadObjetivo = movimiento * (estaCorriendo ? velocidadCorrer : velocidadCaminar);
@@ -186,6 +214,9 @@ public class Grace : MonoBehaviour
         pos.y += 0.1f;
         rb.position = pos;
         rb.velocity = new Vector2(rb.velocity.x, fuerzaSalto);
+        marcaSalto = Time.time;
+        spriteColliderActual = null;
+        SincronizarColliderConSprite();
     }
 
     bool TocaSuelo()
@@ -193,15 +224,31 @@ public class Grace : MonoBehaviour
         if (Time.time < ignorarSueloHasta)
             return false;
 
-        Vector2 origen;
-        if (colision != null)
-            origen = new Vector2(colision.bounds.center.x, colision.bounds.min.y - tamanoSuelo.y * 0.5f);
-        else if (groundCheck != null)
-            origen = groundCheck.position;
-        else
+        // Subiendo: no contar suelo. El polígono de un frame de salto no puede
+        // marcar Idle/Land con los pies visuales en el aire.
+        if (rb != null && rb.velocity.y > 1f)
             return false;
 
-        return Physics2D.OverlapBox(origen, tamanoSuelo, 0f, capaSuelo);
+        return Physics2D.OverlapBox(OrigenSuelo(), tamanoSuelo, 0f, capaSuelo);
+    }
+
+    Vector2 OrigenSuelo()
+    {
+        float yLocal = !float.IsNaN(pieLocalY) ? pieLocalY : -3.72f;
+        float xLocal = 0.66f;
+        if (spriteRenderer != null && spriteRenderer.flipX)
+            xLocal = -xLocal;
+
+        if (groundCheck != null)
+        {
+            Vector3 local = groundCheck.localPosition;
+            local.x = xLocal;
+            local.y = yLocal - tamanoSuelo.y * 0.15f;
+            groundCheck.localPosition = local;
+            return groundCheck.position;
+        }
+
+        return transform.TransformPoint(new Vector3(xLocal, yLocal - tamanoSuelo.y * 0.15f, 0f));
     }
 
     void ActualizarSuelo()
@@ -237,13 +284,217 @@ public class Grace : MonoBehaviour
 
     void ActualizarOrientacion()
     {
-        if (spriteRenderer == null || !estaEnSuelo)
+        if (spriteRenderer == null)
             return;
 
         if (movimiento > 0f)
             spriteRenderer.flipX = false;
         else if (movimiento < 0f)
             spriteRenderer.flipX = true;
+    }
+
+    void ConfigurarColliderCuerpo()
+    {
+        BoxCollider2D caja = GetComponent<BoxCollider2D>();
+        if (caja != null)
+            caja.enabled = false;
+
+        colliderCuerpo = GetComponent<PolygonCollider2D>();
+        if (colliderCuerpo == null)
+            colliderCuerpo = gameObject.AddComponent<PolygonCollider2D>();
+
+        colliderCuerpo.autoTiling = false;
+        colliderCuerpo.isTrigger = false;
+        colliderCuerpo.enabled = true;
+        colliderCuerpo.offset = Vector2.zero;
+        colision = colliderCuerpo;
+        SincronizarColliderConSprite();
+    }
+
+    void SincronizarColliderConSprite()
+    {
+        if (colliderCuerpo == null || !colliderCuerpo.enabled)
+            return;
+        if (spriteRenderer == null || spriteRenderer.sprite == null)
+            return;
+
+        Sprite sprite = spriteRenderer.sprite;
+        bool flip = spriteRenderer.flipX;
+        bool anclar = estaEnSuelo && !float.IsNaN(pieLocalY);
+        if (sprite == spriteColliderActual && flip == colliderEspejado && anclar == colliderAnclado)
+            return;
+
+        Vector2[] forma = ObtenerFormaSprite(sprite);
+        if (forma == null || forma.Length < 3)
+            return;
+
+        bufferAplicar.Clear();
+        for (int i = 0; i < forma.Length; i++)
+        {
+            Vector2 p = forma[i];
+            if (flip)
+                p.x = -p.x;
+            bufferAplicar.Add(p);
+        }
+
+        if (flip)
+            bufferAplicar.Reverse();
+
+        // En suelo los frames de walk/run cambian el min.y y eso dispara Jump/Land.
+        // Anclar pies mantiene el contacto; en el aire usamos la silueta real (piernas recogidas).
+        if (anclar)
+        {
+            float minY = bufferAplicar[0].y;
+            for (int i = 1; i < bufferAplicar.Count; i++)
+            {
+                if (bufferAplicar[i].y < minY)
+                    minY = bufferAplicar[i].y;
+            }
+
+            float dy = pieLocalY - minY;
+            if (Mathf.Abs(dy) > 0.001f)
+            {
+                for (int i = 0; i < bufferAplicar.Count; i++)
+                {
+                    Vector2 p = bufferAplicar[i];
+                    p.y += dy;
+                    bufferAplicar[i] = p;
+                }
+            }
+        }
+
+        colliderCuerpo.pathCount = 1;
+        colliderCuerpo.SetPath(0, bufferAplicar);
+        spriteColliderActual = sprite;
+        colliderEspejado = flip;
+        colliderAnclado = anclar;
+    }
+
+    Vector2[] ObtenerFormaSprite(Sprite sprite)
+    {
+        int id = sprite.GetInstanceID();
+        if (cacheFormasSprite.TryGetValue(id, out Vector2[] cache))
+            return cache;
+
+        int n = sprite.GetPhysicsShapeCount();
+        if (n > 0)
+        {
+            int mejor = 0;
+            float mejorArea = -1f;
+            for (int i = 0; i < n; i++)
+            {
+                bufferForma.Clear();
+                sprite.GetPhysicsShape(i, bufferForma);
+                float area = AreaAbsoluta(bufferForma);
+                if (area > mejorArea)
+                {
+                    mejorArea = area;
+                    mejor = i;
+                }
+            }
+
+            bufferForma.Clear();
+            sprite.GetPhysicsShape(mejor, bufferForma);
+            SimplificarForma(bufferForma, 0.04f);
+            cache = bufferForma.ToArray();
+        }
+
+        if (cache == null || !FormaUsable(cache))
+            cache = formaReposo;
+
+        if (cache == null)
+            cache = FormaCuerpoPorDefecto();
+
+        cacheFormasSprite[id] = cache;
+        RecordarPieSiHaceFalta(cache);
+        if (formaReposo == null && FormaUsable(cache))
+            formaReposo = cache;
+        return cache;
+    }
+
+    static bool FormaUsable(Vector2[] forma)
+    {
+        if (forma == null || forma.Length < 3)
+            return false;
+
+        float minX = forma[0].x, maxX = forma[0].x, minY = forma[0].y, maxY = forma[0].y;
+        for (int i = 1; i < forma.Length; i++)
+        {
+            minX = Mathf.Min(minX, forma[i].x);
+            maxX = Mathf.Max(maxX, forma[i].x);
+            minY = Mathf.Min(minY, forma[i].y);
+            maxY = Mathf.Max(maxY, forma[i].y);
+        }
+
+        // El canvas de Grace es 19.2×10.8; si la physics shape sale de eso, es basura.
+        return maxX - minX <= 2.6f && maxY - minY <= 6.2f;
+    }
+
+    static Vector2[] FormaCuerpoPorDefecto()
+    {
+        return new[]
+        {
+            new Vector2(0.28f, -3.64f),
+            new Vector2(1.08f, -3.64f),
+            new Vector2(1.12f, -0.45f),
+            new Vector2(1.05f, 0.55f),
+            new Vector2(0.72f, 1.08f),
+            new Vector2(0.42f, 0.55f),
+            new Vector2(0.34f, -0.45f)
+        };
+    }
+
+    void RecordarPieSiHaceFalta(Vector2[] forma)
+    {
+        if (!float.IsNaN(pieLocalY) || forma == null || forma.Length == 0)
+            return;
+
+        float minY = forma[0].y;
+        for (int i = 1; i < forma.Length; i++)
+        {
+            if (forma[i].y < minY)
+                minY = forma[i].y;
+        }
+
+        pieLocalY = minY;
+    }
+
+    static float AreaAbsoluta(List<Vector2> pts)
+    {
+        float a = 0f;
+        int n = pts.Count;
+        for (int i = 0; i < n; i++)
+        {
+            Vector2 p = pts[i];
+            Vector2 q = pts[(i + 1) % n];
+            a += p.x * q.y - q.x * p.y;
+        }
+
+        return Mathf.Abs(a) * 0.5f;
+    }
+
+    static void SimplificarForma(List<Vector2> pts, float minDist)
+    {
+        if (pts.Count < 5)
+            return;
+
+        float minSqr = minDist * minDist;
+        int w = 1;
+        for (int i = 1; i < pts.Count - 1; i++)
+        {
+            if ((pts[i] - pts[w - 1]).sqrMagnitude >= minSqr)
+            {
+                pts[w] = pts[i];
+                w++;
+            }
+        }
+
+        pts[w] = pts[pts.Count - 1];
+        w++;
+        if (w < 3)
+            return;
+
+        pts.RemoveRange(w, pts.Count - w);
     }
 
     /// <param name="offsetPiesLocal">Donde van los pies, en espacio local del asiento.</param>
@@ -381,16 +632,7 @@ public class Grace : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Collider2D col = colision != null ? colision : GetComponent<Collider2D>();
-        Vector3 origen;
-        if (col != null)
-            origen = new Vector3(col.bounds.center.x, col.bounds.min.y - tamanoSuelo.y * 0.5f, 0f);
-        else if (groundCheck != null)
-            origen = groundCheck.position;
-        else
-            return;
-
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(origen, tamanoSuelo);
+        Gizmos.DrawWireCube(OrigenSuelo(), tamanoSuelo);
     }
 }

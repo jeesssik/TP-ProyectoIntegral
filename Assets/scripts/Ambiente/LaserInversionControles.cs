@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Láser apagado (verde) deja pasar. Al cruzarlo hacia adelante: se enciende (rojo),
-/// se vuelve sólido y abre la zona de controles invertidos hasta el tótem.
-/// La inversión dura solo mientras Grace está dentro de esa zona.
+/// Zona entre el láser y el tótem: controles invertidos.
+/// Se puede entrar y salir (también de un salto). Al cruzar el borde se conserva
+/// la dirección medio segundo; después frena y responde al mapeo nuevo.
 /// </summary>
+[DefaultExecutionOrder(-50)]
 public class LaserInversionControles : MonoBehaviour
 {
     public static LaserInversionControles Instancia { get; private set; }
@@ -14,35 +16,47 @@ public class LaserInversionControles : MonoBehaviour
 
     [Header("Visual")]
     public SpriteRenderer emisor;
-    public Sprite spriteApagado;   // verde
-    public Sprite spriteEncendido; // rojo
+    public Sprite spriteApagado;
+    public Sprite spriteEncendido;
 
     [Header("Zona invertida")]
     [Tooltip("Límite derecho de la zona (el tótem/checkpoint).")]
     public Transform limiteZonaDerecha;
-    [Tooltip("Activa el láser e inversión esta distancia antes del centro (unidades mundo).")]
-    public float anticipoActivacion = 0.45f;
+    [Tooltip("Hay que salir esta distancia a la izquierda del láser para apagar la inversión.")]
+    public float margenSalida = 0.7f;
 
     [Header("Collider existente (no crea uno nuevo)")]
     public Collider2D colision;
 
-    bool barreraActiva;
+    [Header("Muerte")]
+    [Tooltip("Objeto laser-die: el collider o el sprite marca exactamente dónde mata al pisar.")]
+    public Transform laserDie;
+
+    bool invertido;
     bool zonaCerrada;
+    bool hazMortal;
+    bool yaMato;
+    float prenderRojoEn = -1f;
     Grace grace;
 
     void Awake()
     {
         Instancia = this;
         EntradaJuego.InvertidoHorizontal = false;
-        barreraActiva = false;
+        EntradaJuego.SoltarDireccionFija();
+        invertido = false;
         zonaCerrada = false;
+        hazMortal = false;
+        prenderRojoEn = -1f;
 
         if (emisor == null)
             emisor = GetComponent<SpriteRenderer>();
 
-        // Solo usa el collider que ya esté en el objeto; no agrega ni reemplaza.
         if (colision == null)
             colision = GetComponent<Collider2D>();
+
+        if (laserDie == null)
+            laserDie = transform.Find("laser-die");
 
         CargarSpritesSiFaltan();
         AplicarVisual(encendido: false);
@@ -64,69 +78,28 @@ public class LaserInversionControles : MonoBehaviour
 
     void Update()
     {
-        IntentarActivarPorAnticipo();
+        EntradaJuego.ActualizarDireccionFija();
         ActualizarInversionPorZona();
+        ActualizarHazMortal();
+        IntentarMatarPorHaz();
     }
 
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (barreraActiva || zonaCerrada)
-            return;
-
-        Grace g = other.GetComponent<Grace>();
-        if (g == null)
-            g = other.GetComponentInParent<Grace>();
-        if (g == null)
-            return;
-
-        // Al tocar el haz (antes de terminarlo de cruzar).
-        if (g.transform.position.x < transform.position.x - anticipoActivacion)
-            return;
-
-        ActivarBarrera();
-    }
-
-    void IntentarActivarPorAnticipo()
-    {
-        if (barreraActiva || zonaCerrada)
-            return;
-
-        if (grace == null)
-        {
-            grace = FindObjectOfType<Grace>();
-            if (grace == null)
-                return;
-        }
-
-        // Unos pixels antes del centro del emisor.
-        if (grace.transform.position.x >= transform.position.x - anticipoActivacion)
-            ActivarBarrera();
-    }
-
-    void ActivarBarrera()
-    {
-        if (barreraActiva)
-            return;
-
-        barreraActiva = true;
-        AplicarVisual(encendido: true);
-
-        // El mismo collider deja de ser trigger y tapa el paso atrás.
-        if (colision != null)
-            colision.isTrigger = false;
-    }
-
-    /// <summary>Lo llama el tótem al activarse: se corta la inversión, el láser sigue rojo/sólido.</summary>
     public void CerrarZona()
     {
         zonaCerrada = true;
+        invertido = false;
+        hazMortal = false;
+        prenderRojoEn = -1f;
         EntradaJuego.InvertidoHorizontal = false;
+        EntradaJuego.SoltarDireccionFija();
+        AplicarVisual(encendido: false);
     }
 
     void ActualizarInversionPorZona()
     {
-        if (!barreraActiva || zonaCerrada)
+        if (zonaCerrada)
         {
+            invertido = false;
             EntradaJuego.InvertidoHorizontal = false;
             return;
         }
@@ -136,17 +109,61 @@ public class LaserInversionControles : MonoBehaviour
             grace = FindObjectOfType<Grace>();
             if (grace == null)
             {
+                invertido = false;
                 EntradaJuego.InvertidoHorizontal = false;
                 return;
             }
         }
 
-        float xMin = transform.position.x - anticipoActivacion;
+        bool enZona = EstaEnZona(grace.transform.position.x);
+        if (enZona == invertido)
+        {
+            EntradaJuego.InvertidoHorizontal = invertido;
+            return;
+        }
+
+        float dirMundo = EntradaJuego.Horizontal;
+        invertido = enZona;
+        EntradaJuego.InvertidoHorizontal = invertido;
+        EntradaJuego.ConservarDireccionMundo(dirMundo);
+
+        if (invertido && !hazMortal && prenderRojoEn < 0f)
+            prenderRojoEn = Time.time + EntradaJuego.DuracionConservarDireccion;
+    }
+
+    void ActualizarHazMortal()
+    {
+        if (zonaCerrada || hazMortal || prenderRojoEn < 0f)
+            return;
+        if (Time.time < prenderRojoEn)
+            return;
+
+        hazMortal = true;
+        AplicarVisual(encendido: true);
+    }
+
+    void ReiniciarEscena()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    bool EstaEnZona(float x)
+    {
+        float xEntrada = XBordeLaser();
+        float xSalida = xEntrada - margenSalida;
         float xMax = ObtenerXLimiteDerecho();
 
-        float x = grace.transform.position.x;
-        // Invertido desde un poco antes del láser hasta el tótem.
-        EntradaJuego.InvertidoHorizontal = x >= xMin && x < xMax;
+        if (invertido)
+            return x >= xSalida && x < xMax;
+
+        return x >= xEntrada && x < xMax;
+    }
+
+    float XBordeLaser()
+    {
+        if (colision != null)
+            return colision.bounds.min.x;
+        return transform.position.x;
     }
 
     float ObtenerXLimiteDerecho()
@@ -154,8 +171,6 @@ public class LaserInversionControles : MonoBehaviour
         if (limiteZonaDerecha == null)
             return float.PositiveInfinity;
 
-        // Termina la inversión en el borde izquierdo del tótem, no en el centro:
-        // así Grace llega con controles normales y lo pasa sin trabarse.
         var checkpoint = limiteZonaDerecha.GetComponent<CheckpointTotem>();
         if (checkpoint != null)
             return checkpoint.XFinZonaInvertida();
@@ -176,14 +191,56 @@ public class LaserInversionControles : MonoBehaviour
         if (nuevo == null)
             return;
 
-        // Solo Y: el haz rojo ensancha el bounds y si anclamos en X el poste se corre.
-        SetSpriteSinCorrerse(emisor, nuevo, soloVertical: true);
+        emisor.color = Color.white;
+        emisor.sprite = nuevo;
     }
 
-    /// <summary>
-    /// Cambia el sprite manteniendo el pie anclado.
-    /// Por defecto ancla centro-abajo (X e Y). Con soloVertical evita corrimiento por haces asimétricos.
-    /// </summary>
+    void IntentarMatarPorHaz()
+    {
+        if (!hazMortal || zonaCerrada || yaMato || grace == null)
+            return;
+
+        Rigidbody2D rb = grace.GetComponent<Rigidbody2D>();
+        if (rb != null && rb.velocity.y > 1.5f)
+            return;
+
+        if (laserDie == null)
+            laserDie = transform.Find("laser-die");
+        if (laserDie == null)
+            return;
+
+        Collider2D zonaCol = laserDie.GetComponent<Collider2D>();
+        Collider2D colGrace = grace.ColisionCuerpo;
+        if (zonaCol == null || !zonaCol.enabled || colGrace == null || !colGrace.enabled)
+            return;
+
+        Vector2 pie = new Vector2(colGrace.bounds.center.x, colGrace.bounds.min.y + 0.06f);
+        Vector2 tamPie = new Vector2(0.22f, 0.16f);
+
+        var filtro = new ContactFilter2D();
+        filtro.NoFilter();
+        filtro.useTriggers = true;
+
+        var hits = new Collider2D[8];
+        int n = Physics2D.OverlapBox(pie, tamPie, 0f, filtro, hits);
+        bool toca = false;
+        for (int i = 0; i < n; i++)
+        {
+            if (hits[i] == zonaCol)
+            {
+                toca = true;
+                break;
+            }
+        }
+
+        if (!toca)
+            return;
+
+        yaMato = true;
+        grace.MorirPorContainer();
+        Invoke(nameof(ReiniciarEscena), Grace.DuracionAnimacionMuerte);
+    }
+
     public static void SetSpriteSinCorrerse(SpriteRenderer sr, Sprite nuevo, bool soloVertical = false)
     {
         if (sr == null || nuevo == null)
@@ -214,7 +271,6 @@ public class LaserInversionControles : MonoBehaviour
         if (todos == null || todos.Length == 0)
             return;
 
-        // _1 = verde (apagado), _0 = rojo con haz (encendido).
         if (spriteApagado == null)
             spriteApagado = Buscar(todos, "_1");
         if (spriteEncendido == null)

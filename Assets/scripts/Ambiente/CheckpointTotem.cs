@@ -108,13 +108,13 @@ public class CheckpointTotem : MonoBehaviour
 
     void ArmarCascada()
     {
-        if (plataformas == null)
-            return;
-
-        for (int i = 0; i < plataformas.Length; i++)
+        // Todas las PlataformaQueCae del nivel, no solo las del array del inspector.
+        // Duplicar una plataforma alcanza; no hace falta volver a arrastrarla al tótem.
+        PlataformaQueCae[] todas = FindObjectsOfType<PlataformaQueCae>();
+        for (int i = 0; i < todas.Length; i++)
         {
-            if (plataformas[i] != null)
-                plataformas[i].Armar();
+            if (todas[i] != null)
+                todas[i].Armar();
         }
     }
 

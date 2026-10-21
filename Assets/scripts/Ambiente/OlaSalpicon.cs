@@ -187,7 +187,7 @@ public class OlaSalpicon : MonoBehaviour
         float yMin = ancla.y - 0.5f;
         float yMax = ancla.y + altoGolpe;
 
-        Collider2D col = grace.GetComponent<Collider2D>();
+        Collider2D col = grace.ColisionCuerpo;
         if (col != null && col.enabled)
         {
             Bounds b = col.bounds;

@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class TrampaLanchaArranque : MonoBehaviour
 {
-    [Header("Punto de Referencia (Trigger Ola)")]
-    public Transform puntoOla;
-
     [Header("Velocidades")]
     public float velocidadInicio = 2f;
     public float velocidadAcelerado = 18f;
@@ -28,19 +25,13 @@ public class TrampaLanchaArranque : MonoBehaviour
     void Update()
     {
         if (!trampaIniciada)
-        {
-            if (EntradaJuego.HayMovimientoHorizontal)
-                IniciarArrancada();
             return;
-        }
 
         if (!aceleracionViolenta)
         {
             velocidadActual = velocidadInicio;
 
-            bool porDistancia = puntoOla != null && transform.position.x >= puntoOla.position.x;
-            bool porTiempo = Time.time >= tiempoArranque + tiempoHastaAceleron;
-            if (porDistancia || porTiempo)
+            if (Time.time >= tiempoArranque + tiempoHastaAceleron)
                 DispararAceleron();
         }
         else
@@ -56,22 +47,25 @@ public class TrampaLanchaArranque : MonoBehaviour
         transform.Translate(Vector3.right * velocidadActual * Time.deltaTime, Space.World);
     }
 
-    void IniciarArrancada()
+    public void ActivarDesdeTrigger()
     {
+        if (trampaIniciada)
+            return;
+
         trampaIniciada = true;
         tiempoArranque = Time.time;
 
         if (scriptFlotacion != null)
             scriptFlotacion.enabled = false;
-
-        if (salpicon != null)
-            salpicon.Reproducir();
-
-        Destroy(gameObject, 4f);
     }
 
     void DispararAceleron()
     {
         aceleracionViolenta = true;
+
+        if (salpicon != null)
+            salpicon.Reproducir();
+
+        Destroy(gameObject, 4f);
     }
 }
