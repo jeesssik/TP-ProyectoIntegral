@@ -25,10 +25,13 @@ public class Grace : MonoBehaviour
     [Header("Ola / muerte")]
     public Vector2 impulsoOla = new Vector2(9.5f, 2.2f);
     public float yMuerteMar = -7f;
+    [Tooltip("Ajuste vertical de la animacion de muerte para compensar margen transparente del sprite.")]
+    public float ajusteAlturaMuerte = 0f;
 
     Rigidbody2D rb;
     Animator animator;
     Collider2D colision;
+    SpriteRenderer rendererVisual;
     Quaternion rotacionInicial;
     float movimiento;
     bool estaEnSuelo;
@@ -41,6 +44,8 @@ public class Grace : MonoBehaviour
     float ignorarSueloHasta;
     float ultimoSueloTime = -10f;
     float marcaSalto = -100f;
+    float alturaPisoMuerte;
+    bool ajustarMuerteAlPiso;
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
@@ -70,6 +75,7 @@ public class Grace : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
+        rendererVisual = GetComponentInChildren<SpriteRenderer>();
         if (animator != null)
             animator.applyRootMotion = false;
         rotacionInicial = transform.localRotation;
@@ -84,6 +90,36 @@ public class Grace : MonoBehaviour
         estaEnSuelo = TocaSuelo();
         estabaEnSuelo = estaEnSuelo;
         ActualizarAnimacion();
+    }
+
+    void LateUpdate()
+    {
+        if (!ajustarMuerteAlPiso || rendererVisual == null)
+            return;
+
+        float limiteInferior = ObtenerLimiteInferiorVisible();
+        transform.position += Vector3.up *
+            (alturaPisoMuerte + ajusteAlturaMuerte - limiteInferior);
+    }
+
+    float ObtenerLimiteInferiorVisible()
+    {
+        Sprite sprite = rendererVisual.sprite;
+        if (sprite == null)
+            return rendererVisual.bounds.min.y;
+
+        Vector2[] vertices = sprite.vertices;
+        if (vertices == null || vertices.Length == 0)
+            return rendererVisual.bounds.min.y;
+
+        float limiteInferior = float.PositiveInfinity;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            float y = rendererVisual.transform.TransformPoint(vertices[i]).y;
+            limiteInferior = Mathf.Min(limiteInferior, y);
+        }
+
+        return limiteInferior;
     }
 
     void Update()
@@ -307,6 +343,8 @@ public class Grace : MonoBehaviour
         controlBloqueado = true;
         movimiento = 0f;
         saltoPedido = false;
+        if (AlinearCuerpoConElPiso(out alturaPisoMuerte))
+            ajustarMuerteAlPiso = true;
         if (colision != null)
             colision.enabled = false;
         if (rb != null)
@@ -324,6 +362,27 @@ public class Grace : MonoBehaviour
             animator.SetBool("IsGrounded", true);
             animator.SetTrigger("Dead");
         }
+    }
+
+    bool AlinearCuerpoConElPiso(out float alturaPiso)
+    {
+        alturaPiso = 0f;
+        if (colision == null || capaSuelo.value == 0)
+            return false;
+
+        Bounds bounds = colision.bounds;
+        RaycastHit2D impacto = Physics2D.Raycast(
+            bounds.center,
+            Vector2.down,
+            Mathf.Infinity,
+            capaSuelo
+        );
+
+        if (impacto.collider == null)
+            return false;
+
+        alturaPiso = impacto.point.y;
+        return true;
     }
 
     void MorirPorCaidaAlMar()
