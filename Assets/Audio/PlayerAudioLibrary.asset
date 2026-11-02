@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PlayerAudioLibrary
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2c8a9f4b7e41c0a5d3e6f8b2c19470, type: 3}
+  m_EditorClassIdentifier: 
+  walkStep: {fileID: 8300000, guid: 64735653bdcec9744b01c71e87e1df90, type: 3}
+  jump: {fileID: 8300000, guid: b19e3bd8e09000d4dbaaa073601749ba, type: 3}
+  land: {fileID: 8300000, guid: ce3925a9d9804304f8af80bea73165f7, type: 3}
+  attack: {fileID: 8300000, guid: dcda26858c000d44faa363ab225356df, type: 3}
+  hurt: {fileID: 8300000, guid: 976e389d3e9c164479eb6d5a0504fc4d, type: 3}
+  death: {fileID: 8300000, guid: 51537fa4c7b57374ab66ecb5288d9b91, type: 3}
+  dash: {fileID: 8300000, guid: d736ca9c51a065a43ba6780b8ef60705, type: 3}
+  backDodge: {fileID: 8300000, guid: d012e86a45c33144392f431fe285edb8, type: 3}

@@ -9,8 +9,15 @@ public class LevelAudio : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayMusic(levelMusic);
-            AudioManager.Instance.PlayAmbient(levelAmbient);
+            if (levelMusic != null)
+                AudioManager.Instance.PlayMusic(levelMusic);
+            else
+                AudioManager.Instance.StopMusic();
+
+            if (levelAmbient != null)
+                AudioManager.Instance.PlayAmbient(levelAmbient);
+            else
+                AudioManager.Instance.StopAmbient();
         }
     }
 }

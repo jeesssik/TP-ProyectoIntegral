@@ -26,16 +26,6 @@ public class AudioManager : MonoBehaviour
     public bool ambientMuted;
     public bool sfxMuted;
 
-    [Header("Player SFX Clips")]
-    public AudioClip playerWalkStep;
-    public AudioClip playerJump;
-    public AudioClip playerLand;
-    public AudioClip playerAttack;
-    public AudioClip playerHurt;
-    public AudioClip playerDeath;
-    public AudioClip playerDash;
-    public AudioClip backDodge;
-
     public float GetMusicVolume() => musicVolume;
     public float GetAmbientVolume() => ambientVolume;
     public float GetSFXVolume() => sfxVolume;
@@ -97,6 +87,15 @@ public class AudioManager : MonoBehaviour
         ambientSource.loop = true;
         ApplyVolumes();
         ambientSource.Play();
+    }
+
+    public void StopAmbient()
+    {
+        if (ambientSource == null)
+            return;
+
+        ambientSource.Stop();
+        ambientSource.clip = null;
     }
 
     public void SetMusicVolume(float value)
