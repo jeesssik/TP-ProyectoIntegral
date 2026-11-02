@@ -2,17 +2,20 @@ using UnityEngine;
 
 public class AguaLoop : MonoBehaviour
 {
-    public Transform aguaA;
-    public Transform aguaB;
-    public float velocidad = 0.5f;
+    [SerializeField] Transform aguaA;
+    [SerializeField] Transform aguaB;
+    [SerializeField] float velocidad = 0.5f;
 
     float ancho;
     Camera cam;
+    SpriteRenderer spriteAgua;
 
     void Start()
     {
         cam = Camera.main;
-        ancho = aguaA.GetComponent<SpriteRenderer>().bounds.size.x;
+        spriteAgua = aguaA.GetComponent<SpriteRenderer>();
+        ancho = spriteAgua.bounds.size.x;
+        aguaB.rotation = aguaA.rotation;
         aguaB.position = aguaA.position + Vector3.right * ancho;
     }
 
