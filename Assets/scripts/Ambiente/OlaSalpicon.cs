@@ -187,17 +187,23 @@ public class OlaSalpicon : MonoBehaviour
         float yMin = ancla.y - 0.5f;
         float yMax = ancla.y + altoGolpe;
 
+        // El borde de los pies es finito. La ola tiene que cubrir el cuerpo,
+        // desde los pies hasta la cabeza, como hacía la silueta del sprite.
+        float x0 = p.x - 0.4f;
+        float x1 = p.x + 0.4f;
+        float y0 = p.y;
+        float y1 = p.y + 2.3f;
         Collider2D col = grace.ColisionCuerpo;
         if (col != null && col.enabled)
         {
             Bounds b = col.bounds;
-            bool solapaX = b.max.x >= xMin && b.min.x <= xMax;
-            bool solapaY = b.max.y >= yMin && b.min.y <= yMax;
-            if (solapaX && solapaY)
-                return true;
+            x0 = Mathf.Min(x0, b.min.x);
+            x1 = Mathf.Max(x1, b.max.x);
+            y0 = Mathf.Min(y0, b.min.y);
+            y1 = Mathf.Max(y1, b.max.y);
         }
 
-        return p.x >= xMin && p.x <= xMax && p.y >= yMin && p.y <= yMax;
+        return x1 >= xMin && x0 <= xMax && y1 >= yMin && y0 <= yMax;
     }
 
     // Salta el frame 0 (alpha 0) y reparte el resto en la duración.

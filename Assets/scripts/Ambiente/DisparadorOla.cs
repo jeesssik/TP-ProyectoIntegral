@@ -13,7 +13,7 @@ public class DisparadorOla : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Grace grace = other.GetComponent<Grace>();
+        Grace grace = Grace.En(other);
         if (grace == null)
             return;
 
@@ -29,14 +29,14 @@ public class DisparadorOla : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D other)
     {
-        Grace grace = other.GetComponent<Grace>();
+        Grace grace = Grace.En(other);
         if (grace != null)
             graceDetectada = grace;
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        Grace grace = other.GetComponent<Grace>();
+        Grace grace = Grace.En(other);
         if (grace != null && grace == graceDetectada)
             graceDetectada = null;
     }

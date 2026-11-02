@@ -200,7 +200,7 @@ public class LaserInversionControles : MonoBehaviour
         if (!hazMortal || zonaCerrada || yaMato || grace == null)
             return;
 
-        Rigidbody2D rb = grace.GetComponent<Rigidbody2D>();
+        Rigidbody2D rb = grace.CuerpoRigido;
         if (rb != null && rb.velocity.y > 1.5f)
             return;
 

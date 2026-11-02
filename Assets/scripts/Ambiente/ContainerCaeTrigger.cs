@@ -66,11 +66,12 @@ public class ContainerCaeTrigger : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (activado || other.GetComponent<Grace>() == null || containerAnimator == null)
+        Grace grace = Grace.En(other);
+        if (activado || grace == null || containerAnimator == null)
             return;
 
         activado = true;
-        graceImpactada = other.GetComponent<Grace>();
+        graceImpactada = grace;
         xZonaImpacto = transform.position.x;
 
         Collider2D trigger = GetComponent<Collider2D>();

@@ -105,9 +105,7 @@ public class PlataformaQueCae : MonoBehaviour
         if (!armada || pendienteCaida || cayendo || other == null)
             return;
 
-        Grace g = other.GetComponent<Grace>();
-        if (g == null)
-            g = other.GetComponentInParent<Grace>();
+        Grace g = Grace.En(other);
         if (g == null)
             return;
 

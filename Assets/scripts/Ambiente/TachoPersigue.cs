@@ -204,9 +204,7 @@ public class TachoPersigue : MonoBehaviour
         if (estado != Estado.Persiguiendo)
             return;
 
-        Grace g = other.GetComponent<Grace>();
-        if (g == null)
-            g = other.GetComponentInParent<Grace>();
+        Grace g = Grace.En(other);
         if (g == null)
             return;
 

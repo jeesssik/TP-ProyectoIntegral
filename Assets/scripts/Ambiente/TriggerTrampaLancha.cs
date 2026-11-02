@@ -15,7 +15,7 @@ public class TriggerTrampaLancha : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.GetComponent<Grace>() == null && other.GetComponentInParent<Grace>() == null)
+        if (Grace.En(other) == null)
             return;
 
         if (trampa != null)

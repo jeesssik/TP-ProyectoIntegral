@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(200)]
 public class CameraFollow : MonoBehaviour
 {
     [Header("Objetivo a seguir")]
@@ -14,12 +15,21 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float minX, maxX;
     [SerializeField] private float minY, maxY;
 
+    float zFijo;
+
+    void Start()
+    {
+        zFijo = transform.position.z;
+    }
+
     private void LateUpdate()
     {
         if (target == null) return;
 
-        // 1. Calcular la posición deseada
+        // La cámara sigue el plano del nivel. La Z queda fija para que
+        // el modelo 3D no arrastre el encuadre hacia el fondo.
         Vector3 desiredPosition = target.position + offset;
+        desiredPosition.z = zFijo;
 
         // 2. Interpolar suavemente entre la posición actual y la deseada
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
