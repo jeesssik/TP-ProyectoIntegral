@@ -28,6 +28,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnStartButton()
     {
+        AudioManager.Instance?.StopMusic();
         SceneManager.LoadScene(gameSceneName);
     }
 
