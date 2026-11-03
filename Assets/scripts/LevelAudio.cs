@@ -7,17 +7,20 @@ public class LevelAudio : MonoBehaviour
 
     private void Start()
     {
-        if (AudioManager.Instance != null)
+        if (AudioManager.Instance == null)
         {
-            if (levelMusic != null)
-                AudioManager.Instance.PlayMusic(levelMusic);
-            else
-                AudioManager.Instance.StopMusic();
-
-            if (levelAmbient != null)
-                AudioManager.Instance.PlayAmbient(levelAmbient);
-            else
-                AudioManager.Instance.StopAmbient();
+            Debug.LogError("LevelAudio necesita un AudioManager activo. Ingresá al nivel desde Menu o agregá un bootstrap de audio.", this);
+            return;
         }
+
+        if (levelMusic != null)
+            AudioManager.Instance.PlayMusic(levelMusic);
+        else
+            AudioManager.Instance.StopMusic();
+
+        if (levelAmbient != null)
+            AudioManager.Instance.PlayAmbient(levelAmbient);
+        else
+            AudioManager.Instance.StopAmbient();
     }
 }

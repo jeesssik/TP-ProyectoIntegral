@@ -55,6 +55,41 @@ public class AudioManager : MonoBehaviour
         sfxSource.PlayOneShot(clip, sfxVolume * volumeMultiplier);
     }
 
+    public void PlaySFXForDuration(
+        AudioClip clip,
+        float duration,
+        float volumeMultiplier = 1f,
+        float startTime = 0f,
+        float pitch = 1f,
+        float lowPassCutoff = 22000f)
+    {
+        if (clip == null || duration <= 0f || sfxMuted || sfxSource == null)
+            return;
+
+        GameObject shortSfxObject = new GameObject("ShortSFX");
+        shortSfxObject.transform.SetParent(transform);
+
+        AudioSource shortSfxSource = shortSfxObject.AddComponent<AudioSource>();
+        shortSfxSource.outputAudioMixerGroup = sfxSource.outputAudioMixerGroup;
+        shortSfxSource.playOnAwake = false;
+        shortSfxSource.loop = false;
+        shortSfxSource.spatialBlend = sfxSource.spatialBlend;
+        shortSfxSource.volume = sfxVolume * volumeMultiplier;
+        shortSfxSource.pitch = pitch;
+        shortSfxSource.clip = clip;
+        shortSfxSource.time = Mathf.Clamp(startTime, 0f, Mathf.Max(0f, clip.length - 0.01f));
+
+        if (lowPassCutoff < 22000f)
+        {
+            AudioLowPassFilter lowPassFilter = shortSfxObject.AddComponent<AudioLowPassFilter>();
+            lowPassFilter.cutoffFrequency = Mathf.Clamp(lowPassCutoff, 10f, 22000f);
+        }
+
+        shortSfxSource.Play();
+
+        Destroy(shortSfxObject, duration);
+    }
+
     public void PlayMusic(AudioClip clip)
     {
         if (clip == null || musicSource == null)

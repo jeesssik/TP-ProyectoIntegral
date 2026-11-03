@@ -122,3 +122,10 @@ MonoBehaviour:
   library: {fileID: 11400000, guid: 4a8f2c6e1d9b4370b5e7a3c8f2d16490, type: 2}
   walkStepInterval: 0.45
   runStepInterval: 0.3
+  walkStepDuration: 0.18
+  walkStepVariantCount: 4
+  walkStepVolume: 0.45
+  runStepVolume: 0.4
+  walkStepMinPitch: 0.94
+  walkStepMaxPitch: 1
+  walkStepLowPassCutoff: 4200
