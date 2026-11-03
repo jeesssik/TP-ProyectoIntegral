@@ -63,6 +63,8 @@ public class Grace : MonoBehaviour
 
     public bool EstaCorriendo => estaCorriendo;
     public bool EstaEnElAire => !estaEnSuelo;
+    public bool EstaMoviendose => estaEnSuelo && !controlBloqueado && !enCinematica &&
+        !yaMurio && Mathf.Abs(movimiento) > 0.01f;
     public bool VieneDeUnSalto => Time.time - marcaSalto < 1.35f;
     public Collider2D ColisionCuerpo => colision;
     public Rigidbody2D CuerpoRigido => rb;

@@ -3,6 +3,32 @@ using UnityEngine;
 public class PlayerAudio : MonoBehaviour
 {
     [SerializeField] PlayerAudioLibrary library;
+    [SerializeField] float walkStepInterval = 0.45f;
+    [SerializeField] float runStepInterval = 0.3f;
+
+    Grace player;
+    float nextWalkStepTime;
+
+    void Awake()
+    {
+        player = GetComponent<Grace>();
+    }
+
+    void Update()
+    {
+        if (player == null || !player.EstaMoviendose)
+        {
+            nextWalkStepTime = 0f;
+            return;
+        }
+
+        if (Time.time < nextWalkStepTime)
+            return;
+
+        PlayWalkStep(player.EstaCorriendo ? 0.9f : 1f);
+        nextWalkStepTime = Time.time +
+            (player.EstaCorriendo ? runStepInterval : walkStepInterval);
+    }
 
     public void PlayWalkStep(float volumeMultiplier = 1f) =>
         Play(library != null ? library.walkStep : null, volumeMultiplier);
