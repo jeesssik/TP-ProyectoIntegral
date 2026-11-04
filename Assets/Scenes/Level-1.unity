@@ -12148,7 +12148,7 @@ MonoBehaviour:
   spriteRoto: {fileID: -1461427818, guid: cf739ac296aeb2b4eb1354681f287f31, type: 3}
   soloCasiRompe: 0
   umbralImpactoSalto: -6.5
-  tiempoHastaColapso: 0.2
+  tiempoHastaColapso: 0.45
   profundidadCurva: 0.58
   espesorTablas: 0.45
 --- !u!95 &767678530

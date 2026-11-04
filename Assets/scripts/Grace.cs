@@ -44,6 +44,8 @@ public class Grace : MonoBehaviour
     bool yaMurio;
     bool saltoPedido;
     bool lanzadaPorOla;
+    bool caidaAlMar;
+    bool recargaCaidaPendiente;
     float proximoDesenganche;
     float ignorarSueloHasta;
     float ultimoSueloTime = -10f;
@@ -138,7 +140,7 @@ public class Grace : MonoBehaviour
         if (!enCinematica)
         {
             AlinearVisual();
-            if (lanzadaPorOla)
+            if (lanzadaPorOla || caidaAlMar)
                 AnclarPiesVisualesDuranteCaida();
         }
         ActualizarSilueta();
@@ -180,13 +182,23 @@ public class Grace : MonoBehaviour
         // a la altura del muelle, así que el primer puente, al hundirse, la mata.
         float lineaMar = Mathf.Min(yMuerteMar, -7.5f);
         float yCuerpo = cuerpoFisico != null ? cuerpoFisico.position.y : transform.position.y;
-        if (lanzadaPorOla)
+        if (lanzadaPorOla || caidaAlMar)
         {
             estaEnSuelo = false;
             MantenerAnimacionCaida();
         }
         if (!estaEnSuelo && yCuerpo < lineaMar)
         {
+            if (caidaAlMar)
+            {
+                if (!recargaCaidaPendiente)
+                {
+                    recargaCaidaPendiente = true;
+                    Invoke(nameof(MorirPorCaidaAlMar), 1f);
+                }
+                return;
+            }
+
             MorirPorCaidaAlMar();
             return;
         }
@@ -705,6 +717,22 @@ public class Grace : MonoBehaviour
         // Suelta el piso en el acto: la caída sale de la plataforma, no sigue caminando encima.
         UsarColision(false);
         Invoke(nameof(MorirPorCaidaAlMar), 0.95f);
+    }
+
+    public void CaerDesdePuente()
+    {
+        if (yaMurio || caidaAlMar || lanzadaPorOla || enCinematica)
+            return;
+
+        caidaAlMar = true;
+        controlBloqueado = true;
+        estaEnSuelo = false;
+        estabaEnSuelo = false;
+        movimiento = 0f;
+        estaCorriendo = false;
+        saltoPedido = false;
+        ReproducirCaidaPorOla();
+        UsarColision(false);
     }
 
     Animator BuscarAnimador()

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PuenteRompible : MonoBehaviour
@@ -11,7 +12,7 @@ public class PuenteRompible : MonoBehaviour
 
     [Header("Detección")]
     public float umbralImpactoSalto = -6.5f;
-    public float tiempoHastaColapso = 0.2f;
+    public float tiempoHastaColapso = 0.45f;
 
     [Header("Collider curvo")]
     [Tooltip("Cuánto baja el centro de las tablas respecto al puente sano.")]
@@ -175,9 +176,6 @@ public class PuenteRompible : MonoBehaviour
             animator.Play("casiRompe", 0, 0f);
         }
 
-        if (!soloCasiRompe && spriteRenderer != null && spriteRoto != null)
-            spriteRenderer.sprite = SpriteAlineadoAlSano(spriteRenderer.sprite, spriteRoto);
-
         AplicarColliderHundido();
         RecostarJugador(jugadorSobrePuente);
         ignorarAterrizajeHasta = Time.time + 0.4f;
@@ -308,12 +306,48 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         colapsado = true;
+        bool yaHundido = agrietado;
         MostrarRoto();
-        Invoke(nameof(Desaparecer), tiempoHastaColapso);
+
+        const float inicioHundido = 0.3703704f;
+        const float momentoRotura = 1.0833334f;
+
+        if (animator != null)
+            animator.Play("puenteRompe", 0, yaHundido ? inicioHundido : 0f);
+
+        float duracion = DuracionClip("puenteRompe");
+        if (duracion < 0.2f)
+            duracion = 2.25f;
+
+        float inicio = yaHundido ? duracion * inicioHundido : 0f;
+        float hastaRotura = momentoRotura - inicio;
+        if (hastaRotura < 0.05f)
+            hastaRotura = 0.05f;
+
+        Invoke(nameof(SoltarPiso), hastaRotura);
+        Invoke(nameof(Desvanecer), (duracion - inicio) + tiempoHastaColapso);
     }
 
-    void Desaparecer()
+    float DuracionClip(string nombre)
     {
+        if (animator == null || animator.runtimeAnimatorController == null)
+            return 0f;
+
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+        for (int i = 0; i < clips.Length; i++)
+        {
+            if (clips[i] != null && clips[i].name == nombre)
+                return clips[i].length;
+        }
+
+        return 0f;
+    }
+
+    void SoltarPiso()
+    {
+        if (jugadorSobrePuente != null)
+            jugadorSobrePuente.CaerDesdePuente();
+
         if (colliderPuente != null)
             colliderPuente.enabled = false;
 
@@ -322,8 +356,29 @@ public class PuenteRompible : MonoBehaviour
 
         if (bordeCurvo != null)
             bordeCurvo.enabled = false;
+    }
 
-        if (spriteRenderer != null)
-            spriteRenderer.enabled = false;
+    void Desvanecer()
+    {
+        StartCoroutine(FundirSprite());
+    }
+
+    IEnumerator FundirSprite()
+    {
+        if (spriteRenderer == null)
+            yield break;
+
+        Color color = spriteRenderer.color;
+        float duracion = 0.45f;
+        float t = 0f;
+        while (t < duracion)
+        {
+            t += Time.deltaTime;
+            color.a = Mathf.Lerp(1f, 0f, t / duracion);
+            spriteRenderer.color = color;
+            yield return null;
+        }
+
+        spriteRenderer.enabled = false;
     }
 }
