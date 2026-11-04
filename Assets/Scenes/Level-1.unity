@@ -10173,7 +10173,9 @@ GameObject:
   - component: {fileID: 612768161}
   - component: {fileID: 612768162}
   - component: {fileID: 612768163}
-  m_Layer: 0
+  - component: {fileID: 612768164}
+  - component: {fileID: 612768165}
+  m_Layer: 6
   m_Name: barril (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10295,7 +10297,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.593984, y: 0}
+  m_Offset: {x: 0.593984, y: 2.09}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -10306,8 +10308,51 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.642032, y: 4.63}
+  m_Size: {x: 2.642032, y: 0.45}
   m_EdgeRadius: 0
+--- !u!50 &612768164
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 612768159}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
+--- !u!114 &612768165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 612768159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e9a1b4d6f48e2a0b5c7d9e1f3a846, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiempoDeAguante: 1.25
+  aviso: 0.4
+  velocidadHundimiento: 4.5
+  profundidadParaSoltar: 1.6
 --- !u!1 &613801583
 GameObject:
   m_ObjectHideFlags: 0
@@ -15306,6 +15351,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a7e1b09d2f4a6e8b3c5d7f1a2e4b60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reposo:
+  - {fileID: 21300000, guid: 18466d539f66448aa6fa991758f4e93a, type: 3}
+  - {fileID: 21300000, guid: 1b1ec689a2794cbd82eee05336f87d4c, type: 3}
+  - {fileID: 21300000, guid: 35e2022bbf7b4441a5dbf75dc33ff5f4, type: 3}
+  - {fileID: 21300000, guid: d2d394595b8e4317acd8976f436c0141, type: 3}
+  impulso:
+  - {fileID: 21300000, guid: 03e529420b934e9baf401e10247c388a, type: 3}
+  - {fileID: 21300000, guid: d5df9fdccc284f3296fbfe58dc8d4bd2, type: 3}
+  - {fileID: 21300000, guid: f6b7072809dd4f268fe0364c516e3992, type: 3}
+  - {fileID: 21300000, guid: 4f977fda921b487f845f2a36bacd79ec, type: 3}
+  - {fileID: 21300000, guid: d6e435538142456484de4b5f39c4bf8c, type: 3}
+  - {fileID: 21300000, guid: e822ea85d39e489fa7df9c876b115c6d, type: 3}
+  - {fileID: 21300000, guid: a97349fa0c73471884657e97748e0338, type: 3}
+  - {fileID: 21300000, guid: 31df811a704a49a1979d980753dc221f, type: 3}
+  - {fileID: 21300000, guid: 510af1e6f349446da7aa7a2a843116c7, type: 3}
+  fpsReposo: 7
+  fpsImpulso: 18
+  cuadroDeLanzamiento: 2
 --- !u!1 &770061050
 GameObject:
   m_ObjectHideFlags: 0
@@ -23515,7 +23578,9 @@ GameObject:
   - component: {fileID: 1218162458}
   - component: {fileID: 1218162459}
   - component: {fileID: 1218162460}
-  m_Layer: 0
+  - component: {fileID: 1218162461}
+  - component: {fileID: 1218162462}
+  m_Layer: 6
   m_Name: barril (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23637,7 +23702,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.5499846, y: 0}
+  m_Offset: {x: 0.5499846, y: 2.09}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -23648,8 +23713,51 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.7300308, y: 4.63}
+  m_Size: {x: 2.7300308, y: 0.45}
   m_EdgeRadius: 0
+--- !u!50 &1218162461
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218162456}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
+--- !u!114 &1218162462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218162456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e9a1b4d6f48e2a0b5c7d9e1f3a846, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiempoDeAguante: 1.6
+  aviso: 0.4
+  velocidadHundimiento: 4.5
+  profundidadParaSoltar: 1.6
 --- !u!4 &1220040720 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3734832614685435904, guid: 9d9636113cbff49148544d87694ef7f5, type: 3}
@@ -32957,7 +33065,9 @@ GameObject:
   - component: {fileID: 1706067699}
   - component: {fileID: 1706067700}
   - component: {fileID: 1706067701}
-  m_Layer: 0
+  - component: {fileID: 1706067702}
+  - component: {fileID: 1706067703}
+  m_Layer: 6
   m_Name: barril (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33079,7 +33189,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.56097746, y: 0}
+  m_Offset: {x: 0.56097746, y: 2.09}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -33090,8 +33200,51 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.708055, y: 4.63}
+  m_Size: {x: 2.708055, y: 0.45}
   m_EdgeRadius: 0
+--- !u!50 &1706067702
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706067697}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
+--- !u!114 &1706067703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706067697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e9a1b4d6f48e2a0b5c7d9e1f3a846, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiempoDeAguante: 0.85
+  aviso: 0.35
+  velocidadHundimiento: 4.5
+  profundidadParaSoltar: 1.6
 --- !u!1 &1714629211
 GameObject:
   m_ObjectHideFlags: 0
