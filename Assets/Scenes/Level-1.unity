@@ -23899,7 +23899,7 @@ MonoBehaviour:
   capaSuelo:
     serializedVersion: 2
     m_Bits: 64
-  impulsoOla: {x: 9.5, y: 2.2}
+  impulsoOla: {x: 9.5, y: 0}
   yMuerteMar: -5
   ajusteAlturaMuerte: 0
 --- !u!114 &1362817829

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class Grace : MonoBehaviour
 {
     public const float DuracionAnimacionMuerte = 1.65f;
+    const string EstadoCaidaOla = "Caida";
 
     [Header("Movimiento")]
     public float velocidadCaminar = 3f;
@@ -24,7 +25,7 @@ public class Grace : MonoBehaviour
     public LayerMask capaSuelo;
 
     [Header("Ola / muerte")]
-    public Vector2 impulsoOla = new Vector2(9.5f, 2.2f);
+    public Vector2 impulsoOla = new Vector2(9.5f, 0f);
     public float yMuerteMar = -7f;
     [Tooltip("Ajuste vertical de la animacion de muerte para compensar margen transparente del sprite.")]
     public float ajusteAlturaMuerte = 0f;
@@ -107,7 +108,7 @@ public class Grace : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponentInChildren<Animator>();
+        animator = BuscarAnimador();
         rendererVisual = GetComponentInChildren<SpriteRenderer>();
         foreach (Animator animador in GetComponentsInChildren<Animator>(true))
             animador.applyRootMotion = false;
@@ -135,7 +136,11 @@ public class Grace : MonoBehaviour
     void LateUpdate()
     {
         if (!enCinematica)
+        {
             AlinearVisual();
+            if (lanzadaPorOla)
+                AnclarPiesVisualesDuranteCaida();
+        }
         ActualizarSilueta();
 
         if (!ajustarMuerteAlPiso || rendererVisual == null)
@@ -176,7 +181,10 @@ public class Grace : MonoBehaviour
         float lineaMar = Mathf.Min(yMuerteMar, -7.5f);
         float yCuerpo = cuerpoFisico != null ? cuerpoFisico.position.y : transform.position.y;
         if (lanzadaPorOla)
+        {
             estaEnSuelo = false;
+            MantenerAnimacionCaida();
+        }
         if (!estaEnSuelo && yCuerpo < lineaMar)
         {
             MorirPorCaidaAlMar();
@@ -205,7 +213,9 @@ public class Grace : MonoBehaviour
     {
         if (lanzadaPorOla && rb != null && !yaMurio)
         {
-            rb.velocity = new Vector2(impulsoOla.x, rb.velocity.y);
+            // Sin impulso hacia arriba: cae desde la altura de la plataforma.
+            float vertical = Mathf.Min(0f, rb.velocity.y);
+            rb.velocity = new Vector2(impulsoOla.x, vertical);
             return;
         }
 
@@ -685,25 +695,95 @@ public class Grace : MonoBehaviour
         movimiento = 0f;
         estaCorriendo = false;
         saltoPedido = false;
-        if (animator != null)
-            animator.SetBool("IsGrounded", false);
+        ReproducirCaidaPorOla();
 
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.simulated = true;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = gravedadEscala;
-        rb.velocity = impulsoOla;
-        Invoke(nameof(SoltarPisoDeLaOla), 0.12f);
+        rb.velocity = new Vector2(impulsoOla.x, 0f);
+        // Suelta el piso en el acto: la caída sale de la plataforma, no sigue caminando encima.
+        UsarColision(false);
         Invoke(nameof(MorirPorCaidaAlMar), 0.95f);
     }
 
-    void SoltarPisoDeLaOla()
+    Animator BuscarAnimador()
     {
-        if (yaMurio)
+        Animator[] animadores = GetComponentsInChildren<Animator>(true);
+        int hashCaida = Animator.StringToHash(EstadoCaidaOla);
+        Animator elegido = null;
+
+        foreach (Animator candidato in animadores)
+        {
+            if (candidato.runtimeAnimatorController == null)
+            {
+                candidato.enabled = false;
+                continue;
+            }
+
+            if (elegido == null ||
+                (candidato.HasState(0, hashCaida) && !elegido.HasState(0, hashCaida)))
+                elegido = candidato;
+        }
+
+        if (elegido == null)
+            return animadores.Length > 0 ? animadores[0] : null;
+
+        // Un segundo Animator sobre el mismo rig pisa la pose y la deja en idle.
+        foreach (Animator candidato in animadores)
+        {
+            if (candidato != elegido)
+                candidato.enabled = false;
+        }
+
+        return elegido;
+    }
+
+    void ReproducirCaidaPorOla()
+    {
+        if (animator == null)
             return;
 
-        estaEnSuelo = false;
-        UsarColision(false);
+        animator.SetFloat("Speed", 0f);
+        animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsRunning", false);
+        animator.ResetTrigger("Jump");
+        animator.ResetTrigger("Land");
+        if (TieneParametro("IsFalling"))
+            animator.SetBool("IsFalling", true);
+
+        if (animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
+            animator.Play(EstadoCaidaOla, 0, 0f);
+    }
+
+    void MantenerAnimacionCaida()
+    {
+        if (animator == null || yaMurio)
+            return;
+
+        if (TieneParametro("IsFalling"))
+            animator.SetBool("IsFalling", true);
+
+        if (animator.IsInTransition(0))
+            return;
+
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla) &&
+            animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
+            animator.Play(EstadoCaidaOla, 0, 0f);
+    }
+
+    bool TieneParametro(string nombre)
+    {
+        if (animator == null)
+            return false;
+
+        foreach (AnimatorControllerParameter parametro in animator.parameters)
+        {
+            if (parametro.name == nombre)
+                return true;
+        }
+
+        return false;
     }
 
     public void LanzarAlCielo()
@@ -799,6 +879,27 @@ public class Grace : MonoBehaviour
         lanzadaPorOla = false;
         CancelInvoke(nameof(MorirPorCaidaAlMar));
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    void AnclarPiesVisualesDuranteCaida()
+    {
+        if (cuerpoFisico == null || mallas == null || mallas.Length == 0)
+            return;
+
+        float limiteInferior = float.PositiveInfinity;
+        for (int i = 0; i < mallas.Length; i++)
+        {
+            if (mallas[i] != null && mallas[i].enabled)
+                limiteInferior = Mathf.Min(limiteInferior, mallas[i].bounds.min.y);
+        }
+
+        if (float.IsPositiveInfinity(limiteInferior))
+            return;
+
+        // El clip puede desplazar el rig verticalmente según la pose anterior.
+        // Los pies visuales deben seguir el cuerpo físico mientras este abandona
+        // la plataforma, nunca subir por encima de él.
+        transform.position += Vector3.up * (cuerpoFisico.position.y - limiteInferior);
     }
 
     /// <summary>La deja quieta para que la grúa de cambio de zona la lleve.</summary>
