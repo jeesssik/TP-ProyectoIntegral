@@ -683,10 +683,14 @@ public class Grace : MonoBehaviour
         estabaEnSuelo = false;
         lanzadaPorOla = true;
         movimiento = 0f;
+        estaCorriendo = false;
         saltoPedido = false;
         if (animator != null)
             animator.SetBool("IsGrounded", false);
 
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.simulated = true;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = gravedadEscala;
         rb.velocity = impulsoOla;
         Invoke(nameof(SoltarPisoDeLaOla), 0.12f);
