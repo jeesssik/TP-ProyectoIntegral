@@ -194,7 +194,7 @@ public class Grace : MonoBehaviour
                 if (!recargaCaidaPendiente)
                 {
                     recargaCaidaPendiente = true;
-                    Invoke(nameof(MorirPorCaidaAlMar), 1f);
+                    Invoke(nameof(MorirPorCaidaAlMar), 0.3f);
                 }
                 return;
             }
@@ -731,7 +731,20 @@ public class Grace : MonoBehaviour
         movimiento = 0f;
         estaCorriendo = false;
         saltoPedido = false;
+
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.simulated = true;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.gravityScale = gravedadEscala;
+            if (rb.velocity.y > 0f)
+                rb.velocity = new Vector2(rb.velocity.x, 0f);
+        }
+
         ReproducirCaidaPorOla();
+        if (animator != null)
+            animator.Update(0f);
         UsarColision(false);
     }
 

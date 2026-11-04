@@ -27,6 +27,7 @@ public class PuenteRompible : MonoBehaviour
     bool agrietado;
     bool colapsado;
     Grace jugadorSobrePuente;
+    Grace causante;
     PolygonCollider2D colliderHundido;
     EdgeCollider2D bordeCurvo;
     Vector2[] curvaLocal;
@@ -63,6 +64,9 @@ public class PuenteRompible : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
+        if (colapsado)
+            return;
+
         if (Grace.En(collision.collider) == jugadorSobrePuente)
             jugadorSobrePuente = null;
     }
@@ -92,6 +96,9 @@ public class PuenteRompible : MonoBehaviour
             DebeColapsarPorAterrizaje(collision.relativeVelocity.y);
 
         jugadorSobrePuente = grace;
+        if (!soloCasiRompe && (colapsarPorSalto || DebeColapsarPorCorrer(grace)))
+            causante = grace;
+
         MostrarRoto();
 
         if (soloCasiRompe)
@@ -306,6 +313,8 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         colapsado = true;
+        if (causante == null)
+            causante = jugadorSobrePuente;
         bool yaHundido = agrietado;
         MostrarRoto();
 
@@ -345,8 +354,11 @@ public class PuenteRompible : MonoBehaviour
 
     void SoltarPiso()
     {
-        if (jugadorSobrePuente != null)
-            jugadorSobrePuente.CaerDesdePuente();
+        Grace grace = causante != null ? causante : jugadorSobrePuente;
+        if (grace == null)
+            grace = GraceCerca();
+        if (grace != null)
+            grace.CaerDesdePuente();
 
         if (colliderPuente != null)
             colliderPuente.enabled = false;
@@ -356,6 +368,25 @@ public class PuenteRompible : MonoBehaviour
 
         if (bordeCurvo != null)
             bordeCurvo.enabled = false;
+    }
+
+    Grace GraceCerca()
+    {
+        Collider2D zona = colliderPuente != null ? colliderPuente : bordeCurvo;
+        if (zona == null)
+            return null;
+
+        Bounds zonaBounds = zona.bounds;
+        zonaBounds.Expand(new Vector3(0.6f, 2.2f, 0f));
+        Collider2D[] toques = Physics2D.OverlapBoxAll(zonaBounds.center, zonaBounds.size, 0f);
+        for (int i = 0; i < toques.Length; i++)
+        {
+            Grace grace = Grace.En(toques[i]);
+            if (grace != null)
+                return grace;
+        }
+
+        return null;
     }
 
     void Desvanecer()
