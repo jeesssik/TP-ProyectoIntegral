@@ -1,0 +1,754 @@
+fileFormatVersion: 2
+guid: f733ae6e4bc8b174fa7e75f797700d69
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: puenteFinal_0
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 551
+        width: 314
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bc8fd9d538e5654ba807f078f0e12fd
+      internalID: -2126597716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_1
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 577
+        width: 319
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d13e9b4ffc7df87409a17580ef27cb06
+      internalID: -263138648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_2
+      rect:
+        serializedVersion: 2
+        x: 671
+        y: 575
+        width: 298
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c0b6e8f414e445f429edd1f7123d2ba6
+      internalID: -2050765170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_3
+      rect:
+        serializedVersion: 2
+        x: 982
+        y: 573
+        width: 292
+        height: 122
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 17a44df5571852c49a44de0b089700bd
+      internalID: -722806515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_4
+      rect:
+        serializedVersion: 2
+        x: 1292
+        y: 571
+        width: 294
+        height: 124
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 252665669dc913a41b28999e1e687152
+      internalID: 273677263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_5
+      rect:
+        serializedVersion: 2
+        x: 1601
+        y: 562
+        width: 304
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 434313d8a42dfc646a24cbd0eff450af
+      internalID: 1469400590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_6
+      rect:
+        serializedVersion: 2
+        x: 1909
+        y: 561
+        width: 248
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b69d494c558dc9489fa4bf455468633
+      internalID: 588923483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_7
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 402
+        width: 306
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cc464e0e8b5cd446bf95e8485725353
+      internalID: 918832288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_8
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 405
+        width: 322
+        height: 130
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b49f9d01258273c4ba65b7ac51157e6d
+      internalID: -464018625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_9
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 405
+        width: 307
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ca0f000510590a41a08684d9030e546
+      internalID: 1902651861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_10
+      rect:
+        serializedVersion: 2
+        x: 982
+        y: 385
+        width: 291
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 36d206717f9bcb149a3ee30e940c2a85
+      internalID: -941274740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_11
+      rect:
+        serializedVersion: 2
+        x: 1294
+        y: 381
+        width: 284
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d65569c8c032874ca80defa8d8c9bbb
+      internalID: -692776932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_12
+      rect:
+        serializedVersion: 2
+        x: 1605
+        y: 384
+        width: 289
+        height: 149
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d561918a9a96c7845a329fd92b4d0f37
+      internalID: -1335602109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_13
+      rect:
+        serializedVersion: 2
+        x: 1909
+        y: 382
+        width: 246
+        height: 151
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e6aab746a7ad87945a41cc0137ed6032
+      internalID: -1874115722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_18
+      rect:
+        serializedVersion: 2
+        x: 1626
+        y: 377
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c7da87a53b0fc834bbc28c766ae814b2
+      internalID: -1539134322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_14
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 222
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f4dd54c876ac604b91ee3a06d0e2d84
+      internalID: -2120299641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_15
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 87
+        width: 306
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 808bfde716f598345a4c26e48a7bd2b5
+      internalID: -1169714248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_16
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 222
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f32ce9095a2d4345b686b673361362f
+      internalID: 1943278917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_17
+      rect:
+        serializedVersion: 2
+        x: 658
+        y: 220
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae88cae45924b214b9244479223f863b
+      internalID: 864922098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_20
+      rect:
+        serializedVersion: 2
+        x: 976
+        y: 208
+        width: 306
+        height: 167
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7b4a59c5ccfe2ea459be87bb4c729f52
+      internalID: 1193787954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_21
+      rect:
+        serializedVersion: 2
+        x: 1289
+        y: 205
+        width: 306
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ebbfb89140ffb5449b631f15bfa320e
+      internalID: -822557467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_19
+      rect:
+        serializedVersion: 2
+        x: 1595
+        y: 214
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 65aa30e2a71fe814aabe8c55d66d2799
+      internalID: -764051701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_22
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 53
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d596b9ea1146c74b89990776c6d03c8
+      internalID: 1637980283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_23
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 50
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 982702a4e235a584ea6de423b7da5ca9
+      internalID: 1533386502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_24
+      rect:
+        serializedVersion: 2
+        x: 982
+        y: 50
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f2717cefe6c63946ac0e3dd42ef46b7
+      internalID: -1231296847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_25
+      rect:
+        serializedVersion: 2
+        x: 1287
+        y: 53
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71a8658f91e36e4459ba77cf475da9ba
+      internalID: 130726887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: puenteFinal_26
+      rect:
+        serializedVersion: 2
+        x: 1594
+        y: 55
+        width: 306
+        height: 158
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9960bff0b1b1844e8348d98629ee214
+      internalID: -781963364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      puenteFinal_0: -2126597716
+      puenteFinal_1: -263138648
+      puenteFinal_10: -941274740
+      puenteFinal_11: -692776932
+      puenteFinal_12: -1335602109
+      puenteFinal_13: -1874115722
+      puenteFinal_14: -2120299641
+      puenteFinal_15: -1169714248
+      puenteFinal_16: 1943278917
+      puenteFinal_17: 864922098
+      puenteFinal_18: -1539134322
+      puenteFinal_19: -764051701
+      puenteFinal_2: -2050765170
+      puenteFinal_20: 1193787954
+      puenteFinal_21: -822557467
+      puenteFinal_22: 1637980283
+      puenteFinal_23: 1533386502
+      puenteFinal_24: -1231296847
+      puenteFinal_25: 130726887
+      puenteFinal_26: -781963364
+      puenteFinal_27: 1504115277
+      puenteFinal_28: -1809867700
+      puenteFinal_29: 983743020
+      puenteFinal_3: -722806515
+      puenteFinal_30: 1013315160
+      puenteFinal_31: -815754642
+      puenteFinal_32: -679568392
+      puenteFinal_33: 1650507663
+      puenteFinal_34: 1405819472
+      puenteFinal_35: -1227559167
+      puenteFinal_36: 483125569
+      puenteFinal_37: -498493779
+      puenteFinal_38: -1926388270
+      puenteFinal_39: -751015232
+      puenteFinal_4: 273677263
+      puenteFinal_40: 43190662
+      puenteFinal_41: 810692917
+      puenteFinal_42: -148959586
+      puenteFinal_43: -1981715294
+      puenteFinal_44: -12552487
+      puenteFinal_45: 727750292
+      puenteFinal_46: -1867887287
+      puenteFinal_5: 1469400590
+      puenteFinal_6: 588923483
+      puenteFinal_7: 918832288
+      puenteFinal_8: -464018625
+      puenteFinal_9: 1902651861
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

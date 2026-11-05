@@ -53,7 +53,7 @@ public class GruaZona : MonoBehaviour
                 continue;
 
             Grace encima = Grace.En(toques[i]);
-            if (encima == null)
+            if (encima == null || !encima.ListaParaLaGrua)
                 continue;
 
             ocupada = true;

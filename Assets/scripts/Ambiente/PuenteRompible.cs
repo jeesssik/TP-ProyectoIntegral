@@ -13,6 +13,8 @@ public class PuenteRompible : MonoBehaviour
     [Header("Detección")]
     public float umbralImpactoSalto = -6.5f;
     public float tiempoHastaColapso = 0.45f;
+    [Tooltip("Acelera el clip puenteRompe para que Grace caiga mientras todavía corre encima.")]
+    public float velocidadRotura = 2.2f;
     [Tooltip("Ancho de la franja central, en fracción del puente, donde correr o saltar lo rompe. Los bordes de afuera no disparan la rotura.")]
     [Range(0.2f, 0.5f)]
     public float fraccionZonaCentral = 0.34f;
@@ -27,6 +29,8 @@ public class PuenteRompible : MonoBehaviour
         0.00f, 0.06f, 0.22f, 0.52f, 0.88f, 1.00f, 0.72f, 0.32f, 0.08f, 0.00f
     };
 
+    const float SegundoDeQuiebre = 0.7222222f;
+
     bool agrietado;
     bool colapsado;
     bool pisoSuelto;
@@ -36,7 +40,13 @@ public class PuenteRompible : MonoBehaviour
     EdgeCollider2D bordeCurvo;
     Vector2[] curvaLocal;
     float ignorarAterrizajeHasta;
+    float ultimoContacto = -10f;
+    float profundidadUsada;
+    float inicioColapso;
+    float duracionClip = 1.45f;
     Sprite spriteSano;
+
+    float VentanaContacto => Mathf.Max(0.1f, Time.fixedDeltaTime * 3f);
 
     void Awake()
     {
@@ -60,6 +70,19 @@ public class PuenteRompible : MonoBehaviour
             colliderCurvo.enabled = false;
     }
 
+    public void NotificarSalto(Grace grace)
+    {
+        if (soloCasiRompe || pisoSuelto || colapsado || grace == null)
+            return;
+        if (!ContactoFresco() || !EstaEnLaMitad(grace))
+            return;
+
+        causante = grace;
+        jugadorSobrePuente = grace;
+        ultimoContacto = Time.time;
+        IniciarColapso();
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         EvaluarJugador(collision, true);
@@ -79,53 +102,171 @@ public class PuenteRompible : MonoBehaviour
             jugadorSobrePuente = null;
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        if (colapsado)
+        if (!colapsado || pisoSuelto || soloCasiRompe)
+            return;
+
+        float progreso = ProgresoAnimacion();
+        if (progreso < MarcaDeCaida())
         {
-            if (!pisoSuelto && !SigueSobreElPuente(causante) && !SigueSobreElPuente(jugadorSobrePuente))
-                CancelarColapso();
+            AcompanarHundimiento(progreso);
+            MantenerApoyada(causante != null ? causante : jugadorSobrePuente);
             return;
         }
 
-        if (jugadorSobrePuente == null)
+        SoltarPiso();
+    }
+
+    float MarcaDeCaida()
+    {
+        if (duracionClip <= 0.05f)
+            return 0.48f;
+
+        return Mathf.Clamp(SegundoDeQuiebre / duracionClip, 0.35f, 0.62f);
+    }
+
+    void MantenerApoyada(Grace grace)
+    {
+        if (grace == null || colliderPuente == null)
             return;
 
-        if (!soloCasiRompe && EstaEnLaMitad(jugadorSobrePuente) && DebeColapsarPorCorrer(jugadorSobrePuente))
-            IniciarColapso();
+        Rigidbody2D rb = grace.CuerpoRigido;
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        if (rb == null || cuerpo == null || !cuerpo.enabled)
+            return;
+
+        Bounds puente = colliderPuente.bounds;
+        if (rb.position.x < puente.min.x + 0.15f || rb.position.x > puente.max.x - 0.15f)
+            return;
+
+        float superficie = AlturaMundoEnX(rb.position.x);
+        float dy = superficie - cuerpo.bounds.min.y;
+        if (dy > -0.04f || dy < -2.2f)
+            return;
+
+        rb.position += new Vector2(0f, dy);
+        if (rb.velocity.y < 0f)
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+    }
+
+    float ProgresoAnimacion()
+    {
+        if (animator != null && animator.enabled)
+        {
+            AnimatorStateInfo estado = animator.GetCurrentAnimatorStateInfo(0);
+            if (estado.IsName("puenteRompe"))
+                return Mathf.Clamp01(estado.normalizedTime);
+        }
+
+        float duracionReal = duracionClip / Mathf.Max(1f, velocidadRotura);
+        if (duracionReal <= 0.05f)
+            return 1f;
+
+        return Mathf.Clamp01((Time.time - inicioColapso) / duracionReal);
+    }
+
+    void AcompanarHundimiento(float progreso)
+    {
+        float nQuiebre = MarcaDeCaida();
+        float sag = progreso <= nQuiebre
+            ? Mathf.SmoothStep(0f, 1f, progreso / nQuiebre)
+            : 1f;
+        float profundidad = profundidadCurva * sag;
+        if (profundidad < 0.02f)
+            return;
+
+        bool curvaNueva = bordeCurvo == null || !bordeCurvo.enabled
+            || Mathf.Abs(profundidad - profundidadUsada) >= 0.012f;
+        profundidadUsada = profundidad;
+        agrietado = true;
+        if (curvaNueva)
+            AplicarColliderHundido(profundidadUsada, 0.08f);
+
+        Grace grace = causante != null ? causante : jugadorSobrePuente;
+        if (EstaSobreElTramo(grace))
+            RecostarJugador(grace);
     }
 
     void EvaluarJugador(Collision2D collision, bool esEntrada)
     {
-        if (colapsado)
+        if (pisoSuelto)
             return;
 
         Grace grace = Grace.En(collision.collider);
-        if (grace == null || !EstaPisandoDesdeArriba(collision, grace))
+        if (grace == null)
             return;
 
-        bool colapsarPorSalto =
-            esEntrada &&
-            Time.time >= ignorarAterrizajeHasta &&
-            grace.VieneDeUnSalto &&
-            DebeColapsarPorAterrizaje(collision.relativeVelocity.y);
+        bool pies = EstaPisandoDesdeArriba(collision);
+        bool despegue = EsDespegueSobreElPuente(collision, grace);
+        if (!pies && !despegue)
+            return;
 
-        jugadorSobrePuente = grace;
+        if (pies)
+        {
+            ultimoContacto = Time.time;
+            jugadorSobrePuente = grace;
+        }
+
+        if (colapsado)
+            return;
 
         if (soloCasiRompe)
         {
-            MostrarRoto();
+            if (pies)
+                MostrarRoto();
             return;
         }
 
         if (!EstaEnLaMitad(grace))
             return;
 
-        if (colapsarPorSalto || DebeColapsarPorCorrer(grace))
+        if (DebeColapsarPorCorrer(grace) || EsSaltoQueRompe(collision, grace, esEntrada, despegue))
         {
             causante = grace;
             IniciarColapso();
         }
+    }
+
+    bool ContactoFresco()
+    {
+        return Time.time - ultimoContacto <= VentanaContacto;
+    }
+
+    bool EsDespegueSobreElPuente(Collision2D collision, Grace grace)
+    {
+        Rigidbody2D rb = collision.rigidbody;
+        return grace.SaltoReciente &&
+            rb != null &&
+            rb.velocity.y > 2.5f &&
+            ContactoFresco();
+    }
+
+    bool EsSaltoQueRompe(Collision2D collision, Grace grace, bool esEntrada, bool despegue)
+    {
+        if (soloCasiRompe || !grace.SaltoReciente || Time.time < ignorarAterrizajeHasta)
+            return false;
+
+        if (despegue)
+            return true;
+
+        // El aterrizaje llega con el cuerpo todavía en el aire. Caminar
+        // desde el muelle no cuenta: ahí ya estaba en el suelo.
+        if (esEntrada && grace.EstaEnElAire)
+            return true;
+
+        if (!esEntrada)
+            return false;
+
+        float impacto = Mathf.Abs(collision.relativeVelocity.y);
+        float caida = collision.rigidbody != null
+            ? Mathf.Max(0f, -collision.rigidbody.velocity.y)
+            : 0f;
+        float umbral = Mathf.Abs(umbralImpactoSalto);
+        if (umbral < 3.5f)
+            umbral = 3.5f;
+
+        return impacto >= umbral || caida >= umbral;
     }
 
     Collider2D ColliderActivo()
@@ -137,36 +278,35 @@ public class PuenteRompible : MonoBehaviour
         return colliderPuente;
     }
 
-    bool EstaPisandoDesdeArriba(Collision2D collision, Grace grace)
+    bool EstaPisandoDesdeArriba(Collision2D collision)
     {
         Collider2D activo = ColliderActivo();
         if (activo == null || !activo.enabled)
             return false;
 
         Rigidbody2D rb = collision.rigidbody;
-        if (rb != null && rb.velocity.y > 1.2f)
+        if (rb != null && rb.velocity.y > 2.2f)
             return false;
 
-        Collider2D cuerpo = grace.ColisionCuerpo;
-        float pieY = cuerpo != null && cuerpo.enabled
-            ? cuerpo.bounds.min.y
-            : collision.transform.position.y;
-
         Bounds cubierta = activo.bounds;
-        const float insetBorde = 0.35f;
+        const float insetBorde = 0.2f;
         float xMin = cubierta.min.x + insetBorde;
         float xMax = cubierta.max.x - insetBorde;
 
         for (int i = 0; i < collision.contactCount; i++)
         {
-            Vector2 punto = collision.GetContact(i).point;
-            if (punto.x < xMin || punto.x > xMax)
+            ContactPoint2D contacto = collision.GetContact(i);
+            // El signo de la normal depende de quién recibe el choque.
+            // En el puente, pararse arriba puede llegar como +Y o como -Y.
+            if (Mathf.Abs(contacto.normal.y) < 0.6f)
+                continue;
+            if (contacto.point.x < xMin || contacto.point.x > xMax)
                 continue;
 
-            float ySuperficie = AlturaMundoEnX(punto.x);
-            if (punto.y < ySuperficie - 0.3f)
+            float ySuperficie = AlturaMundoEnX(contacto.point.x);
+            if (contacto.point.y < ySuperficie - 0.28f)
                 continue;
-            if (punto.y > pieY + 0.4f)
+            if (contacto.point.y > ySuperficie + 0.35f)
                 continue;
             return true;
         }
@@ -192,15 +332,11 @@ public class PuenteRompible : MonoBehaviour
         if (soloCasiRompe || grace == null)
             return false;
 
-        return grace.EstaCorriendo && EntradaJuego.HayMovimientoHorizontal;
-    }
-
-    bool DebeColapsarPorAterrizaje(float impactoVertical)
-    {
-        if (soloCasiRompe)
-            return false;
-
-        return impactoVertical < umbralImpactoSalto;
+        Rigidbody2D rb = grace.CuerpoRigido;
+        return grace.EstaCorriendo &&
+            EntradaJuego.HayMovimientoHorizontal &&
+            rb != null &&
+            Mathf.Abs(rb.velocity.x) > 1.5f;
     }
 
     void MostrarRoto()
@@ -216,12 +352,13 @@ public class PuenteRompible : MonoBehaviour
             animator.Play("casiRompe", 0, 0f);
         }
 
-        AplicarColliderHundido();
+        profundidadUsada = profundidadCurva;
+        AplicarColliderHundido(profundidadUsada, 0.45f);
         RecostarJugador(jugadorSobrePuente);
         ignorarAterrizajeHasta = Time.time + 0.4f;
     }
 
-    void AplicarColliderHundido()
+    void AplicarColliderHundido(float profundidad, float extension)
     {
         if (colliderPuente == null)
             return;
@@ -236,33 +373,56 @@ public class PuenteRompible : MonoBehaviour
         // empieza contra el poste, el talón se queda arriba y la punta se clava.
         const int muestras = 42;
         const float radio = 0.1f;
-        const float extension = 0.45f;
         float radioLocal = radio / Mathf.Max(0.01f, Mathf.Abs(transform.lossyScale.y));
-        curvaLocal = new Vector2[muestras];
+        if (curvaLocal == null || curvaLocal.Length != muestras)
+            curvaLocal = new Vector2[muestras];
         for (int i = 0; i < muestras; i++)
         {
             float t = i / (muestras - 1f);
             float x = Mathf.Lerp(xMin - extension, xMax + extension, t);
             float tCurva = Mathf.InverseLerp(xMin, xMax, x);
             float h = HundimientoEn(tCurva);
-            curvaLocal[i] = new Vector2(x, yTop - profundidadCurva * h - radioLocal);
+            curvaLocal[i] = new Vector2(x, yTop - profundidad * h - radioLocal);
         }
 
         if (bordeCurvo == null)
+        {
             bordeCurvo = gameObject.AddComponent<EdgeCollider2D>();
+            bordeCurvo.sharedMaterial = new PhysicsMaterial2D("PuenteCurvo")
+            {
+                friction = 0f,
+                bounciness = 0f
+            };
+        }
 
         bordeCurvo.isTrigger = false;
         bordeCurvo.edgeRadius = radio;
-        bordeCurvo.sharedMaterial = new PhysicsMaterial2D("PuenteCurvo")
-        {
-            friction = 0f,
-            bounciness = 0f
-        };
         bordeCurvo.points = curvaLocal;
         bordeCurvo.enabled = true;
         if (colliderHundido != null)
             colliderHundido.enabled = false;
         colliderPuente.enabled = false;
+    }
+
+    bool EstaSobreElTramo(Grace grace)
+    {
+        if (grace == null || colliderPuente == null)
+            return false;
+
+        Bounds puente = colliderPuente.bounds;
+        float x = grace.CuerpoRigido != null
+            ? grace.CuerpoRigido.position.x
+            : grace.transform.position.x;
+        if (x < puente.min.x + 0.12f || x > puente.max.x - 0.12f)
+            return false;
+
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        if (cuerpo == null || !cuerpo.enabled)
+            return ContactoFresco();
+
+        float pieY = cuerpo.bounds.min.y;
+        float superficie = AlturaMundoEnX(x);
+        return pieY <= superficie + 0.7f && pieY >= superficie - 0.9f;
     }
 
     void RecostarJugador(Grace grace)
@@ -301,7 +461,7 @@ public class PuenteRompible : MonoBehaviour
         float t = Mathf.InverseLerp(xMin, xMax, xLocal);
         t = Mathf.Clamp01(t);
 
-        float yLocal = yTop - profundidadCurva * HundimientoEn(t);
+        float yLocal = yTop - profundidadUsada * HundimientoEn(t);
         if (!agrietado)
             yLocal = yTop;
 
@@ -342,53 +502,30 @@ public class PuenteRompible : MonoBehaviour
 
     void IniciarColapso()
     {
-        if (colapsado)
+        if (colapsado || soloCasiRompe)
             return;
 
+        duracionClip = DuracionClip("puenteRompe");
+        if (duracionClip < 0.2f)
+            duracionClip = 1.45f;
+
+        float velocidad = Mathf.Max(1f, velocidadRotura);
+        inicioColapso = Time.time;
         colapsado = true;
         if (causante == null)
             causante = jugadorSobrePuente;
-        bool yaHundido = agrietado;
-        MostrarRoto();
-
-        const float inicioHundido = 0.3703704f;
-        const float momentoRotura = 0.7222222f;
+        if (causante != null)
+            causante.AguantarSobrePuente();
 
         if (animator != null)
-            animator.Play("puenteRompe", 0, yaHundido ? inicioHundido : 0f);
+        {
+            animator.enabled = true;
+            animator.speed = velocidad;
+            animator.Play("puenteRompe", 0, 0f);
+            animator.Update(0f);
+        }
 
-        float duracion = DuracionClip("puenteRompe");
-        if (duracion < 0.2f)
-            duracion = 1.5f;
-
-        float inicio = yaHundido ? duracion * inicioHundido : 0f;
-        float hastaRotura = momentoRotura - inicio;
-        if (hastaRotura < 0.05f)
-            hastaRotura = 0.05f;
-
-        Invoke(nameof(SoltarPiso), hastaRotura);
-        Invoke(nameof(Desvanecer), (duracion - inicio) + tiempoHastaColapso);
-    }
-
-    bool SigueSobreElPuente(Grace grace)
-    {
-        if (grace == null || colliderPuente == null)
-            return false;
-
-        Bounds puente = colliderPuente.bounds;
-        float x = grace.CuerpoRigido != null
-            ? grace.CuerpoRigido.position.x
-            : grace.transform.position.x;
-        const float margenSalida = 0.2f;
-        if (x <= puente.min.x + margenSalida || x >= puente.max.x - margenSalida)
-            return false;
-
-        Collider2D cuerpo = grace.ColisionCuerpo;
-        if (cuerpo == null || !cuerpo.enabled)
-            return true;
-
-        float pieY = cuerpo.bounds.min.y;
-        return pieY <= puente.max.y + 0.55f && pieY >= puente.max.y - 1.8f;
+        Invoke(nameof(Desvanecer), duracionClip / velocidad + tiempoHastaColapso);
     }
 
     void CancelarColapso()
@@ -398,10 +535,14 @@ public class PuenteRompible : MonoBehaviour
         colapsado = false;
         agrietado = false;
         pisoSuelto = false;
+        profundidadUsada = 0f;
         causante = null;
 
         if (animator != null)
+        {
+            animator.speed = 1f;
             animator.enabled = false;
+        }
 
         if (spriteRenderer != null)
         {
@@ -438,17 +579,12 @@ public class PuenteRompible : MonoBehaviour
 
     void SoltarPiso()
     {
-        Grace grace = SigueSobreElPuente(causante)
-            ? causante
-            : (SigueSobreElPuente(jugadorSobrePuente) ? jugadorSobrePuente : null);
-        if (grace == null)
-        {
-            CancelarColapso();
+        if (pisoSuelto)
             return;
-        }
 
+        Grace grace = causante != null ? causante : jugadorSobrePuente;
+        bool sigueEncima = EstaSobreElTramo(grace);
         pisoSuelto = true;
-        grace.CaerDesdePuente();
 
         if (colliderPuente != null)
             colliderPuente.enabled = false;
@@ -458,6 +594,9 @@ public class PuenteRompible : MonoBehaviour
 
         if (bordeCurvo != null)
             bordeCurvo.enabled = false;
+
+        if (sigueEncima)
+            grace.CaerDesdePuente();
     }
 
     void Desvanecer()

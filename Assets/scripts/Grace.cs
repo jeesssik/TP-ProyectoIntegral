@@ -65,10 +65,24 @@ public class Grace : MonoBehaviour
         new System.Collections.Generic.List<Vector2>(1024);
 
     public bool EstaCorriendo => estaCorriendo;
+    public bool ListaParaLaGrua
+    {
+        get
+        {
+            if (!estaEnSuelo || enCinematica || yaMurio)
+                return false;
+            if (animator == null || animator.IsInTransition(0))
+                return animator == null;
+
+            AnimatorStateInfo estado = animator.GetCurrentAnimatorStateInfo(0);
+            return !estado.IsName("JumpOver") && !estado.IsName("landJump");
+        }
+    }
     public bool EstaEnElAire => !estaEnSuelo;
     public bool EstaMoviendose => estaEnSuelo && !controlBloqueado && !enCinematica &&
         !yaMurio && Mathf.Abs(movimiento) > 0.01f;
     public bool VieneDeUnSalto => Time.time - marcaSalto < 1.35f;
+    public bool SaltoReciente => Time.time - marcaSalto < 1.2f;
     public Collider2D ColisionCuerpo => colision;
     public Rigidbody2D CuerpoRigido => rb;
 
@@ -550,6 +564,25 @@ public class Grace : MonoBehaviour
             animator.ResetTrigger("Land");
             animator.SetTrigger("Jump");
         }
+
+        AvisarPuenteBajoLosPies();
+    }
+
+    void AvisarPuenteBajoLosPies()
+    {
+        Vector2 pies = cuerpoFisico != null
+            ? (Vector2)cuerpoFisico.position
+            : (colision != null
+                ? new Vector2(colision.bounds.center.x, colision.bounds.min.y)
+                : (Vector2)transform.position);
+        Vector2 origen = new Vector2(pies.x, pies.y + 0.02f);
+        Collider2D[] suelos = Physics2D.OverlapBoxAll(origen, new Vector2(0.36f, 0.2f), 0f, capaSuelo);
+        for (int i = 0; i < suelos.Length; i++)
+        {
+            PuenteRompible puente = suelos[i].GetComponent<PuenteRompible>();
+            if (puente != null)
+                puente.NotificarSalto(this);
+        }
     }
 
     bool TocaSuelo()
@@ -573,17 +606,31 @@ public class Grace : MonoBehaviour
         if (estaEnSuelo)
             ultimoSueloTime = Time.time;
 
-        if (estabaEnSuelo || !estaEnSuelo)
-            return;
-
-        if (animator != null)
+        if (!estabaEnSuelo && estaEnSuelo && animator != null)
         {
             animator.ResetTrigger("Jump");
             animator.SetTrigger("Land");
         }
 
+        if (estaEnSuelo)
+            AsegurarSalidaDelSalto();
+
+        if (estabaEnSuelo || !estaEnSuelo)
+            return;
+
         if (movimiento == 0f && rb != null)
             rb.velocity = new Vector2(0f, rb.velocity.y);
+    }
+
+    void AsegurarSalidaDelSalto()
+    {
+        if (animator == null || animator.IsInTransition(0))
+            return;
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("JumpOver"))
+            return;
+
+        animator.ResetTrigger("Jump");
+        animator.SetTrigger("Land");
     }
 
     void ActualizarAnimacion()
@@ -719,6 +766,24 @@ public class Grace : MonoBehaviour
         Invoke(nameof(MorirPorCaidaAlMar), 0.95f);
     }
 
+    public void AguantarSobrePuente()
+    {
+        if (yaMurio || caidaAlMar || lanzadaPorOla || enCinematica)
+            return;
+
+        saltoPedido = false;
+        ignorarSueloHasta = 0f;
+        if (rb != null && rb.velocity.y > 0f)
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+
+        if (animator == null)
+            return;
+
+        animator.ResetTrigger("Jump");
+        if (TieneParametro("IsFalling"))
+            animator.SetBool("IsFalling", false);
+    }
+
     public void CaerDesdePuente()
     {
         if (yaMurio || caidaAlMar || lanzadaPorOla || enCinematica)
@@ -805,11 +870,14 @@ public class Grace : MonoBehaviour
         if (TieneParametro("IsFalling"))
             animator.SetBool("IsFalling", true);
 
-        if (animator.IsInTransition(0))
+        if (!animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
             return;
 
-        if (!animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla) &&
-            animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
+        if (animator.IsInTransition(0) &&
+            animator.GetNextAnimatorStateInfo(0).IsName(EstadoCaidaOla))
+            return;
+
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla))
             animator.Play(EstadoCaidaOla, 0, 0f);
     }
 

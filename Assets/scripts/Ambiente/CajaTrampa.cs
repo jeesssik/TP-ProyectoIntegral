@@ -5,35 +5,18 @@ public class CajaTrampa : MonoBehaviour
 {
     public Sprite[] reposo;
     public Sprite[] impulso;
-    public float fpsReposo = 7f;
     public float fpsImpulso = 18f;
     public int cuadroDeLanzamiento = 2;
 
     bool disparada;
     BoxCollider2D caja;
     SpriteRenderer vista;
-    int cuadro;
-    float acum;
 
     void Awake()
     {
         caja = GetComponent<BoxCollider2D>();
         vista = GetComponent<SpriteRenderer>();
         Mostrar(reposo, 0);
-    }
-
-    void Update()
-    {
-        if (disparada || reposo == null || reposo.Length == 0 || vista == null)
-            return;
-
-        acum += Time.deltaTime * fpsReposo;
-        if (acum < 1f)
-            return;
-
-        acum -= 1f;
-        cuadro = (cuadro + 1) % reposo.Length;
-        Mostrar(reposo, cuadro);
     }
 
     void FixedUpdate()
