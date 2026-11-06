@@ -13,6 +13,7 @@ public class Grace : MonoBehaviour
     [Header("Salto / gravedad")]
     public float fuerzaSalto = 13.5f;
     public float impulsoLateralSalto = 7.5f;
+    public float velocidadSaltoCorriendo = 8f;
     public float gravedadEscala = 3f;
     public float multiplicadorCaida = 1.6f;
     [Range(0f, 1f)]
@@ -426,7 +427,7 @@ public class Grace : MonoBehaviour
         if (estaEnSuelo)
             return movimiento * enSuelo;
 
-        float enAire = estaCorriendo ? velocidadCorrer + 3f : impulsoLateralSalto;
+        float enAire = estaCorriendo ? velocidadSaltoCorriendo : impulsoLateralSalto;
         return movimiento * Mathf.Max(enSuelo, enAire);
     }
 
@@ -611,7 +612,7 @@ public class Grace : MonoBehaviour
         float lateral = rb.velocity.x;
         if (Mathf.Abs(movimiento) > 0.01f)
         {
-            float enAire = estaCorriendo ? velocidadCorrer + 3f : impulsoLateralSalto;
+            float enAire = estaCorriendo ? velocidadSaltoCorriendo : impulsoLateralSalto;
             lateral = movimiento * Mathf.Max(Mathf.Abs(rb.velocity.x), enAire);
         }
         rb.velocity = new Vector2(lateral, fuerzaSalto);
