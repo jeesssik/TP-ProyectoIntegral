@@ -7,6 +7,7 @@ public class AguaGradienteColor : MonoBehaviour
     [SerializeField] Color colorFinal = new Color(0.34f, 0.42f, 0.58f, 1f);
     [SerializeField] float xInicioMundo = 90f;
     [SerializeField] float xFinMundo = 210f;
+    [SerializeField] Shader shaderGradiente;
 
     SpriteRenderer[] renderersAgua;
     Material materialGradiente;
@@ -47,7 +48,9 @@ public class AguaGradienteColor : MonoBehaviour
     {
         if (materialGradiente == null)
         {
-            Shader shader = Shader.Find("Custom/AguaGradiente");
+            Shader shader = shaderGradiente != null
+                ? shaderGradiente
+                : Shader.Find("Custom/AguaGradiente");
             if (shader == null)
             {
                 Debug.LogError("No se encontró el shader Custom/AguaGradiente.", this);

@@ -8,19 +8,35 @@ public class AguaLoop : MonoBehaviour
 
     float ancho;
     Camera cam;
-    SpriteRenderer spriteAgua;
+    bool listo;
 
     void Start()
     {
+        if (aguaA == null || aguaB == null)
+        {
+            enabled = false;
+            return;
+        }
+
         cam = Camera.main;
-        spriteAgua = aguaA.GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteAgua = aguaA.GetComponent<SpriteRenderer>();
+        if (spriteAgua == null || cam == null)
+        {
+            enabled = false;
+            return;
+        }
+
         ancho = spriteAgua.bounds.size.x;
         aguaB.rotation = aguaA.rotation;
         aguaB.position = aguaA.position + Vector3.right * ancho;
+        listo = true;
     }
 
     void Update()
     {
+        if (!listo || aguaA == null || aguaB == null || cam == null)
+            return;
+
         Vector3 movimiento = Vector3.left * velocidad * Time.deltaTime;
         aguaA.position += movimiento;
         aguaB.position += movimiento;
