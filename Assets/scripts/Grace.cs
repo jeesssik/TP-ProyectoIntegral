@@ -47,6 +47,8 @@ public class Grace : MonoBehaviour
     bool caidaAlMar;
     bool recargaCaidaPendiente;
     float proximoDesenganche;
+    readonly ContactPoint2D[] contactosSuelo = new ContactPoint2D[8];
+    const float ToleranciaDesnivel = 0.04f;
     float ignorarSueloHasta;
     float ultimoSueloTime = -10f;
     float marcaSalto = -100f;
@@ -270,6 +272,7 @@ public class Grace : MonoBehaviour
         float velocidadObjetivo = VelocidadHorizontal();
         if (estaEnSuelo)
         {
+            TolerarDesnivel(velocidadObjetivo);
             SubirEscalonSiHay(velocidadObjetivo);
             BajarConLaCurva(velocidadObjetivo);
             rb.velocity = VelocidadSobreLaCurva(velocidadObjetivo);
@@ -284,6 +287,60 @@ public class Grace : MonoBehaviour
         rb.velocity = new Vector2(velocidadAire, velocidadVertical);
     }
 
+    void TolerarDesnivel(float velocidadObjetivo)
+    {
+        if (Mathf.Abs(velocidadObjetivo) < 0.1f || Time.time < proximoDesenganche || colision == null)
+            return;
+
+        float sentido = Mathf.Sign(velocidadObjetivo);
+        float pieY = colision.bounds.min.y;
+        bool filo = HayFiloDelante(sentido, pieY);
+        bool trabada = Mathf.Abs(rb.velocity.x) < 0.25f;
+        if (!filo && !trabada)
+            return;
+
+        float frente = sentido > 0f ? colision.bounds.max.x : colision.bounds.min.x;
+        Vector2 origen = new Vector2(frente + sentido * 0.05f, pieY + ToleranciaDesnivel + 0.12f);
+        RaycastHit2D piso = Physics2D.Raycast(origen, Vector2.down, ToleranciaDesnivel + 0.2f, capaSuelo);
+        if (piso.collider == null)
+            return;
+
+        float desnivel = piso.point.y - pieY;
+        if (desnivel > ToleranciaDesnivel || desnivel < -0.008f)
+            return;
+        if (!filo && desnivel < 0.0004f)
+            return;
+
+        Vector2 rodilla = new Vector2(rb.position.x, pieY + 0.4f);
+        RaycastHit2D pared = Physics2D.Raycast(rodilla, Vector2.right * sentido, 0.35f, capaSuelo);
+        if (pared.collider != null && pared.normal.y < 0.45f)
+            return;
+
+        rb.position += new Vector2(sentido * 0.035f, Mathf.Max(0f, desnivel) + 0.006f);
+        rb.velocity = new Vector2(velocidadObjetivo, 0f);
+        proximoDesenganche = Time.time + 0.06f;
+    }
+
+    bool HayFiloDelante(float sentido, float pieY)
+    {
+        int cantidad = rb.GetContacts(contactosSuelo);
+        for (int i = 0; i < cantidad; i++)
+        {
+            Vector2 normal = contactosSuelo[i].normal;
+            if (normal.x * sentido > -0.2f || normal.y > 0.55f)
+                continue;
+            if (contactosSuelo[i].point.y > pieY + ToleranciaDesnivel)
+                continue;
+
+            Collider2D otro = contactosSuelo[i].collider;
+            if (otro == null || ((1 << otro.gameObject.layer) & capaSuelo.value) == 0)
+                continue;
+            return true;
+        }
+
+        return false;
+    }
+
     void SubirEscalonSiHay(float velocidadObjetivo)
     {
         if (Mathf.Abs(velocidadObjetivo) < 0.1f || Time.time < proximoDesenganche)
@@ -291,7 +348,7 @@ public class Grace : MonoBehaviour
 
         float sentido = Mathf.Sign(velocidadObjetivo);
         Vector2 pies = rb.position;
-        Vector2 origen = pies + Vector2.up * 0.05f;
+        Vector2 origen = pies + Vector2.up * 0.008f;
         RaycastHit2D cara = Physics2D.Raycast(origen, Vector2.right * sentido, 0.4f, capaSuelo);
         if (cara.collider == null || cara.normal.y > 0.85f)
             return;
@@ -306,7 +363,7 @@ public class Grace : MonoBehaviour
             return;
 
         float desnivel = pisoAlto.point.y - pies.y;
-        if (desnivel < 0.02f || desnivel > 0.14f)
+        if (desnivel < 0.001f || desnivel > 0.14f)
             return;
 
         rb.position = new Vector2(cara.point.x + sentido * 0.14f, pisoAlto.point.y + 0.02f);

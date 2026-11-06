@@ -70,6 +70,50 @@ public class PuenteRompible : MonoBehaviour
             colliderCurvo.enabled = false;
     }
 
+    void Start()
+    {
+        EmparejarConLasPlataformas();
+    }
+
+    void EmparejarConLasPlataformas()
+    {
+        if (colliderPuente == null)
+            return;
+
+        Bounds cubierta = colliderPuente.bounds;
+        bool estabaActivo = colliderPuente.enabled;
+        colliderPuente.enabled = false;
+        float izquierda = TopeDePlataforma(cubierta.min.x - 0.08f, cubierta.max.y);
+        float derecha = TopeDePlataforma(cubierta.max.x + 0.08f, cubierta.max.y);
+        colliderPuente.enabled = estabaActivo;
+
+        float objetivo = float.NaN;
+        if (!float.IsNaN(izquierda))
+            objetivo = izquierda;
+        if (!float.IsNaN(derecha))
+            objetivo = float.IsNaN(objetivo) ? derecha : Mathf.Max(objetivo, derecha);
+        if (float.IsNaN(objetivo))
+            return;
+
+        float dy = objetivo - cubierta.max.y;
+        if (Mathf.Abs(dy) < 0.00005f || Mathf.Abs(dy) > 0.05f)
+            return;
+
+        Vector3 local = transform.InverseTransformVector(new Vector3(0f, dy, 0f));
+        colliderPuente.offset += new Vector2(0f, local.y);
+        Physics2D.SyncTransforms();
+    }
+
+    float TopeDePlataforma(float x, float yCubierta)
+    {
+        RaycastHit2D golpe = Physics2D.Raycast(new Vector2(x, yCubierta + 0.6f), Vector2.down, 1.4f);
+        if (golpe.collider == null || golpe.collider.transform == transform)
+            return float.NaN;
+        if (Mathf.Abs(golpe.point.y - yCubierta) > 0.05f)
+            return float.NaN;
+        return golpe.point.y;
+    }
+
     public void NotificarSalto(Grace grace)
     {
         if (soloCasiRompe || pisoSuelto || colapsado || grace == null)
@@ -172,7 +216,8 @@ public class PuenteRompible : MonoBehaviour
         float sag = progreso <= nQuiebre
             ? Mathf.SmoothStep(0f, 1f, progreso / nQuiebre)
             : 1f;
-        float profundidad = profundidadCurva * sag;
+        // Si ya se hundió al caminar, no volver a la tabla recta al empezar la rotura.
+        float profundidad = Mathf.Max(profundidadCurva * sag, profundidadUsada);
         if (profundidad < 0.02f)
             return;
 
@@ -181,7 +226,7 @@ public class PuenteRompible : MonoBehaviour
         profundidadUsada = profundidad;
         agrietado = true;
         if (curvaNueva)
-            AplicarColliderHundido(profundidadUsada, 0.08f);
+            AplicarColliderHundido(profundidadUsada, 0.45f);
 
         Grace grace = causante != null ? causante : jugadorSobrePuente;
         if (EstaSobreElTramo(grace))
@@ -211,21 +256,19 @@ public class PuenteRompible : MonoBehaviour
         if (colapsado)
             return;
 
-        if (soloCasiRompe)
-        {
-            if (pies)
-                MostrarRoto();
-            return;
-        }
+        bool rompe = !soloCasiRompe
+            && EstaEnLaMitad(grace)
+            && (DebeColapsarPorCorrer(grace) || EsSaltoQueRompe(collision, grace, esEntrada, despegue));
 
-        if (!EstaEnLaMitad(grace))
+        // Caminar hunde las tablas. Correr o caer en la mitad sigue rompiendo el puente.
+        if (pies && !rompe)
+            MostrarRoto();
+
+        if (!rompe)
             return;
 
-        if (DebeColapsarPorCorrer(grace) || EsSaltoQueRompe(collision, grace, esEntrada, despegue))
-        {
-            causante = grace;
-            IniciarColapso();
-        }
+        causante = grace;
+        IniciarColapso();
     }
 
     bool ContactoFresco()
@@ -355,7 +398,8 @@ public class PuenteRompible : MonoBehaviour
         profundidadUsada = profundidadCurva;
         AplicarColliderHundido(profundidadUsada, 0.45f);
         RecostarJugador(jugadorSobrePuente);
-        ignorarAterrizajeHasta = Time.time + 0.4f;
+        if (soloCasiRompe)
+            ignorarAterrizajeHasta = Time.time + 0.4f;
     }
 
     void AplicarColliderHundido(float profundidad, float extension)
@@ -521,7 +565,10 @@ public class PuenteRompible : MonoBehaviour
         {
             animator.enabled = true;
             animator.speed = velocidad;
-            animator.Play("puenteRompe", 0, 0f);
+            float desde = 0f;
+            if (profundidadUsada >= profundidadCurva * 0.85f && duracionClip > 0.2f)
+                desde = Mathf.Clamp01(0.5555556f / duracionClip);
+            animator.Play("puenteRompe", 0, desde);
             animator.Update(0f);
         }
 
