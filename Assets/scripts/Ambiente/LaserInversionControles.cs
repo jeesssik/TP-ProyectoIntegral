@@ -4,8 +4,10 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Zona entre el láser y el tótem: controles invertidos.
-/// Se puede entrar y salir (también de un salto). Al cruzar el borde se conserva
-/// la dirección medio segundo; después frena y responde al mapeo nuevo.
+/// La inversión empieza solo si el cuerpo de Grace toca el haz. Saltar por
+/// encima no la activa. Después se mantiene hasta salir de la zona.
+/// Al cruzar el borde se conserva la dirección medio segundo; después frena
+/// y responde al mapeo nuevo.
 /// </summary>
 [DefaultExecutionOrder(-50)]
 public class LaserInversionControles : MonoBehaviour
@@ -115,7 +117,9 @@ public class LaserInversionControles : MonoBehaviour
             }
         }
 
-        bool enZona = EstaEnZona(grace.transform.position.x);
+        bool enZona = invertido
+            ? EstaEnZona(grace.transform.position.x)
+            : ImpactadoPorLaser();
         if (enZona == invertido)
         {
             EntradaJuego.InvertidoHorizontal = invertido;
@@ -145,6 +149,18 @@ public class LaserInversionControles : MonoBehaviour
     void ReiniciarEscena()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    bool ImpactadoPorLaser()
+    {
+        if (colision == null || !colision.enabled || grace == null)
+            return false;
+
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        if (cuerpo == null || !cuerpo.enabled)
+            return false;
+
+        return cuerpo.bounds.Intersects(colision.bounds);
     }
 
     bool EstaEnZona(float x)
