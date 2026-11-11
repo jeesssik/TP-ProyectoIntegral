@@ -1583,6 +1583,7 @@ MonoBehaviour:
   soundOptionsCanvas: {fileID: 2002089732462022322}
   controlsCanvas: {fileID: 2876543211}
   gameSceneName: Level-1
+  cinematicaIntro: {fileID: 32900000, guid: d7e524769c22446d6a58ec3186500313, type: 3}
   menuMusic: {fileID: 0}
 --- !u!1 &1249566096
 GameObject:
@@ -1743,6 +1744,7 @@ MonoBehaviour:
   soundOptionsCanvas: {fileID: 2002089732462022322}
   controlsCanvas: {fileID: 2876543211}
   gameSceneName: Level-1
+  cinematicaIntro: {fileID: 32900000, guid: d7e524769c22446d6a58ec3186500313, type: 3}
   menuMusic: {fileID: 8300000, guid: 702c69f0ef9d6a643aed23916d452a1a, type: 3}
 --- !u!4 &1429909886
 Transform:
