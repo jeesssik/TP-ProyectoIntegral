@@ -37898,7 +37898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelMusic: {fileID: 0}
-  levelAmbient: {fileID: 0}
+  levelAmbient: {fileID: 8300000, guid: d0a051ed7515140bba4afdbba9bab645, type: 3}
 --- !u!1 &1904770433
 GameObject:
   m_ObjectHideFlags: 0

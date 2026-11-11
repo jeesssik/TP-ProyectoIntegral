@@ -21,6 +21,10 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 1f)] public float ambientVolume = 1f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
+    [Header("Ambiente")]
+    [Tooltip("Tope real del ambiente. El slider al 100% suena a este volumen, no al máximo del archivo.")]
+    [Range(0f, 1f)] [SerializeField] float techoAmbiente = 0.2f;
+
     [Header("Mute")]
     public bool musicMuted;
     public bool ambientMuted;
@@ -118,8 +122,15 @@ public class AudioManager : MonoBehaviour
         if (clip == null || ambientSource == null)
             return;
 
+        if (ambientSource.clip == clip && ambientSource.isPlaying)
+        {
+            ApplyVolumes();
+            return;
+        }
+
         ambientSource.clip = clip;
         ambientSource.loop = true;
+        ambientSource.spatialBlend = 0f;
         ApplyVolumes();
         ambientSource.Play();
     }
@@ -180,7 +191,7 @@ public class AudioManager : MonoBehaviour
         if (musicSource != null)
             musicSource.volume = musicMuted ? 0f : musicVolume;
         if (ambientSource != null)
-            ambientSource.volume = ambientMuted ? 0f : ambientVolume;
+            ambientSource.volume = ambientMuted ? 0f : ambientVolume * techoAmbiente;
         if (sfxSource != null)
             sfxSource.volume = sfxMuted ? 0f : sfxVolume;
     }

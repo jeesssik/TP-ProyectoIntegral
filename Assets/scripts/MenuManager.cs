@@ -26,8 +26,12 @@ public class MenuManager : MonoBehaviour
     {
         ShowMainMenu();
 
-        if (AudioManager.Instance != null && menuMusic != null)
-            AudioManager.Instance.PlayMusic(menuMusic);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAmbient();
+            if (menuMusic != null)
+                AudioManager.Instance.PlayMusic(menuMusic);
+        }
     }
 
     public void OnStartButton()
