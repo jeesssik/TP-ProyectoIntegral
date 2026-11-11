@@ -35,6 +35,7 @@ public class PlataformaQueCae : MonoBehaviour
     void Start()
     {
         grace = FindObjectOfType<Grace>();
+        EngancharPilotes();
     }
 
     public void Armar()
@@ -50,6 +51,7 @@ public class PlataformaQueCae : MonoBehaviour
         cayendo = true;
         pendienteCaida = false;
         velocidadY = 0.8f;
+        EngancharPilotes();
 
         if (colision != null)
             colision.enabled = false;
@@ -156,6 +158,89 @@ public class PlataformaQueCae : MonoBehaviour
         }
 
         return new Bounds(transform.position, new Vector3(4f, 1f, 1f));
+    }
+
+    void EngancharPilotes()
+    {
+        Bounds zona = BoundsDeLaPlataforma();
+        SpriteRenderer[] renders = FindObjectsOfType<SpriteRenderer>();
+
+        for (int i = 0; i < renders.Length; i++)
+        {
+            SpriteRenderer render = renders[i];
+            if (!EsPilote(render.gameObject))
+                continue;
+
+            Transform pilote = render.transform;
+            if (pilote == transform || pilote.IsChildOf(transform))
+                continue;
+
+            if (pilote.GetComponentInParent<PlataformaQueCae>() != null)
+                continue;
+
+            if (!CubreEnX(zona, pilote.position.x))
+                continue;
+
+            if (!EstaCercaEnVertical(zona, render.bounds))
+                continue;
+
+            if (DuenaMasCercana(pilote.position.x) != this)
+                continue;
+
+            pilote.SetParent(transform, true);
+        }
+    }
+
+    static bool EsPilote(GameObject objeto)
+    {
+        return objeto.name.StartsWith("pilote", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    Bounds BoundsDeLaPlataforma()
+    {
+        if (spriteRenderer != null && spriteRenderer.sprite != null)
+            return spriteRenderer.bounds;
+
+        if (colision != null)
+            return colision.bounds;
+
+        return new Bounds(transform.position, new Vector3(5f, 4f, 1f));
+    }
+
+    static bool CubreEnX(Bounds zona, float x)
+    {
+        return x >= zona.min.x - 0.8f && x <= zona.max.x + 0.8f;
+    }
+
+    static bool EstaCercaEnVertical(Bounds zona, Bounds pilote)
+    {
+        float arriba = zona.max.y + 1.5f;
+        float abajo = zona.min.y - 3f;
+        return pilote.max.y >= abajo && pilote.min.y <= arriba;
+    }
+
+    PlataformaQueCae DuenaMasCercana(float x)
+    {
+        PlataformaQueCae mejor = null;
+        float mejorDistancia = float.PositiveInfinity;
+        PlataformaQueCae[] todas = FindObjectsOfType<PlataformaQueCae>();
+
+        for (int i = 0; i < todas.Length; i++)
+        {
+            PlataformaQueCae otra = todas[i];
+            Bounds zona = otra.BoundsDeLaPlataforma();
+            if (!CubreEnX(zona, x))
+                continue;
+
+            float distancia = Mathf.Abs(otra.transform.position.x - x);
+            if (distancia >= mejorDistancia)
+                continue;
+
+            mejorDistancia = distancia;
+            mejor = otra;
+        }
+
+        return mejor;
     }
 
     void ActualizarCaida()
