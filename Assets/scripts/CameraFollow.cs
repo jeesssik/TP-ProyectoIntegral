@@ -16,10 +16,19 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float minY, maxY;
 
     float zFijo;
+    bool alturaFijada;
+    float yFija;
 
     void Start()
     {
         zFijo = transform.position.z;
+    }
+
+    /// <summary>Deja de subir con el jugador. El plano del nivel se queda donde está.</summary>
+    public void FijarAltura()
+    {
+        alturaFijada = true;
+        yFija = transform.position.y;
     }
 
     private void LateUpdate()
@@ -30,6 +39,8 @@ public class CameraFollow : MonoBehaviour
         // el modelo 3D no arrastre el encuadre hacia el fondo.
         Vector3 desiredPosition = target.position + offset;
         desiredPosition.z = zFijo;
+        if (alturaFijada)
+            desiredPosition.y = yFija;
 
         // 2. Interpolar suavemente entre la posición actual y la deseada
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);

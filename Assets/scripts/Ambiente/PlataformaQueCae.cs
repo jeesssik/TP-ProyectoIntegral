@@ -24,6 +24,8 @@ public class PlataformaQueCae : MonoBehaviour
     float tiempoPendiente;
     float velocidadY;
     float sentidoGiro = 1f;
+    readonly System.Collections.Generic.List<Transform> pilotes =
+        new System.Collections.Generic.List<Transform>();
 
     void Awake()
     {
@@ -162,33 +164,73 @@ public class PlataformaQueCae : MonoBehaviour
 
     void EngancharPilotes()
     {
-        Bounds zona = BoundsDeLaPlataforma();
+        Bounds zona = ZonaDeEnganche();
         SpriteRenderer[] renders = FindObjectsOfType<SpriteRenderer>();
 
         for (int i = 0; i < renders.Length; i++)
         {
             SpriteRenderer render = renders[i];
-            if (!EsPilote(render.gameObject))
+            if (render == null || !EsPilote(render.gameObject))
                 continue;
 
             Transform pilote = render.transform;
-            if (pilote == transform || pilote.IsChildOf(transform))
+            if (pilote == transform)
                 continue;
 
-            if (pilote.GetComponentInParent<PlataformaQueCae>() != null)
+            if (pilote.IsChildOf(transform))
+            {
+                Recordar(pilote);
+                continue;
+            }
+
+            // Ya viaja con otra base que cae.
+            PlataformaQueCae duena = pilote.GetComponentInParent<PlataformaQueCae>();
+            if (duena != null && duena != this)
                 continue;
 
-            if (!CubreEnX(zona, pilote.position.x))
+            Bounds poste = EnPlano(render.bounds);
+            if (!Solapa(zona, poste) && !Solapa(zona, EnPlano(new Bounds(pilote.position, Vector3.one * 1.6f))))
                 continue;
 
-            if (!EstaCercaEnVertical(zona, render.bounds))
-                continue;
-
-            if (DuenaMasCercana(pilote.position.x) != this)
+            if (DuenaMasCercana(poste.center.x) != this)
                 continue;
 
             pilote.SetParent(transform, true);
+            Recordar(pilote);
         }
+    }
+
+    void Recordar(Transform pilote)
+    {
+        if (!pilotes.Contains(pilote))
+            pilotes.Add(pilote);
+    }
+
+    Bounds ZonaDeEnganche()
+    {
+        Bounds zona = EnPlano(BoundsDeLaPlataforma());
+        if (colision != null)
+        {
+            Bounds piso = EnPlano(colision.bounds);
+            zona.Encapsulate(piso.min);
+            zona.Encapsulate(piso.max);
+        }
+
+        // El poste cuelga varios metros bajo la cubierta.
+        zona.Encapsulate(new Vector3(zona.center.x, zona.min.y - 6f, zona.center.z));
+        zona.Expand(new Vector3(2.4f, 1.2f, 0f));
+        return zona;
+    }
+
+    static Bounds EnPlano(Bounds b)
+    {
+        return new Bounds(new Vector3(b.center.x, b.center.y, 0f), new Vector3(b.size.x, b.size.y, 4f));
+    }
+
+    static bool Solapa(Bounds zona, Bounds pilote)
+    {
+        return pilote.max.x >= zona.min.x && pilote.min.x <= zona.max.x
+            && pilote.max.y >= zona.min.y && pilote.min.y <= zona.max.y;
     }
 
     static bool EsPilote(GameObject objeto)
@@ -207,18 +249,6 @@ public class PlataformaQueCae : MonoBehaviour
         return new Bounds(transform.position, new Vector3(5f, 4f, 1f));
     }
 
-    static bool CubreEnX(Bounds zona, float x)
-    {
-        return x >= zona.min.x - 0.8f && x <= zona.max.x + 0.8f;
-    }
-
-    static bool EstaCercaEnVertical(Bounds zona, Bounds pilote)
-    {
-        float arriba = zona.max.y + 1.5f;
-        float abajo = zona.min.y - 3f;
-        return pilote.max.y >= abajo && pilote.min.y <= arriba;
-    }
-
     PlataformaQueCae DuenaMasCercana(float x)
     {
         PlataformaQueCae mejor = null;
@@ -228,8 +258,11 @@ public class PlataformaQueCae : MonoBehaviour
         for (int i = 0; i < todas.Length; i++)
         {
             PlataformaQueCae otra = todas[i];
-            Bounds zona = otra.BoundsDeLaPlataforma();
-            if (!CubreEnX(zona, x))
+            if (otra == null)
+                continue;
+
+            Bounds zona = otra.ZonaDeEnganche();
+            if (x < zona.min.x || x > zona.max.x)
                 continue;
 
             float distancia = Mathf.Abs(otra.transform.position.x - x);
@@ -252,6 +285,13 @@ public class PlataformaQueCae : MonoBehaviour
         p.x += sentidoGiro * 0.35f * Time.deltaTime;
         transform.position = p;
         transform.Rotate(0f, 0f, sentidoGiro * rotacionGrados * Time.deltaTime);
+
+        for (int i = 0; i < pilotes.Count; i++)
+        {
+            Transform pilote = pilotes[i];
+            if (pilote != null && pilote.parent != transform)
+                pilote.SetParent(transform, true);
+        }
 
         if (p.y > yDesaparecer)
             return;
