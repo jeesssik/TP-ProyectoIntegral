@@ -13,6 +13,7 @@ public class Grace : MonoBehaviour
     [Header("Salto / gravedad")]
     public float fuerzaSalto = 13.5f;
     public float impulsoLateralSalto = 7.5f;
+    public float velocidadSaltoCorriendo = 8f;
     public float gravedadEscala = 3f;
     public float multiplicadorCaida = 1.6f;
     [Range(0f, 1f)]
@@ -44,6 +45,7 @@ public class Grace : MonoBehaviour
     bool yaMurio;
     bool saltoPedido;
     bool lanzadaPorOla;
+    bool lanzadaAlCielo;
     bool caidaAlMar;
     bool recargaCaidaPendiente;
     float proximoDesenganche;
@@ -153,10 +155,10 @@ public class Grace : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!enCinematica)
+        if (!enCinematica || lanzadaAlCielo)
         {
             AlinearVisual();
-            if (lanzadaPorOla || caidaAlMar)
+            if (lanzadaPorOla || caidaAlMar || lanzadaAlCielo)
                 AnclarPiesVisualesDuranteCaida();
         }
         ActualizarSilueta();
@@ -191,6 +193,12 @@ public class Grace : MonoBehaviour
 
     void Update()
     {
+        if (lanzadaAlCielo)
+        {
+            MantenerAnimacionCaida();
+            return;
+        }
+
         if (enCinematica)
             return;
 
@@ -426,7 +434,7 @@ public class Grace : MonoBehaviour
         if (estaEnSuelo)
             return movimiento * enSuelo;
 
-        float enAire = estaCorriendo ? velocidadCorrer + 3f : impulsoLateralSalto;
+        float enAire = estaCorriendo ? velocidadSaltoCorriendo : impulsoLateralSalto;
         return movimiento * Mathf.Max(enSuelo, enAire);
     }
 
@@ -611,7 +619,7 @@ public class Grace : MonoBehaviour
         float lateral = rb.velocity.x;
         if (Mathf.Abs(movimiento) > 0.01f)
         {
-            float enAire = estaCorriendo ? velocidadCorrer + 3f : impulsoLateralSalto;
+            float enAire = estaCorriendo ? velocidadSaltoCorriendo : impulsoLateralSalto;
             lateral = movimiento * Mathf.Max(Mathf.Abs(rb.velocity.x), enAire);
         }
         rb.velocity = new Vector2(lateral, fuerzaSalto);
@@ -739,6 +747,41 @@ public class Grace : MonoBehaviour
             return;
 
         transform.localRotation = rotacionInicial * Quaternion.Euler(0f, movimiento < 0f ? 180f : 0f, 0f);
+    }
+
+    public void EntrarAlEdificioFinal()
+    {
+        if (yaMurio || enCinematica)
+            return;
+
+        enCinematica = true;
+        controlBloqueado = true;
+        movimiento = 0f;
+        estaCorriendo = false;
+        saltoPedido = false;
+
+        UsarColision(false);
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.simulated = false;
+        }
+
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetBool("IsGrounded", true);
+            animator.SetBool("IsRunning", false);
+            animator.SetFloat("VerticalSpeed", 0f);
+            animator.ResetTrigger("Jump");
+        }
+
+        // Queda detrás de la fachada: el vano negro la tapa y se lee como que entró.
+        foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
+            render.sortingOrder = 2;
     }
 
     public void SubirseALancha(Transform asiento, Vector3 offsetPiesLocal, int ordenSorting = 4)
@@ -921,7 +964,7 @@ public class Grace : MonoBehaviour
 
     void MantenerAnimacionCaida()
     {
-        if (animator == null || yaMurio)
+        if (animator == null || (yaMurio && !lanzadaAlCielo))
             return;
 
         if (TieneParametro("IsFalling"))
@@ -958,27 +1001,39 @@ public class Grace : MonoBehaviour
             return;
 
         yaMurio = true;
+        lanzadaAlCielo = true;
         enCinematica = true;
         controlBloqueado = true;
         movimiento = 0f;
         saltoPedido = false;
         estaEnSuelo = false;
+        estabaEnSuelo = false;
 
         UsarColision(false);
         if (rb != null)
         {
-            rb.gravityScale = 0f;
-            rb.velocity = new Vector2(0f, 18f);
-        }
-        if (animator != null)
-        {
-            animator.SetFloat("Speed", 0f);
-            animator.SetBool("IsGrounded", false);
-            animator.SetBool("IsRunning", false);
-            animator.SetTrigger("Dead");
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.simulated = true;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            // Golpe seco: sale disparada y corta al salir del encuadre.
+            rb.gravityScale = 2.2f;
+            rb.velocity = new Vector2(7f, 28f);
         }
 
-        Invoke(nameof(ReiniciarTrasLanzamiento), 1.25f);
+        ReproducirCaidaPorOla();
+        if (animator != null)
+        {
+            animator.speed = 1.6f;
+            animator.Update(0f);
+        }
+
+        CameraFollow camara = Camera.main != null
+            ? Camera.main.GetComponent<CameraFollow>()
+            : null;
+        if (camara != null)
+            camara.FijarAltura();
+
+        Invoke(nameof(ReiniciarTrasLanzamiento), 0.5f);
     }
 
     void ReiniciarTrasLanzamiento()

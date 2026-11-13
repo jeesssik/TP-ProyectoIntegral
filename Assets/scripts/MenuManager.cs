@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class MenuManager : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class MenuManager : MonoBehaviour
     [Header("Scene")]
     public string gameSceneName = "Level-1";
 
+    [Header("Cinematica")]
+    public VideoClip cinematicaIntro;
+
     [SerializeField] AudioClip menuMusic;
 
     GameObject currentCanvas;
@@ -22,14 +26,22 @@ public class MenuManager : MonoBehaviour
     {
         ShowMainMenu();
 
-        if (AudioManager.Instance != null && menuMusic != null)
-            AudioManager.Instance.PlayMusic(menuMusic);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAmbient();
+            if (menuMusic != null)
+                AudioManager.Instance.PlayMusic(menuMusic);
+        }
     }
 
     public void OnStartButton()
     {
+        if (CinematicaIntro.EnCurso)
+            return;
+
         AudioManager.Instance?.StopMusic();
-        SceneManager.LoadScene(gameSceneName);
+        AudioManager.Instance?.StopAmbient();
+        CinematicaIntro.Reproducir(cinematicaIntro, gameSceneName);
     }
 
     public void OnOptionsButton() => OpenCanvas(optionsCanvas);
