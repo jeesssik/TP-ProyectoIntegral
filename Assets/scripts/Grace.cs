@@ -61,12 +61,9 @@ public class Grace : MonoBehaviour
     const float planoVisualZ = -1f;
     const int ordenSobreEscenario = 30;
 
-    PolygonCollider2D colliderCuerpo;
+    Collider2D colliderCuerpo;
     Transform cuerpoFisico;
     SkinnedMeshRenderer[] mallas;
-    Mesh mallaHorneada;
-    readonly System.Collections.Generic.List<Vector2> bufferSilueta =
-        new System.Collections.Generic.List<Vector2>(1024);
 
     public bool EstaCorriendo => estaCorriendo;
     public bool ListaParaLaGrua
@@ -161,7 +158,6 @@ public class Grace : MonoBehaviour
             if (lanzadaPorOla || caidaAlMar || lanzadaAlCielo)
                 AnclarPiesVisualesDuranteCaida();
         }
-        ActualizarSilueta();
 
         if (!ajustarMuerteAlPiso || rendererVisual == null)
             return;
@@ -440,170 +436,25 @@ public class Grace : MonoBehaviour
 
     void ConfigurarFisica()
     {
-        // El rigidbody y la cápsula del modelo girado en Y no sirven para el
-        // plano del juego. Si siguen vivos al crear el cuerpo nuevo, Unity
-        // les deja los colliders y ella atraviesa el muelle.
-        Collider2D[] viejos = GetComponentsInChildren<Collider2D>(true);
-        for (int i = 0; i < viejos.Length; i++)
-            DestroyImmediate(viejos[i]);
-        if (rb != null)
-            DestroyImmediate(rb);
-
-        var plano = new GameObject("PlanoFisico");
-        plano.layer = gameObject.layer;
-        plano.transform.SetParent(transform.parent, false);
-        plano.transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
-        plano.transform.rotation = Quaternion.identity;
-        plano.transform.localScale = Vector3.one;
-
-        transform.SetParent(plano.transform, true);
-        cuerpoFisico = plano.transform;
-        plano.transform.rotation = Quaternion.identity;
-        plano.transform.localScale = Vector3.one;
-
-        rb = plano.AddComponent<Rigidbody2D>();
-        rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.gravityScale = gravedadEscala;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        colliderCuerpo = plano.AddComponent<PolygonCollider2D>();
-        colliderCuerpo.isTrigger = false;
-        colliderCuerpo.SetPath(0, new[]
+        cuerpoFisico = transform.parent;
+        if (cuerpoFisico != null)
         {
-            new Vector2(-0.22f, 0f),
-            new Vector2(0.28f, 0f),
-            new Vector2(0.24f, 1.65f),
-            new Vector2(-0.18f, 1.65f)
-        });
+            rb = cuerpoFisico.GetComponent<Rigidbody2D>();
+            colliderCuerpo = cuerpoFisico.GetComponent<Collider2D>();
+        }
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+        if (colliderCuerpo == null)
+            colliderCuerpo = GetComponent<Collider2D>();
+        if (cuerpoFisico == null)
+            cuerpoFisico = transform;
+
         colision = colliderCuerpo;
+        if (rb != null)
+            rb.gravityScale = gravedadEscala;
 
         mallas = GetComponentsInChildren<SkinnedMeshRenderer>(true);
-        mallaHorneada = new Mesh();
-    }
-
-    void ActualizarSilueta()
-    {
-        if (colliderCuerpo == null || !colliderCuerpo.enabled || cuerpoFisico == null || mallas == null)
-            return;
-
-        bufferSilueta.Clear();
-        Vector3 origen = cuerpoFisico.position;
-        for (int m = 0; m < mallas.Length; m++)
-        {
-            SkinnedMeshRenderer piel = mallas[m];
-            if (piel == null || !piel.enabled)
-                continue;
-
-            piel.BakeMesh(mallaHorneada, false);
-            Vector3[] verts = mallaHorneada.vertices;
-            Transform espacio = piel.transform;
-            for (int i = 0; i < verts.Length; i += 2)
-            {
-                Vector3 mundo = espacio.TransformPoint(verts[i]);
-                bufferSilueta.Add(new Vector2(mundo.x - origen.x, mundo.y - origen.y));
-            }
-        }
-
-        if (bufferSilueta.Count < 12)
-            return;
-
-        Vector2[] contorno = ContornoDePerfil(bufferSilueta);
-        if (contorno == null)
-            return;
-
-        float minY = contorno[0].y;
-        for (int i = 1; i < contorno.Length; i++)
-            minY = Mathf.Min(minY, contorno[i].y);
-
-        float maxY = contorno[0].y;
-        for (int i = 1; i < contorno.Length; i++)
-            maxY = Mathf.Max(maxY, contorno[i].y);
-
-        float minX = contorno[0].x;
-        float maxX = contorno[0].x;
-        for (int i = 1; i < contorno.Length; i++)
-        {
-            minX = Mathf.Min(minX, contorno[i].x);
-            maxX = Mathf.Max(maxX, contorno[i].x);
-        }
-
-        // Si el horneado queda lejos del origen, no es el cuerpo. No reemplazar
-        // la suela: ese polígono la empuja a través del muelle.
-        if (maxY - minY < 0.5f || maxY - minY > 2.8f)
-            return;
-        if (maxX - minX < 0.08f || maxX - minX > 2f)
-            return;
-        if (minY < -0.45f || maxY > 3f || Mathf.Abs((minX + maxX) * 0.5f) > 1.2f)
-            return;
-
-        // Los pies quedan en el origen. Si el contorno entra en el muelle,
-        // se engancha en el corte entre plataformas.
-        if (Mathf.Abs(minY) > 0.001f)
-        {
-            float dy = -minY;
-            for (int i = 0; i < contorno.Length; i++)
-                contorno[i].y += dy;
-        }
-
-        colliderCuerpo.SetPath(0, contorno);
-    }
-
-    static Vector2[] ContornoDePerfil(System.Collections.Generic.List<Vector2> puntos)
-    {
-        const int columnas = 24;
-        float minX = puntos[0].x;
-        float maxX = puntos[0].x;
-        for (int i = 1; i < puntos.Count; i++)
-        {
-            minX = Mathf.Min(minX, puntos[i].x);
-            maxX = Mathf.Max(maxX, puntos[i].x);
-        }
-
-        float ancho = maxX - minX;
-        if (ancho < 0.05f)
-            return null;
-
-        float[] techo = new float[columnas];
-        float[] piso = new float[columnas];
-        bool[] hay = new bool[columnas];
-        float paso = ancho / columnas;
-
-        for (int i = 0; i < puntos.Count; i++)
-        {
-            int c = Mathf.Clamp(Mathf.FloorToInt((puntos[i].x - minX) / paso), 0, columnas - 1);
-            if (!hay[c])
-            {
-                hay[c] = true;
-                techo[c] = piso[c] = puntos[i].y;
-            }
-            else
-            {
-                techo[c] = Mathf.Max(techo[c], puntos[i].y);
-                piso[c] = Mathf.Min(piso[c], puntos[i].y);
-            }
-        }
-
-        var borde = new System.Collections.Generic.List<Vector2>(columnas * 2);
-        for (int c = 0; c < columnas; c++)
-        {
-            if (!hay[c])
-                continue;
-            borde.Add(new Vector2(minX + (c + 0.5f) * paso, techo[c]));
-        }
-
-        for (int c = columnas - 1; c >= 0; c--)
-        {
-            if (!hay[c])
-                continue;
-            borde.Add(new Vector2(minX + (c + 0.5f) * paso, piso[c]));
-        }
-
-        if (borde.Count < 4)
-            return null;
-
-        return borde.ToArray();
     }
 
     bool PuedeSaltar()
@@ -728,9 +579,27 @@ public class Grace : MonoBehaviour
 
     void PonerDelanteDelEscenario()
     {
+        Shader plano = Shader.Find("Grace/Plano");
         foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
         {
             render.sortingOrder = ordenSobreEscenario;
+            if (plano == null || render is SpriteRenderer)
+                continue;
+
+            Material[] originales = render.sharedMaterials;
+            var planos = new Material[originales.Length];
+            for (int i = 0; i < originales.Length; i++)
+            {
+                Material origen = originales[i];
+                var nuevo = new Material(plano);
+                if (origen != null && origen.HasProperty("_MainTex"))
+                    nuevo.mainTexture = origen.mainTexture;
+                if (origen != null && origen.HasProperty("_Color"))
+                    nuevo.color = origen.color;
+                planos[i] = nuevo;
+            }
+
+            render.materials = planos;
         }
     }
 
