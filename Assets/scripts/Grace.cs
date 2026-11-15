@@ -40,6 +40,8 @@ public class Grace : MonoBehaviour
     float movimiento;
     bool estaEnSuelo;
     bool estabaEnSuelo;
+    bool saltoEnElAire;
+    bool soltoElSueloEnElSalto;
     bool estaCorriendo;
     bool controlBloqueado;
     bool enCinematica;
@@ -553,13 +555,16 @@ public class Grace : MonoBehaviour
 
     bool PuedeSaltar()
     {
-        return estaEnSuelo || Time.time - ultimoSueloTime < 0.08f;
+        return estaEnSuelo && !saltoEnElAire;
     }
 
     void EjecutarSalto()
     {
+        saltoEnElAire = true;
+        soltoElSueloEnElSalto = false;
         estaEnSuelo = false;
         estabaEnSuelo = false;
+        ultimoSueloTime = -10f;
         ignorarSueloHasta = Time.time + tiempoIgnorarSueloTrasSalto;
         float lateral = rb.velocity.x;
         if (Mathf.Abs(movimiento) > 0.01f)
@@ -614,7 +619,19 @@ public class Grace : MonoBehaviour
 
     void ActualizarSuelo()
     {
-        estaEnSuelo = TocaSuelo();
+        bool toca = TocaSuelo();
+        if (saltoEnElAire)
+        {
+            if (!toca)
+                soltoElSueloEnElSalto = true;
+
+            if (toca && soltoElSueloEnElSalto)
+                saltoEnElAire = false;
+            else
+                toca = false;
+        }
+
+        estaEnSuelo = toca;
         if (estaEnSuelo)
             ultimoSueloTime = Time.time;
 
@@ -1101,6 +1118,8 @@ public class Grace : MonoBehaviour
         estaCorriendo = false;
         saltoPedido = false;
         estaEnSuelo = true;
+        saltoEnElAire = false;
+        soltoElSueloEnElSalto = false;
 
         if (colision != null && colision.enabled)
             distanciaPies = colision.bounds.min.y - transform.position.y;
@@ -1168,6 +1187,8 @@ public class Grace : MonoBehaviour
         enCinematica = false;
         controlBloqueado = false;
         estaEnSuelo = true;
+        saltoEnElAire = false;
+        soltoElSueloEnElSalto = false;
         ultimoSueloTime = Time.time;
     }
 
