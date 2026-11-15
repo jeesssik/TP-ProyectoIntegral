@@ -41,12 +41,40 @@ public class PuenteRompible : MonoBehaviour
     Vector2[] curvaLocal;
     float ignorarAterrizajeHasta;
     float ultimoContacto = -10f;
+    static PuenteRompible colapsoActivo;
     float profundidadUsada;
     float inicioColapso;
     float duracionClip = 1.45f;
     Sprite spriteSano;
 
     float VentanaContacto => Mathf.Max(0.1f, Time.fixedDeltaTime * 3f);
+
+    public static PuenteRompible ColapsoActivo =>
+        colapsoActivo != null && colapsoActivo.colapsado && !colapsoActivo.pisoSuelto
+            ? colapsoActivo
+            : null;
+
+    public bool EnRoceDeSalida(Grace grace)
+    {
+        if (grace == null || colliderPuente == null || pisoSuelto)
+            return false;
+        if (grace != causante && grace != jugadorSobrePuente)
+            return false;
+        if (!grace.EstaCorriendo)
+            return false;
+
+        Bounds puente = colliderPuente.bounds;
+        float x = grace.CuerpoRigido != null
+            ? grace.CuerpoRigido.position.x
+            : grace.transform.position.x;
+        const float roce = 0.45f;
+        float vx = grace.CuerpoRigido != null ? grace.CuerpoRigido.velocity.x : 0f;
+        if (vx >= 0.2f)
+            return x > puente.max.x - 0.22f && x < puente.max.x + roce;
+        if (vx <= -0.2f)
+            return x < puente.min.x + 0.22f && x > puente.min.x - roce;
+        return false;
+    }
 
     void Awake()
     {
@@ -524,6 +552,7 @@ public class PuenteRompible : MonoBehaviour
         float velocidad = Mathf.Max(1f, velocidadRotura);
         inicioColapso = Time.time;
         colapsado = true;
+        colapsoActivo = this;
         if (causante == null)
             causante = jugadorSobrePuente;
         if (causante != null)
@@ -595,8 +624,12 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         Grace grace = causante != null ? causante : jugadorSobrePuente;
+        if (grace == null)
+            grace = FindObjectOfType<Grace>();
         bool sigueEncima = SigueEnElVano(grace);
         pisoSuelto = true;
+        if (colapsoActivo == this)
+            colapsoActivo = null;
 
         if (colliderPuente != null)
             colliderPuente.enabled = false;

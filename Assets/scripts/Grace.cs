@@ -50,6 +50,7 @@ public class Grace : MonoBehaviour
     bool lanzadaPorOla;
     bool lanzadaAlCielo;
     bool caidaAlMar;
+    float avanceCaida;
     bool recargaCaidaPendiente;
     float proximoDesenganche;
     float ignorarSueloHasta;
@@ -254,6 +255,13 @@ public class Grace : MonoBehaviour
             // Sin impulso hacia arriba: cae desde la altura de la plataforma.
             float vertical = Mathf.Min(0f, rb.velocity.y);
             rb.velocity = new Vector2(impulsoOla.x, vertical);
+            return;
+        }
+
+        if (caidaAlMar && rb != null && !yaMurio)
+        {
+            float vertical = Mathf.Min(0f, rb.velocity.y);
+            rb.velocity = new Vector2(avanceCaida, vertical);
             return;
         }
 
@@ -622,7 +630,24 @@ public class Grace : MonoBehaviour
             Vector2.down,
             0.32f,
             capaSuelo);
-        return golpe.collider != null && golpe.normal.y >= 0.45f;
+        if (golpe.collider == null || golpe.normal.y < 0.45f)
+            return false;
+
+        PuenteRompible puente = PuenteRompible.ColapsoActivo;
+        if (puente != null && puente.EnRoceDeSalida(this) && golpe.collider.GetComponent<PuenteRompible>() != puente)
+            return false;
+
+        return true;
+    }
+
+    void IntentarCaerDelPuenteRoto()
+    {
+        if (caidaAlMar || lanzadaPorOla || enCinematica || yaMurio)
+            return;
+
+        PuenteRompible puente = PuenteRompible.ColapsoActivo;
+        if (puente != null && puente.EnRoceDeSalida(this))
+            CaerDesdePuente();
     }
 
     void ActualizarSuelo()
@@ -640,6 +665,8 @@ public class Grace : MonoBehaviour
         }
 
         estaEnSuelo = toca;
+        if (!estaEnSuelo)
+            IntentarCaerDelPuenteRoto();
         if (estaEnSuelo)
             ultimoSueloTime = Time.time;
 
@@ -862,6 +889,16 @@ public class Grace : MonoBehaviour
         if (yaMurio || caidaAlMar || lanzadaPorOla || enCinematica)
             return;
 
+        float avance = rb != null ? rb.velocity.x : 0f;
+        if (estaCorriendo)
+        {
+            float signo = Mathf.Abs(avance) > 0.2f
+                ? Mathf.Sign(avance)
+                : (Mathf.Abs(movimiento) > 0.01f ? Mathf.Sign(movimiento) : 1f);
+            avance = signo * Mathf.Max(Mathf.Abs(avance), velocidadCorrer);
+        }
+        avanceCaida = avance;
+
         caidaAlMar = true;
         controlBloqueado = true;
         estaEnSuelo = false;
@@ -876,8 +913,7 @@ public class Grace : MonoBehaviour
             rb.simulated = true;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = gravedadEscala;
-            if (rb.velocity.y > 0f)
-                rb.velocity = new Vector2(rb.velocity.x, 0f);
+            rb.velocity = new Vector2(avanceCaida, Mathf.Min(0f, rb.velocity.y));
         }
 
         ReproducirCaidaPorOla();
@@ -923,16 +959,21 @@ public class Grace : MonoBehaviour
         if (animator == null)
             return;
 
+        animator.ResetTrigger("Jump");
+        animator.ResetTrigger("Land");
+
+        int caida = Animator.StringToHash(EstadoCaidaOla);
+        if (animator.HasState(0, caida))
+        {
+            animator.Play(caida, 0, 0f);
+            animator.Update(0f);
+        }
+
         animator.SetFloat("Speed", 0f);
         animator.SetBool("IsGrounded", false);
         animator.SetBool("IsRunning", false);
-        animator.ResetTrigger("Jump");
-        animator.ResetTrigger("Land");
         if (TieneParametro("IsFalling"))
             animator.SetBool("IsFalling", true);
-
-        if (animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
-            animator.Play(EstadoCaidaOla, 0, 0f);
     }
 
     void MantenerAnimacionCaida()
@@ -940,6 +981,9 @@ public class Grace : MonoBehaviour
         if (animator == null || (yaMurio && !lanzadaAlCielo))
             return;
 
+        animator.SetFloat("Speed", 0f);
+        animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsRunning", false);
         if (TieneParametro("IsFalling"))
             animator.SetBool("IsFalling", true);
 
