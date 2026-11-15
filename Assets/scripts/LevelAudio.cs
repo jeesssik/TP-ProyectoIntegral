@@ -14,7 +14,7 @@ public class LevelAudio : MonoBehaviour
         }
 
         if (levelMusic != null)
-            AudioManager.Instance.PlayMusic(levelMusic);
+            AudioManager.Instance.PlayMusic(levelMusic, true);
         else
             AudioManager.Instance.StopMusic();
 

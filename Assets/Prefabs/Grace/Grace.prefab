@@ -129,3 +129,5 @@ MonoBehaviour:
   walkStepMinPitch: 0.94
   walkStepMaxPitch: 1
   walkStepLowPassCutoff: 4200
+  hurtVolume: 0.25
+  jumpVolume: 0.42

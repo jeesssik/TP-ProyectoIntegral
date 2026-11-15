@@ -25,10 +25,17 @@ public class AudioManager : MonoBehaviour
     [Tooltip("Tope real del ambiente. El slider al 100% suena a este volumen, no al máximo del archivo.")]
     [Range(0f, 1f)] [SerializeField] float techoAmbiente = 0.2f;
 
+    [Header("Musica de nivel")]
+    [Tooltip("Tope de la musica del nivel. El slider al 100% suena a este volumen para convivir con el ambiente.")]
+    [Range(0f, 1f)] [SerializeField] float techoMusicaNivel = 0.2f;
+
     [Header("Mute")]
     public bool musicMuted;
     public bool ambientMuted;
     public bool sfxMuted;
+
+    bool musicaDeNivel;
+    bool musicaPausadaPorJuego;
 
     public float GetMusicVolume() => musicVolume;
     public float GetAmbientVolume() => ambientVolume;
@@ -94,14 +101,16 @@ public class AudioManager : MonoBehaviour
         Destroy(shortSfxObject, duration);
     }
 
-    public void PlayMusic(AudioClip clip)
+    public void PlayMusic(AudioClip clip, bool deNivel = false)
     {
         if (clip == null || musicSource == null)
             return;
 
-        if (musicSource.clip == clip && musicSource.isPlaying)
+        if (musicSource.clip == clip && musicSource.isPlaying && musicaDeNivel == deNivel)
             return;
 
+        musicaDeNivel = deNivel;
+        musicaPausadaPorJuego = false;
         musicSource.clip = clip;
         musicSource.loop = true;
         ApplyVolumes();
@@ -113,8 +122,29 @@ public class AudioManager : MonoBehaviour
         if (musicSource == null)
             return;
 
+        musicaDeNivel = false;
+        musicaPausadaPorJuego = false;
         musicSource.Stop();
         musicSource.clip = null;
+    }
+
+    void Update()
+    {
+        if (!musicaDeNivel || musicSource == null || musicSource.clip == null)
+            return;
+
+        bool juegoPausado = Time.timeScale <= 0f;
+        if (juegoPausado && !musicaPausadaPorJuego)
+        {
+            musicSource.Pause();
+            musicaPausadaPorJuego = true;
+        }
+        else if (!juegoPausado && musicaPausadaPorJuego)
+        {
+            musicSource.UnPause();
+            musicaPausadaPorJuego = false;
+            ApplyVolumes();
+        }
     }
 
     public void PlayAmbient(AudioClip clip)
@@ -189,7 +219,10 @@ public class AudioManager : MonoBehaviour
     void ApplyVolumes()
     {
         if (musicSource != null)
-            musicSource.volume = musicMuted ? 0f : musicVolume;
+        {
+            float techo = musicaDeNivel ? techoMusicaNivel : 1f;
+            musicSource.volume = musicMuted ? 0f : musicVolume * techo;
+        }
         if (ambientSource != null)
             ambientSource.volume = ambientMuted ? 0f : ambientVolume * techoAmbiente;
         if (sfxSource != null)

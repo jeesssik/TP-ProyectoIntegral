@@ -129,6 +129,8 @@ public class LaserInversionControles : MonoBehaviour
         float dirMundo = EntradaJuego.Horizontal;
         invertido = enZona;
         EntradaJuego.InvertidoHorizontal = invertido;
+        if (invertido)
+            grace.RecibirGolpe();
         EntradaJuego.ConservarDireccionMundo(dirMundo);
 
         if (invertido && !hazMortal && prenderRojoEn < 0f)

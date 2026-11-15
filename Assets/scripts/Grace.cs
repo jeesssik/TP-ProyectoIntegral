@@ -32,6 +32,7 @@ public class Grace : MonoBehaviour
     public float ajusteAlturaMuerte = 0f;
 
     Rigidbody2D rb;
+    PlayerAudio audio;
     Animator animator;
     Collider2D colision;
     SpriteRenderer rendererVisual;
@@ -126,6 +127,7 @@ public class Grace : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        audio = GetComponent<PlayerAudio>();
         animator = BuscarAnimador();
         rendererVisual = GetComponentInChildren<SpriteRenderer>();
         foreach (Animator animador in GetComponentsInChildren<Animator>(true))
@@ -567,6 +569,8 @@ public class Grace : MonoBehaviour
         }
         rb.velocity = new Vector2(lateral, fuerzaSalto);
         marcaSalto = Time.time;
+        if (audio != null)
+            audio.PlayJump();
         if (animator != null)
         {
             animator.ResetTrigger("Land");
@@ -794,6 +798,7 @@ public class Grace : MonoBehaviour
         estaEnSuelo = false;
         estabaEnSuelo = false;
         lanzadaPorOla = true;
+        SonarGolpe();
         movimiento = 0f;
         estaCorriendo = false;
         saltoPedido = false;
@@ -945,6 +950,7 @@ public class Grace : MonoBehaviour
 
         yaMurio = true;
         lanzadaAlCielo = true;
+        SonarGolpe();
         enCinematica = true;
         controlBloqueado = true;
         movimiento = 0f;
@@ -993,6 +999,7 @@ public class Grace : MonoBehaviour
         controlBloqueado = true;
         movimiento = 0f;
         saltoPedido = false;
+        SonarGolpe();
         if (AlinearCuerpoConElPiso(out alturaPisoMuerte))
             ajustarMuerteAlPiso = true;
         UsarColision(false);
@@ -1032,6 +1039,22 @@ public class Grace : MonoBehaviour
 
         alturaPiso = impacto.point.y;
         return true;
+    }
+
+    public void RecibirGolpe()
+    {
+        if (yaMurio)
+            return;
+
+        SonarGolpe();
+    }
+
+    void SonarGolpe()
+    {
+        if (audio == null)
+            audio = GetComponent<PlayerAudio>();
+        if (audio != null)
+            audio.PlayHurt();
     }
 
     void MorirPorCaidaAlMar()

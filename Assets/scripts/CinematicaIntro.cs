@@ -26,7 +26,7 @@ public class CinematicaIntro : MonoBehaviour
     const float DemoraAntesDeSaltar = 0.25f;
     const string RutaClip = "Assets/Prefabs/Grace Bond.mp4";
     const string RutaMusica = "Assets/Sound/Music/musinova-dreamy-ambient-trip-hop-30-seconds-edit-611587.mp3";
-    const float VolumenMusica = 0.22f;
+    const float VolumenMusica = 0.7f;
 
     VideoClip clip;
     AudioClip musica;

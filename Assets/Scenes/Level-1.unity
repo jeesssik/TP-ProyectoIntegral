@@ -28157,6 +28157,8 @@ MonoBehaviour:
   walkStepMinPitch: 0.94
   walkStepMaxPitch: 1
   walkStepLowPassCutoff: 4200
+  hurtVolume: 0.25
+  jumpVolume: 0.42
 --- !u!1 &1364889276
 GameObject:
   m_ObjectHideFlags: 0
@@ -39643,7 +39645,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 139374ed16378d44faa95113c5306ec2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelMusic: {fileID: 0}
+  levelMusic: {fileID: 8300000, guid: 5e593d460843c4c829b07dd90954a34a, type: 3}
   levelAmbient: {fileID: 8300000, guid: d0a051ed7515140bba4afdbba9bab645, type: 3}
 --- !u!1 &1900000401
 GameObject:
