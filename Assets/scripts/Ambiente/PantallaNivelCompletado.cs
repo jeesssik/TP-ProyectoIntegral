@@ -102,6 +102,7 @@ public class PantallaNivelCompletado : MonoBehaviour
     {
         Time.timeScale = 1f;
         visible = false;
+        GruaZona.OlvidarCheckpoint();
         SceneManager.LoadScene(escenaMenu);
     }
 

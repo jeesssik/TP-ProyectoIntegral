@@ -149,6 +149,20 @@ public class Grace : MonoBehaviour
         if (rb != null)
             rb.gravityScale = gravedadEscala;
 
+        if (GruaZona.ZonaAlcanzada && rb != null)
+        {
+            float bajoLosPies = 0f;
+            if (colision is CapsuleCollider2D capsula)
+                bajoLosPies = capsula.offset.y - capsula.size.y * 0.5f;
+            Vector2 piso = GruaZona.Reaparicion;
+            rb.position = new Vector2(piso.x, piso.y - bajoLosPies);
+            rb.velocity = Vector2.zero;
+            Physics2D.SyncTransforms();
+            CameraFollow camara = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            if (camara != null)
+                camara.ColocarEn(rb.position);
+        }
+
         estaEnSuelo = TocaSuelo();
         estabaEnSuelo = estaEnSuelo;
         MedirPlataformaInicio();

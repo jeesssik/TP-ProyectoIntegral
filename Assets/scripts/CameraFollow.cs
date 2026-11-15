@@ -28,6 +28,12 @@ public class CameraFollow : MonoBehaviour
         zFijo = transform.position.z;
     }
 
+    public void ColocarEn(Vector2 mundo)
+    {
+        float z = zFijo != 0f ? zFijo : transform.position.z;
+        transform.position = new Vector3(mundo.x + offset.x, mundo.y + offset.y, z);
+    }
+
     /// <summary>
     /// Al arrancar, el comienzo de la plataforma queda en el encuadre de inicio:
     /// el extremo visible, con un margen de agua a la izquierda.

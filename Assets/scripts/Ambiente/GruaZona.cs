@@ -4,8 +4,7 @@ using UnityEngine;
 /// <summary>
 /// La plataforma espera en el último muelle de la parte 1.
 /// Del medio de la plataforma hasta el final, Grace queda quieta donde aterrizó
-/// y el brazo gira por arriba.
-/// y la deja en el muelle del galpón.
+/// y el brazo gira por arriba hasta dejarla en el muelle del galpón.
 /// El eje está en el círculo del pilote. La plataforma cuelga de la punta.
 /// </summary>
 [ExecuteAlways]
@@ -24,13 +23,32 @@ public class GruaZona : MonoBehaviour
     bool ocupada;
     BoxCollider2D piso;
 
+    public static bool ZonaAlcanzada { get; private set; }
+    public static Vector2 Reaparicion { get; private set; }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void LimpiarCheckpoint()
+    {
+        ZonaAlcanzada = false;
+    }
+
+    public static void OlvidarCheckpoint()
+    {
+        ZonaAlcanzada = false;
+    }
+
     void Awake()
     {
-        angulo = anguloInicial;
+        angulo = ZonaAlcanzada ? anguloFinal : anguloInicial;
+        ocupada = ZonaAlcanzada;
         if (plataforma != null)
             piso = plataforma.GetComponent<BoxCollider2D>();
         if (Application.isPlaying)
+        {
             Aplicar();
+            if (ZonaAlcanzada)
+                Physics2D.SyncTransforms();
+        }
     }
 
     void Update()
@@ -98,6 +116,27 @@ public class GruaZona : MonoBehaviour
 
         Vector3 pies = plataforma.TransformPoint(new Vector3(xLocal, pisoLocal, 0f));
         grace.SoltarDeGrua(pies);
+
+        Aplicar();
+        Physics2D.SyncTransforms();
+        Reaparicion = PuntoEnElDeck();
+        ZonaAlcanzada = true;
+    }
+
+    Vector2 PuntoEnElDeck()
+    {
+        Bounds pisoB = piso.bounds;
+        float x = pisoB.max.x + 0.25f;
+        for (int i = 0; i < 16; i++)
+        {
+            RaycastHit2D golpe = Physics2D.Raycast(new Vector2(x, pisoB.max.y + 0.6f), Vector2.down, 2.5f);
+            if (golpe.collider != null && golpe.collider != piso && !golpe.collider.isTrigger && golpe.normal.y > 0.5f)
+                return new Vector2(golpe.point.x + 1.4f, golpe.point.y);
+
+            x += 0.35f;
+        }
+
+        return new Vector2(pisoB.max.x + 1.8f, pisoB.max.y);
     }
 
     void Aplicar()

@@ -211,6 +211,7 @@ public class PauseMenuManager : MonoBehaviour
     public void LoadMainMenu()
     {
         Time.timeScale = 1f;
+        GruaZona.OlvidarCheckpoint();
         SceneManager.LoadScene(mainMenuSceneName);
     }
 

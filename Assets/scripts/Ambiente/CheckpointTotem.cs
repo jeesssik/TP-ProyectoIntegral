@@ -67,6 +67,21 @@ public class CheckpointTotem : MonoBehaviour
                 return;
         }
 
+        if (GruaZona.ZonaAlcanzada)
+        {
+            yaTocado = true;
+            EntradaJuego.InvertidoHorizontal = false;
+            LaserInversionControles laserYaPasado = LaserInversionControles.Instancia;
+            if (laserYaPasado != null)
+                laserYaPasado.CerrarZona();
+            if (totem != null && spriteActivado != null)
+            {
+                totem.color = Color.white;
+                totem.sprite = spriteActivado;
+            }
+            return;
+        }
+
         if (!GraceLlegoAlTotem())
             return;
 
