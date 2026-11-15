@@ -640,8 +640,28 @@ public class PuenteRompible : MonoBehaviour
         if (bordeCurvo != null)
             bordeCurvo.enabled = false;
 
-        if (sigueEncima)
+        if (grace != null && (sigueEncima || !ApoyadaEnOtroPiso(grace)))
             grace.CaerDesdePuente();
+    }
+
+    bool ApoyadaEnOtroPiso(Grace grace)
+    {
+        if (grace == null || grace.CuerpoRigido == null)
+            return false;
+
+        Bounds puente = colliderPuente != null ? colliderPuente.bounds : new Bounds(transform.position, Vector3.one);
+        float x = grace.CuerpoRigido.position.x;
+        if (x >= puente.min.x - 0.55f && x <= puente.max.x + 0.55f)
+            return false;
+
+        int capa = colliderPuente != null ? 1 << colliderPuente.gameObject.layer : Physics2D.DefaultRaycastLayers;
+        Vector2 origen = grace.CuerpoRigido.position + Vector2.up * 0.2f;
+        RaycastHit2D golpe = Physics2D.BoxCast(origen, new Vector2(0.16f, 0.02f), 0f, Vector2.down, 0.4f, capa);
+        if (golpe.collider == null || golpe.normal.y < 0.45f)
+            return false;
+
+        PuenteRompible dueno = golpe.collider.GetComponentInParent<PuenteRompible>();
+        return dueno != this;
     }
 
     void Desvanecer()

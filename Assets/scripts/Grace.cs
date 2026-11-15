@@ -961,6 +961,9 @@ public class Grace : MonoBehaviour
 
         animator.ResetTrigger("Jump");
         animator.ResetTrigger("Land");
+        animator.SetBool("IsGrounded", false);
+        if (TieneParametro("IsFalling"))
+            animator.SetBool("IsFalling", true);
 
         int caida = Animator.StringToHash(EstadoCaidaOla);
         if (animator.HasState(0, caida))
@@ -970,10 +973,7 @@ public class Grace : MonoBehaviour
         }
 
         animator.SetFloat("Speed", 0f);
-        animator.SetBool("IsGrounded", false);
         animator.SetBool("IsRunning", false);
-        if (TieneParametro("IsFalling"))
-            animator.SetBool("IsFalling", true);
     }
 
     void MantenerAnimacionCaida()
@@ -981,21 +981,24 @@ public class Grace : MonoBehaviour
         if (animator == null || (yaMurio && !lanzadaAlCielo))
             return;
 
-        animator.SetFloat("Speed", 0f);
         animator.SetBool("IsGrounded", false);
-        animator.SetBool("IsRunning", false);
         if (TieneParametro("IsFalling"))
             animator.SetBool("IsFalling", true);
 
-        if (!animator.HasState(0, Animator.StringToHash(EstadoCaidaOla)))
+        int caida = Animator.StringToHash(EstadoCaidaOla);
+        if (!animator.HasState(0, caida))
             return;
 
-        if (animator.IsInTransition(0) &&
-            animator.GetNextAnimatorStateInfo(0).IsName(EstadoCaidaOla))
-            return;
+        bool yaEnCaida = animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla)
+            || (animator.IsInTransition(0) && animator.GetNextAnimatorStateInfo(0).IsName(EstadoCaidaOla));
+        if (!yaEnCaida)
+        {
+            animator.Play(caida, 0, 0f);
+            animator.Update(0f);
+        }
 
-        if (!animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla))
-            animator.Play(EstadoCaidaOla, 0, 0f);
+        animator.SetFloat("Speed", 0f);
+        animator.SetBool("IsRunning", false);
     }
 
     bool TieneParametro(string nombre)
