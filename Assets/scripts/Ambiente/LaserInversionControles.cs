@@ -43,6 +43,7 @@ public class LaserInversionControles : MonoBehaviour
 
     bool invertido;
     bool zonaCerrada;
+    public bool FueImpactado { get; private set; }
     bool hazMortal;
     bool yaMato;
     float prenderRojoEn = -1f;
@@ -54,6 +55,7 @@ public class LaserInversionControles : MonoBehaviour
         EntradaJuego.InvertidoHorizontal = false;
         EntradaJuego.SoltarDireccionFija();
         invertido = false;
+        FueImpactado = false;
         zonaCerrada = false;
         hazMortal = false;
         prenderRojoEn = -1f;
@@ -138,6 +140,7 @@ public class LaserInversionControles : MonoBehaviour
         EntradaJuego.InvertidoHorizontal = invertido;
         if (invertido)
         {
+            FueImpactado = true;
             grace.RecibirGolpe();
             SonarActivacion();
         }

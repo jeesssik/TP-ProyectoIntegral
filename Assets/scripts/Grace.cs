@@ -50,6 +50,15 @@ public class Grace : MonoBehaviour
     bool lanzadaPorOla;
     bool lanzadaAlCielo;
     bool caidaAlMar;
+    bool muerteAlAterrizar;
+    bool caidaVacioInicio;
+    bool saltoVacioInicio;
+    bool estirandoSalto;
+    bool entrandoEnCaida;
+    float relojEstiron;
+    bool bordeInicioListo;
+    float bordeIzquierdoInicio;
+    float alturaInicio;
     float avanceCaida;
     bool recargaCaidaPendiente;
     float proximoDesenganche;
@@ -149,6 +158,7 @@ public class Grace : MonoBehaviour
 
         estaEnSuelo = TocaSuelo();
         estabaEnSuelo = estaEnSuelo;
+        MedirPlataformaInicio();
         ActualizarAnimacion();
     }
 
@@ -161,7 +171,7 @@ public class Grace : MonoBehaviour
         if (!enCinematica || lanzadaAlCielo)
         {
             AlinearVisual();
-            if (lanzadaPorOla || caidaAlMar || lanzadaAlCielo)
+            if (lanzadaPorOla || caidaAlMar || lanzadaAlCielo || (caidaVacioInicio && !entrandoEnCaida))
                 AnclarPiesVisualesDuranteCaida();
         }
         ActualizarSilueta();
@@ -205,6 +215,21 @@ public class Grace : MonoBehaviour
         if (enCinematica)
             return;
 
+        if (muerteAlAterrizar)
+        {
+            float yCaida = cuerpoFisico != null ? cuerpoFisico.position.y : transform.position.y;
+            estaEnSuelo = false;
+            if (yCaida < Mathf.Min(yMuerteMar, -7.5f))
+            {
+                MorirPorCaidaAlMar();
+                return;
+            }
+
+            if (PisoBajoLosPies())
+                CompletarMuerteEnElPiso();
+            return;
+        }
+
         // El origen del modelo queda en los pies. yMuerteMar en -5 está
         // a la altura del muelle, así que el primer puente, al hundirse, la mata.
         float lineaMar = Mathf.Min(yMuerteMar, -7.5f);
@@ -244,6 +269,7 @@ public class Grace : MonoBehaviour
 
         ActualizarSuelo();
         ActualizarAnimacion();
+        ActualizarCaidaAlVacioInicial();
         ActualizarOrientacion();
         estabaEnSuelo = estaEnSuelo;
     }
@@ -262,6 +288,12 @@ public class Grace : MonoBehaviour
         {
             float vertical = Mathf.Min(0f, rb.velocity.y);
             rb.velocity = new Vector2(avanceCaida, vertical);
+            return;
+        }
+
+        if (muerteAlAterrizar && rb != null && !yaMurio)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Min(0f, rb.velocity.y));
             return;
         }
 
@@ -293,6 +325,7 @@ public class Grace : MonoBehaviour
             SubirEscalonSiHay(velocidadObjetivo);
             BajarConLaCurva(velocidadObjetivo);
             rb.velocity = VelocidadSobreLaCurva(velocidadObjetivo);
+            FrenarIzquierdaEnElInicio();
             return;
         }
 
@@ -302,6 +335,7 @@ public class Grace : MonoBehaviour
             velocidadVertical += Physics2D.gravity.y * (multiplicadorCaida - 1f) * gravedadEscala * Time.fixedDeltaTime;
 
         rb.velocity = new Vector2(velocidadAire, velocidadVertical);
+        FrenarIzquierdaEnElInicio();
     }
 
     void SubirEscalonSiHay(float velocidadObjetivo)
@@ -580,6 +614,8 @@ public class Grace : MonoBehaviour
             float enAire = estaCorriendo ? velocidadSaltoCorriendo : impulsoLateralSalto;
             lateral = movimiento * Mathf.Max(Mathf.Abs(rb.velocity.x), enAire);
         }
+        if (bordeInicioListo && rb.position.x <= bordeIzquierdoInicio + 0.4f)
+            lateral = Mathf.Max(0f, lateral);
         rb.velocity = new Vector2(lateral, fuerzaSalto);
         marcaSalto = Time.time;
         if (audio != null)
@@ -590,7 +626,26 @@ public class Grace : MonoBehaviour
             animator.SetTrigger("Jump");
         }
 
+        if (VaHaciaElVacioInicial())
+        {
+            saltoVacioInicio = true;
+            estirandoSalto = false;
+            relojEstiron = 0f;
+        }
+
         AvisarPuenteBajoLosPies();
+    }
+
+    bool VaHaciaElVacioInicial()
+    {
+        if (!bordeInicioListo || rb == null)
+            return false;
+
+        bool haciaIzquierda = movimiento < -0.01f || rb.velocity.x < -0.15f;
+        bool enLaPlataforma = rb.position.x < bordeIzquierdoInicio + 4f
+            && rb.position.y < alturaInicio + 1.2f
+            && rb.position.y > alturaInicio - 0.6f;
+        return haciaIzquierda && enLaPlataforma;
     }
 
     void AvisarPuenteBajoLosPies()
@@ -697,6 +752,171 @@ public class Grace : MonoBehaviour
         animator.SetTrigger("Land");
     }
 
+    void MedirPlataformaInicio()
+    {
+        if (bordeInicioListo || rb == null)
+            return;
+
+        Vector2 origen = rb.position + Vector2.up * 0.3f;
+        RaycastHit2D suelo = Physics2D.Raycast(origen, Vector2.down, 3f, capaSuelo);
+        if (suelo.collider == null)
+            return;
+
+        alturaInicio = suelo.point.y;
+        float x = suelo.point.x;
+        bool hayBordeIzquierdo = false;
+        for (int i = 0; i < 120; i++)
+        {
+            Vector2 prueba = new Vector2(x - 0.35f, alturaInicio + 0.45f);
+            RaycastHit2D paso = Physics2D.Raycast(prueba, Vector2.down, 1.2f, capaSuelo);
+            if (paso.collider == null || paso.point.y < alturaInicio - 0.35f)
+            {
+                hayBordeIzquierdo = true;
+                break;
+            }
+            x = paso.point.x;
+        }
+
+        bordeIzquierdoInicio = x;
+        bordeInicioListo = true;
+
+        if (!hayBordeIzquierdo)
+            return;
+
+        CameraFollow camara = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camara != null)
+            camara.FijarBordeIzquierdo(bordeIzquierdoInicio);
+    }
+
+    void FrenarIzquierdaEnElInicio()
+    {
+        if (!bordeInicioListo || rb == null)
+            return;
+
+        float minimo = bordeIzquierdoInicio + 0.3f;
+        if (rb.position.x > minimo)
+            return;
+
+        rb.position = new Vector2(minimo, rb.position.y);
+        if (rb.velocity.x < 0f)
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+    }
+
+    void ActualizarCaidaAlVacioInicial()
+    {
+        if (caidaAlMar || lanzadaPorOla || lanzadaAlCielo || yaMurio || enCinematica)
+            return;
+
+        if (!bordeInicioListo)
+            MedirPlataformaInicio();
+
+        if (saltoVacioInicio && !caidaVacioInicio)
+        {
+            ActualizarTransicionSaltoVacio();
+            return;
+        }
+
+        if (caidaVacioInicio)
+        {
+            if (entrandoEnCaida)
+            {
+                if (animator != null
+                    && !animator.IsInTransition(0)
+                    && animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla))
+                {
+                    entrandoEnCaida = false;
+                    if (TieneParametro("IsFalling"))
+                        animator.SetBool("IsFalling", true);
+                }
+                return;
+            }
+
+            MantenerAnimacionCaida();
+            return;
+        }
+
+        if (!bordeInicioListo || estaEnSuelo || rb == null)
+            return;
+        if (rb.position.x > bordeIzquierdoInicio - 0.08f)
+            return;
+        if (rb.position.y > alturaInicio - 0.28f)
+            return;
+        if (rb.velocity.y > -0.15f)
+            return;
+
+        caidaVacioInicio = true;
+        ReproducirCaidaPorOla();
+    }
+
+    const float CorteEstironSalto = 0.62f;
+    const float DuracionEstironSalto = 0.2f;
+
+    void ActualizarTransicionSaltoVacio()
+    {
+        if (animator == null || rb == null)
+            return;
+
+        if (estaEnSuelo && soltoElSueloEnElSalto)
+        {
+            saltoVacioInicio = false;
+            estirandoSalto = false;
+            animator.speed = 1f;
+            return;
+        }
+
+        int salto = Animator.StringToHash("JumpOver");
+        if (!animator.HasState(0, salto))
+            return;
+
+        float normalizado;
+        if (!estirandoSalto && rb.velocity.y > 0.35f)
+        {
+            float subida = 1f - Mathf.Clamp01(rb.velocity.y / Mathf.Max(0.01f, fuerzaSalto));
+            normalizado = subida * CorteEstironSalto;
+        }
+        else
+        {
+            if (!estirandoSalto)
+            {
+                estirandoSalto = true;
+                relojEstiron = 0f;
+            }
+
+            relojEstiron += Time.deltaTime;
+            float estiron = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(relojEstiron / DuracionEstironSalto));
+            normalizado = Mathf.Lerp(CorteEstironSalto, 1f, estiron);
+            if (estiron >= 1f && YaCaeAlVacioInicial())
+            {
+                EntrarCaidaDesdeEstiron();
+                return;
+            }
+        }
+
+        animator.speed = 0f;
+        animator.Play(salto, 0, normalizado);
+    }
+
+    bool YaCaeAlVacioInicial()
+    {
+        return rb.position.x < bordeIzquierdoInicio - 0.05f
+            && rb.position.y < alturaInicio - 0.12f
+            && rb.velocity.y < -0.2f;
+    }
+
+    void EntrarCaidaDesdeEstiron()
+    {
+        saltoVacioInicio = false;
+        caidaVacioInicio = true;
+        entrandoEnCaida = true;
+        animator.speed = 1f;
+        animator.ResetTrigger("Jump");
+        animator.ResetTrigger("Land");
+        animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsRunning", false);
+        animator.SetFloat("Speed", 0f);
+        animator.CrossFadeInFixedTime(EstadoCaidaOla, 0.2f, 0, 0f);
+    }
+
     void ActualizarAnimacion()
     {
         if (animator == null || rb == null)
@@ -742,6 +962,8 @@ public class Grace : MonoBehaviour
 
     void ActualizarOrientacion()
     {
+        if (caidaVacioInicio)
+            return;
         if (Mathf.Abs(movimiento) < 0.01f)
             return;
 
@@ -1064,6 +1286,88 @@ public class Grace : MonoBehaviour
 
     public void MorirPorContainer()
     {
+        MorirPorContainer(false, false, 1f);
+    }
+
+    /// <summary>Misma muerte de container, con otra velocidad de animación. No afecta al resto de muertes.</summary>
+    public void MorirAplastadaPorContainer(float velocidadAnimacion)
+    {
+        // El clip se queda parada hasta ~0.5 s; esta muerte entra directo en la caída.
+        MorirPorContainer(false, false, Mathf.Max(0.2f, velocidadAnimacion), 0.5f);
+    }
+
+    public void MorirEnElPiso()
+    {
+        if (yaMurio || muerteAlAterrizar)
+            return;
+
+        SonarGolpe();
+        if (PisoBajoLosPies())
+        {
+            MorirPorContainer(true, true, 1f);
+            Invoke(nameof(ReiniciarTrasLanzamiento), DuracionAnimacionMuerte);
+            return;
+        }
+
+        muerteAlAterrizar = true;
+        controlBloqueado = true;
+        movimiento = 0f;
+        saltoPedido = false;
+        estaEnSuelo = false;
+        ignorarSueloHasta = 0f;
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.gravityScale = gravedadEscala;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Min(0f, rb.velocity.y));
+        }
+
+        if (animator != null)
+        {
+            animator.ResetTrigger("Jump");
+            animator.ResetTrigger("Land");
+        }
+    }
+
+    bool PisoBajoLosPies()
+    {
+        if (rb == null)
+            return estaEnSuelo;
+
+        RaycastHit2D suelo = Physics2D.Raycast(rb.position + Vector2.up * 0.08f, Vector2.down, 0.28f, capaSuelo);
+        return suelo.collider != null && suelo.normal.y > 0.45f;
+    }
+
+    void CompletarMuerteEnElPiso()
+    {
+        if (yaMurio)
+            return;
+
+        muerteAlAterrizar = false;
+        AsentarEnElPiso();
+        MorirPorContainer(true, true, 1f);
+        Invoke(nameof(ReiniciarTrasLanzamiento), DuracionAnimacionMuerte);
+    }
+
+    void AsentarEnElPiso()
+    {
+        if (rb == null)
+            return;
+
+        RaycastHit2D suelo = Physics2D.Raycast(rb.position + Vector2.up * 0.2f, Vector2.down, 0.7f, capaSuelo);
+        if (suelo.collider == null || suelo.normal.y < 0.45f)
+            return;
+
+        float dy = suelo.point.y - rb.position.y;
+        if (dy < -0.02f || dy > 0.35f)
+            return;
+
+        rb.velocity = Vector2.zero;
+        rb.position = new Vector2(rb.position.x, suelo.point.y);
+    }
+
+    void MorirPorContainer(bool yaEnElPiso, bool transicionSuave, float velocidadAnimacion, float inicioClip = 0f)
+    {
         if (yaMurio)
             return;
 
@@ -1071,8 +1375,11 @@ public class Grace : MonoBehaviour
         controlBloqueado = true;
         movimiento = 0f;
         saltoPedido = false;
-        SonarGolpe();
-        if (AlinearCuerpoConElPiso(out alturaPisoMuerte))
+        saltoEnElAire = false;
+        estaEnSuelo = true;
+        if (!yaEnElPiso)
+            SonarGolpe();
+        if (!yaEnElPiso && AlinearCuerpoConElPiso(out alturaPisoMuerte))
             ajustarMuerteAlPiso = true;
         UsarColision(false);
         if (rb != null)
@@ -1083,13 +1390,29 @@ public class Grace : MonoBehaviour
             rb.gravityScale = 0f;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
-        if (animator != null)
+        if (animator == null)
+            return;
+
+        animator.speed = velocidadAnimacion;
+        animator.ResetTrigger("Jump");
+        animator.ResetTrigger("Land");
+        animator.ResetTrigger("Dead");
+        animator.SetFloat("Speed", 0f);
+        animator.SetBool("IsRunning", false);
+        animator.SetBool("IsGrounded", true);
+        if (TieneParametro("IsFalling"))
+            animator.SetBool("IsFalling", false);
+
+        int estadoMuerte = Animator.StringToHash("dead_back");
+        if (inicioClip > 0f && animator.HasState(0, estadoMuerte))
         {
-            animator.SetFloat("Speed", 0f);
-            animator.SetBool("IsRunning", false);
-            animator.SetBool("IsGrounded", true);
-            animator.SetTrigger("Dead");
+            animator.Play(estadoMuerte, 0, Mathf.Clamp01(inicioClip / 2.5666668f));
+            animator.Update(0f);
         }
+        else if (transicionSuave && animator.HasState(0, estadoMuerte))
+            animator.CrossFadeInFixedTime("dead_back", 0.3f, 0, 0f);
+        else
+            animator.SetTrigger("Dead");
     }
 
     bool AlinearCuerpoConElPiso(out float alturaPiso)
@@ -1140,9 +1463,34 @@ public class Grace : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    bool MiraALaIzquierda()
+    {
+        float delta = Mathf.DeltaAngle(rotacionInicial.eulerAngles.y, transform.localEulerAngles.y);
+        return Mathf.Abs(delta) > 90f;
+    }
+
     void AnclarPiesVisualesDuranteCaida()
     {
-        if (cuerpoFisico == null || mallas == null || mallas.Length == 0)
+        if (cuerpoFisico == null)
+            return;
+
+        // El clip se zambulle hacia adelante. De perfil a la izquierda ese
+        // avance es horizontal y la saca del cuadro. La cadera queda en el cuerpo.
+        if ((caidaVacioInicio || MiraALaIzquierda()) && animator != null)
+        {
+            Transform cadera = animator.GetBoneTransform(HumanBodyBones.Hips);
+            if (cadera != null)
+            {
+                Vector3 destino = cuerpoFisico.position + Vector3.up * 0.9f;
+                transform.position += new Vector3(
+                    destino.x - cadera.position.x,
+                    destino.y - cadera.position.y,
+                    0f);
+                return;
+            }
+        }
+
+        if (mallas == null || mallas.Length == 0)
             return;
 
         float limiteInferior = float.PositiveInfinity;

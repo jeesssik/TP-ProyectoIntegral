@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Prop hasta que Grace lo pasa; después gira (frames) y persigue.
@@ -213,13 +212,7 @@ public class TachoPersigue : MonoBehaviour
         if (fuego != null)
             fuego.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 
-        g.MorirPorContainer();
-        Invoke(nameof(ReiniciarEscena), Grace.DuracionAnimacionMuerte);
-    }
-
-    void ReiniciarEscena()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        g.MorirEnElPiso();
     }
 
     void SetColisiones(bool activas)
