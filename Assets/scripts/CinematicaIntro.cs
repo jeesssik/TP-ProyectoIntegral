@@ -25,16 +25,20 @@ public class CinematicaIntro : MonoBehaviour
     const float EsperaMaximaArranque = 5f;
     const float DemoraAntesDeSaltar = 0.25f;
     const string RutaClip = "Assets/Prefabs/Grace Bond.mp4";
+    const string RutaMusica = "Assets/Sound/Music/musinova-dreamy-ambient-trip-hop-30-seconds-edit-611587.mp3";
+    const float VolumenMusica = 0.7f;
 
     VideoClip clip;
+    AudioClip musica;
     string escenaDestino;
+    AudioSource musicaSource;
     VideoPlayer reproductor;
     RawImage imagenVideo;
     bool saltar;
     float saltoDesde = float.PositiveInfinity;
     string errorPreparacion;
 
-    public static void Reproducir(VideoClip clip, string escenaDestino)
+    public static void Reproducir(VideoClip clip, string escenaDestino, AudioClip musica = null)
     {
         if (EnCurso)
             return;
@@ -51,6 +55,7 @@ public class CinematicaIntro : MonoBehaviour
         GameObject raiz = new GameObject("CinematicaIntro");
         CinematicaIntro intro = raiz.AddComponent<CinematicaIntro>();
         intro.clip = clip;
+        intro.musica = musica;
         intro.escenaDestino = escenaDestino;
         intro.StartCoroutine(intro.ReproducirSecuencia());
     }
@@ -125,6 +130,7 @@ public class CinematicaIntro : MonoBehaviour
         float sinImagen = 0f;
         int framesParado = 0;
         bool yaReproduciendo = false;
+        bool musicaActiva = false;
 
         while (!fin && !saltar)
         {
@@ -132,6 +138,12 @@ public class CinematicaIntro : MonoBehaviour
 
             if (reproductor.isPlaying)
             {
+                if (!musicaActiva)
+                {
+                    IniciarMusica();
+                    musicaActiva = true;
+                }
+
                 yaReproduciendo = true;
                 framesParado = 0;
             }
@@ -155,7 +167,52 @@ public class CinematicaIntro : MonoBehaviour
         if (reproductor.isPlaying)
             reproductor.Pause();
 
+        CortarMusica();
         CargarEscena();
+    }
+
+    void IniciarMusica()
+    {
+        if (musica == null)
+            musica = CargarMusicaPorDefecto();
+        if (musica == null)
+            return;
+
+        musicaSource = gameObject.AddComponent<AudioSource>();
+        musicaSource.playOnAwake = false;
+        musicaSource.loop = true;
+        musicaSource.spatialBlend = 0f;
+        musicaSource.clip = musica;
+        musicaSource.volume = VolumenMusicaEfectivo();
+        musicaSource.Play();
+    }
+
+    float VolumenMusicaEfectivo()
+    {
+        if (AudioManager.Instance == null)
+            return VolumenMusica;
+        if (AudioManager.Instance.GetMusicMuted())
+            return 0f;
+
+        return VolumenMusica * AudioManager.Instance.GetMusicVolume();
+    }
+
+    void CortarMusica()
+    {
+        if (musicaSource == null)
+            return;
+
+        musicaSource.Stop();
+        musicaSource.clip = null;
+    }
+
+    static AudioClip CargarMusicaPorDefecto()
+    {
+#if UNITY_EDITOR
+        return UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(RutaMusica);
+#else
+        return null;
+#endif
     }
 
     void MostrarTextura()
@@ -239,6 +296,8 @@ public class CinematicaIntro : MonoBehaviour
 
     void CargarEscena()
     {
+        CortarMusica();
+
         if (string.IsNullOrEmpty(escenaDestino))
         {
             Debug.LogError("CinematicaIntro: falta el nombre de la escena.", this);

@@ -41,12 +41,40 @@ public class PuenteRompible : MonoBehaviour
     Vector2[] curvaLocal;
     float ignorarAterrizajeHasta;
     float ultimoContacto = -10f;
+    static PuenteRompible colapsoActivo;
     float profundidadUsada;
     float inicioColapso;
     float duracionClip = 1.45f;
     Sprite spriteSano;
 
     float VentanaContacto => Mathf.Max(0.1f, Time.fixedDeltaTime * 3f);
+
+    public static PuenteRompible ColapsoActivo =>
+        colapsoActivo != null && colapsoActivo.colapsado && !colapsoActivo.pisoSuelto
+            ? colapsoActivo
+            : null;
+
+    public bool EnRoceDeSalida(Grace grace)
+    {
+        if (grace == null || colliderPuente == null || pisoSuelto)
+            return false;
+        if (grace != causante && grace != jugadorSobrePuente)
+            return false;
+        if (!grace.EstaCorriendo)
+            return false;
+
+        Bounds puente = colliderPuente.bounds;
+        float x = grace.CuerpoRigido != null
+            ? grace.CuerpoRigido.position.x
+            : grace.transform.position.x;
+        const float roce = 0.45f;
+        float vx = grace.CuerpoRigido != null ? grace.CuerpoRigido.velocity.x : 0f;
+        if (vx >= 0.2f)
+            return x > puente.max.x - 0.22f && x < puente.max.x + roce;
+        if (vx <= -0.2f)
+            return x < puente.min.x + 0.22f && x > puente.min.x - roce;
+        return false;
+    }
 
     void Awake()
     {
@@ -181,7 +209,7 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         Bounds puente = colliderPuente.bounds;
-        if (rb.position.x < puente.min.x + 0.15f || rb.position.x > puente.max.x - 0.15f)
+        if (rb.position.x < puente.min.x + 0.02f || rb.position.x > puente.max.x - 0.02f)
             return;
 
         float superficie = AlturaMundoEnX(rb.position.x);
@@ -448,6 +476,18 @@ public class PuenteRompible : MonoBehaviour
         colliderPuente.enabled = false;
     }
 
+    bool SigueEnElVano(Grace grace)
+    {
+        if (grace == null || colliderPuente == null)
+            return false;
+
+        Bounds puente = colliderPuente.bounds;
+        float x = grace.CuerpoRigido != null
+            ? grace.CuerpoRigido.position.x
+            : grace.transform.position.x;
+        return x >= puente.min.x && x <= puente.max.x;
+    }
+
     bool EstaSobreElTramo(Grace grace)
     {
         if (grace == null || colliderPuente == null)
@@ -457,7 +497,7 @@ public class PuenteRompible : MonoBehaviour
         float x = grace.CuerpoRigido != null
             ? grace.CuerpoRigido.position.x
             : grace.transform.position.x;
-        if (x < puente.min.x + 0.12f || x > puente.max.x - 0.12f)
+        if (x < puente.min.x + 0.02f || x > puente.max.x - 0.02f)
             return false;
 
         Collider2D cuerpo = grace.ColisionCuerpo;
@@ -556,6 +596,7 @@ public class PuenteRompible : MonoBehaviour
         float velocidad = Mathf.Max(1f, velocidadRotura);
         inicioColapso = Time.time;
         colapsado = true;
+        colapsoActivo = this;
         if (causante == null)
             causante = jugadorSobrePuente;
         if (causante != null)
@@ -630,8 +671,12 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         Grace grace = causante != null ? causante : jugadorSobrePuente;
-        bool sigueEncima = EstaSobreElTramo(grace);
+        if (grace == null)
+            grace = FindObjectOfType<Grace>();
+        bool sigueEncima = SigueEnElVano(grace);
         pisoSuelto = true;
+        if (colapsoActivo == this)
+            colapsoActivo = null;
 
         if (colliderPuente != null)
             colliderPuente.enabled = false;
@@ -642,8 +687,28 @@ public class PuenteRompible : MonoBehaviour
         if (bordeCurvo != null)
             bordeCurvo.enabled = false;
 
-        if (sigueEncima)
+        if (grace != null && (sigueEncima || !ApoyadaEnOtroPiso(grace)))
             grace.CaerDesdePuente();
+    }
+
+    bool ApoyadaEnOtroPiso(Grace grace)
+    {
+        if (grace == null || grace.CuerpoRigido == null)
+            return false;
+
+        Bounds puente = colliderPuente != null ? colliderPuente.bounds : new Bounds(transform.position, Vector3.one);
+        float x = grace.CuerpoRigido.position.x;
+        if (x >= puente.min.x - 0.55f && x <= puente.max.x + 0.55f)
+            return false;
+
+        int capa = colliderPuente != null ? 1 << colliderPuente.gameObject.layer : Physics2D.DefaultRaycastLayers;
+        Vector2 origen = grace.CuerpoRigido.position + Vector2.up * 0.2f;
+        RaycastHit2D golpe = Physics2D.BoxCast(origen, new Vector2(0.16f, 0.02f), 0f, Vector2.down, 0.4f, capa);
+        if (golpe.collider == null || golpe.normal.y < 0.45f)
+            return false;
+
+        PuenteRompible dueno = golpe.collider.GetComponentInParent<PuenteRompible>();
+        return dueno != this;
     }
 
     void Desvanecer()

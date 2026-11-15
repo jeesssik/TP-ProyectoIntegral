@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Tótem: al acercarse/pasarlo, cierra la zona invertida, pasa a verde y arma la cascada.
@@ -20,6 +22,10 @@ public class CheckpointTotem : MonoBehaviour
 
     [Header("Cascada")]
     public PlataformaQueCae[] plataformas;
+
+    [Header("Castigo por saltar el láser")]
+    public Transform containerColgado;
+    public float velocidadCaidaContainer = 16f;
 
     bool yaTocado;
     Grace grace;
@@ -67,8 +73,15 @@ public class CheckpointTotem : MonoBehaviour
         yaTocado = true;
         EntradaJuego.InvertidoHorizontal = false;
 
-        if (LaserInversionControles.Instancia != null)
-            LaserInversionControles.Instancia.CerrarZona();
+        LaserInversionControles laser = LaserInversionControles.Instancia;
+        if (laser != null)
+            laser.CerrarZona();
+
+        if (laser != null && !laser.FueImpactado)
+        {
+            StartCoroutine(SoltarContainerSobreGrace());
+            return;
+        }
 
         if (totem != null && spriteActivado != null)
         {
@@ -104,6 +117,62 @@ public class CheckpointTotem : MonoBehaviour
         if (totem != null && totem.sprite != null)
             return totem.bounds.min.x;
         return transform.position.x;
+    }
+
+    IEnumerator SoltarContainerSobreGrace()
+    {
+        Transform caja = containerColgado;
+        if (caja == null)
+        {
+            GameObject hallado = GameObject.Find("container Cae_0");
+            if (hallado != null)
+                caja = hallado.transform;
+        }
+
+        if (caja == null || grace == null)
+        {
+            grace.MorirPorContainer();
+            Invoke(nameof(ReiniciarEscena), Grace.DuracionAnimacionMuerte);
+            yield break;
+        }
+
+        SpriteRenderer sprite = caja.GetComponent<SpriteRenderer>();
+        float suelo = AlturaDelPiso(caja.position);
+        float xFijo = caja.position.x;
+        float duracionCaida = 0f;
+        while (true)
+        {
+            duracionCaida += Time.deltaTime;
+            Vector3 p = caja.position;
+            p.x = xFijo;
+            p.y -= velocidadCaidaContainer * Time.deltaTime;
+            caja.position = p;
+
+            float baseCaja = sprite != null ? sprite.bounds.min.y : p.y;
+            if (baseCaja <= suelo + 0.08f || p.y < suelo - 2f)
+                break;
+            yield return null;
+        }
+
+        // En el clip el cuerpo llega al piso cerca de 1.05 s. Un poco más rápido para que caiga con el impacto.
+        const float clipHastaElPiso = 1.05f;
+        float velocidadMuerte = Mathf.Clamp(clipHastaElPiso / Mathf.Max(duracionCaida, 0.2f) * 1.35f, 0.75f, 3.5f);
+        if (grace != null)
+            grace.MorirAplastadaPorContainer(velocidadMuerte);
+        Invoke(nameof(ReiniciarEscena), Grace.DuracionAnimacionMuerte / velocidadMuerte);
+    }
+
+    float AlturaDelPiso(Vector3 desde)
+    {
+        RaycastHit2D golpe = Physics2D.Raycast(desde, Vector2.down, 40f, 1 << 6);
+        if (golpe.collider != null)
+            return golpe.point.y;
+        return grace != null ? grace.transform.position.y : -4f;
+    }
+
+    void ReiniciarEscena()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void ArmarCascada()

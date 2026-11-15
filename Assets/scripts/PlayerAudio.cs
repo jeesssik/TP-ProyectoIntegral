@@ -12,6 +12,8 @@ public class PlayerAudio : MonoBehaviour
     [SerializeField, Range(0.8f, 1.2f)] float walkStepMinPitch = 0.94f;
     [SerializeField, Range(0.8f, 1.2f)] float walkStepMaxPitch = 1f;
     [SerializeField, Range(1000f, 22000f)] float walkStepLowPassCutoff = 4200f;
+    [SerializeField, Range(0f, 1f)] float hurtVolume = 0.25f;
+    [SerializeField, Range(0f, 1f)] float jumpVolume = 0.42f;
 
     Grace player;
     float nextWalkStepTime;
@@ -63,8 +65,8 @@ public class PlayerAudio : MonoBehaviour
         Play(walkStep, volumeMultiplier, walkStepDuration, startTime, pitch, walkStepLowPassCutoff);
     }
 
-    public void PlayJump(float volumeMultiplier = 1f) =>
-        Play(library != null ? library.jump : null, volumeMultiplier);
+    public void PlayJump() =>
+        Play(library != null ? library.jump : null, jumpVolume);
 
     public void PlayLand(float volumeMultiplier = 1f) =>
         Play(library != null ? library.land : null, volumeMultiplier);
@@ -72,8 +74,8 @@ public class PlayerAudio : MonoBehaviour
     public void PlayAttack(float volumeMultiplier = 1f) =>
         Play(library != null ? library.attack : null, volumeMultiplier);
 
-    public void PlayHurt(float volumeMultiplier = 1f) =>
-        Play(library != null ? library.hurt : null, volumeMultiplier);
+    public void PlayHurt() =>
+        Play(library != null ? library.hurt : null, hurtVolume);
 
     public void PlayDeath(float volumeMultiplier = 1f) =>
         Play(library != null ? library.death : null, volumeMultiplier);

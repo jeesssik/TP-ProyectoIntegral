@@ -18,10 +18,43 @@ public class CameraFollow : MonoBehaviour
     float zFijo;
     bool alturaFijada;
     float yFija;
+    bool bordeIzquierdoFijado;
+    float xBordeIzquierdo;
+    // El extremo del muelle queda un poco adentro de la pantalla, con el poste y agua a la izquierda.
+    const float MargenInicioPantalla = 0.12f;
 
     void Start()
     {
         zFijo = transform.position.z;
+    }
+
+    /// <summary>
+    /// Al arrancar, el comienzo de la plataforma queda en el encuadre de inicio:
+    /// el extremo visible, con un margen de agua a la izquierda.
+    /// </summary>
+    public void FijarBordeIzquierdo(float xMundo)
+    {
+        xBordeIzquierdo = xMundo;
+        bordeIzquierdoFijado = true;
+
+        Vector3 posicion = transform.position;
+        posicion.x = XMinima();
+        transform.position = posicion;
+    }
+
+    float XMinima()
+    {
+        float mitad = MitadAncho();
+        float margen = mitad * 2f * MargenInicioPantalla;
+        return xBordeIzquierdo + mitad - margen;
+    }
+
+    float MitadAncho()
+    {
+        Camera camara = GetComponent<Camera>();
+        if (camara == null || !camara.orthographic)
+            return 12f;
+        return camara.orthographicSize * Mathf.Max(0.01f, camara.aspect);
     }
 
     /// <summary>Deja de subir con el jugador. El plano del nivel se queda donde está.</summary>
@@ -51,6 +84,9 @@ public class CameraFollow : MonoBehaviour
             smoothedPosition.x = Mathf.Clamp(smoothedPosition.x, minX, maxX);
             smoothedPosition.y = Mathf.Clamp(smoothedPosition.y, minY, maxY);
         }
+
+        if (bordeIzquierdoFijado)
+            smoothedPosition.x = Mathf.Max(smoothedPosition.x, XMinima());
 
         // 4. Asignar la nueva posición
         transform.position = smoothedPosition;
