@@ -579,7 +579,10 @@ public class Grace : MonoBehaviour
 
     void PonerDelanteDelEscenario()
     {
-        Shader plano = Shader.Find("Grace/Plano");
+        // En el editor Shader.Find ve cualquier shader del proyecto. En la build
+        // solo entran los que están referenciados, así que el material vive en Resources.
+        Material basePlano = Resources.Load<Material>("GracePlano");
+        Shader plano = basePlano != null ? basePlano.shader : Shader.Find("Grace/Plano");
         foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
         {
             render.sortingOrder = ordenSobreEscenario;
