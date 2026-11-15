@@ -613,8 +613,16 @@ public class Grace : MonoBehaviour
             : (colision != null
                 ? new Vector2(colision.bounds.center.x, colision.bounds.min.y)
                 : (Vector2)transform.position);
-        Vector2 origen = new Vector2(pies.x, pies.y + 0.02f);
-        return Physics2D.OverlapBox(origen, new Vector2(0.36f, 0.2f), 0f, capaSuelo) != null;
+        // Caja chica, hacia abajo, y solo si la cara es un piso.
+        // El roce lateral con la plataforma de al lado no cuenta como suelo.
+        RaycastHit2D golpe = Physics2D.BoxCast(
+            new Vector2(pies.x, pies.y + 0.2f),
+            new Vector2(0.16f, 0.02f),
+            0f,
+            Vector2.down,
+            0.32f,
+            capaSuelo);
+        return golpe.collider != null && golpe.normal.y >= 0.45f;
     }
 
     void ActualizarSuelo()

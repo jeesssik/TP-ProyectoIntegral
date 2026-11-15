@@ -34,6 +34,13 @@ public class LaserInversionControles : MonoBehaviour
     [Tooltip("Objeto laser-die: el collider o el sprite marca exactamente dónde mata al pisar.")]
     public Transform laserDie;
 
+    [Header("Sonido")]
+    [Tooltip("El archivo trae tres golpes. Se usa solo el primero, cuando el haz invierte los controles.")]
+    public AudioClip sonidoActivacion;
+    const float inicioSonidoActivacion = 0.4f;
+    const float duracionSonidoActivacion = 0.68f;
+    const float volumenSonidoActivacion = 0.4f;
+
     bool invertido;
     bool zonaCerrada;
     bool hazMortal;
@@ -130,11 +137,31 @@ public class LaserInversionControles : MonoBehaviour
         invertido = enZona;
         EntradaJuego.InvertidoHorizontal = invertido;
         if (invertido)
+        {
             grace.RecibirGolpe();
+            SonarActivacion();
+        }
         EntradaJuego.ConservarDireccionMundo(dirMundo);
 
         if (invertido && !hazMortal && prenderRojoEn < 0f)
             prenderRojoEn = Time.time + EntradaJuego.DuracionConservarDireccion;
+    }
+
+    void SonarActivacion()
+    {
+        AudioClip clip = sonidoActivacion;
+#if UNITY_EDITOR
+        if (clip == null)
+            clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/SFX/laser.mp3");
+#endif
+        if (clip == null || AudioManager.Instance == null)
+            return;
+
+        AudioManager.Instance.PlaySFXForDuration(
+            clip,
+            duracionSonidoActivacion,
+            volumenSonidoActivacion,
+            inicioSonidoActivacion);
     }
 
     void ActualizarHazMortal()

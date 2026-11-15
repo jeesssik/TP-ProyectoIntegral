@@ -137,7 +137,7 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         Bounds puente = colliderPuente.bounds;
-        if (rb.position.x < puente.min.x + 0.15f || rb.position.x > puente.max.x - 0.15f)
+        if (rb.position.x < puente.min.x + 0.02f || rb.position.x > puente.max.x - 0.02f)
             return;
 
         float superficie = AlturaMundoEnX(rb.position.x);
@@ -404,6 +404,18 @@ public class PuenteRompible : MonoBehaviour
         colliderPuente.enabled = false;
     }
 
+    bool SigueEnElVano(Grace grace)
+    {
+        if (grace == null || colliderPuente == null)
+            return false;
+
+        Bounds puente = colliderPuente.bounds;
+        float x = grace.CuerpoRigido != null
+            ? grace.CuerpoRigido.position.x
+            : grace.transform.position.x;
+        return x >= puente.min.x && x <= puente.max.x;
+    }
+
     bool EstaSobreElTramo(Grace grace)
     {
         if (grace == null || colliderPuente == null)
@@ -413,7 +425,7 @@ public class PuenteRompible : MonoBehaviour
         float x = grace.CuerpoRigido != null
             ? grace.CuerpoRigido.position.x
             : grace.transform.position.x;
-        if (x < puente.min.x + 0.12f || x > puente.max.x - 0.12f)
+        if (x < puente.min.x + 0.02f || x > puente.max.x - 0.02f)
             return false;
 
         Collider2D cuerpo = grace.ColisionCuerpo;
@@ -583,7 +595,7 @@ public class PuenteRompible : MonoBehaviour
             return;
 
         Grace grace = causante != null ? causante : jugadorSobrePuente;
-        bool sigueEncima = EstaSobreElTramo(grace);
+        bool sigueEncima = SigueEnElVano(grace);
         pisoSuelto = true;
 
         if (colliderPuente != null)

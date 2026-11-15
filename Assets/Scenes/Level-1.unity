@@ -24489,6 +24489,7 @@ MonoBehaviour:
   margenSalida: 0.7
   colision: {fileID: 1173378096}
   laserDie: {fileID: 1837715093}
+  sonidoActivacion: {fileID: 8300000, guid: 18946595123c941dfac50f36d348bf05, type: 3}
 --- !u!1 &1174795407
 GameObject:
   m_ObjectHideFlags: 0
