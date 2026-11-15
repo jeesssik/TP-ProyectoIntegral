@@ -83,13 +83,7 @@ public class Grace : MonoBehaviour
     {
         get
         {
-            if (!estaEnSuelo || enCinematica || yaMurio)
-                return false;
-            if (animator == null || animator.IsInTransition(0))
-                return animator == null;
-
-            AnimatorStateInfo estado = animator.GetCurrentAnimatorStateInfo(0);
-            return !estado.IsName("JumpOver") && !estado.IsName("landJump");
+            return estaEnSuelo && !enCinematica && !yaMurio;
         }
     }
     public bool EstaEnElAire => !estaEnSuelo;
@@ -333,8 +327,40 @@ public class Grace : MonoBehaviour
         if (velocidadVertical < 0f)
             velocidadVertical += Physics2D.gravity.y * (multiplicadorCaida - 1f) * gravedadEscala * Time.fixedDeltaTime;
 
+        SoltarParedVertical(ref velocidadAire, ref velocidadVertical);
         rb.velocity = new Vector2(velocidadAire, velocidadVertical);
         FrenarIzquierdaEnElInicio();
+    }
+
+    void SoltarParedVertical(ref float velocidadX, ref float velocidadY)
+    {
+        if (rb == null)
+            return;
+
+        int cantidad = rb.GetContacts(contactosSuelo);
+        float separacion = 0f;
+        bool pared = false;
+        for (int i = 0; i < cantidad; i++)
+        {
+            Vector2 normal = contactosSuelo[i].normal;
+            // Piso y techo no. Solo la cara vertical, que con la fricción deja vy en cero.
+            if (normal.y > 0.4f || Mathf.Abs(normal.x) < 0.65f)
+                continue;
+
+            pared = true;
+            if (velocidadX * normal.x < 0f)
+                velocidadX = 0f;
+            separacion += normal.x;
+        }
+
+        if (!pared)
+            return;
+
+        if (velocidadY > -2f)
+            velocidadY = -2f;
+
+        if (separacion != 0f)
+            rb.position += new Vector2(Mathf.Sign(separacion) * 0.02f, 0f);
     }
 
     void TolerarDesnivel(float velocidadObjetivo)
@@ -558,11 +584,11 @@ public class Grace : MonoBehaviour
 
     void AvisarPuenteBajoLosPies()
     {
-        Vector2 pies = cuerpoFisico != null
-            ? (Vector2)cuerpoFisico.position
-            : (colision != null
-                ? new Vector2(colision.bounds.center.x, colision.bounds.min.y)
-                : (Vector2)transform.position);
+        Vector2 pies = colision != null
+            ? new Vector2(colision.bounds.center.x, colision.bounds.min.y)
+            : cuerpoFisico != null
+                ? (Vector2)cuerpoFisico.position
+                : (Vector2)transform.position;
         Vector2 origen = new Vector2(pies.x, pies.y + 0.02f);
         Collider2D[] suelos = Physics2D.OverlapBoxAll(origen, new Vector2(0.36f, 0.2f), 0f, capaSuelo);
         for (int i = 0; i < suelos.Length; i++)
@@ -1472,8 +1498,13 @@ public class Grace : MonoBehaviour
             animator.SetFloat("Speed", 0f);
             animator.SetBool("IsGrounded", true);
             animator.SetBool("IsRunning", false);
+            animator.SetBool("IsFalling", false);
             animator.SetFloat("VerticalSpeed", 0f);
             animator.ResetTrigger("Jump");
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("JumpOver"))
+                animator.SetTrigger("Land");
+            else
+                animator.ResetTrigger("Land");
         }
     }
 

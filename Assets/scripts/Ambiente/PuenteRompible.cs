@@ -46,6 +46,11 @@ public class PuenteRompible : MonoBehaviour
     float inicioColapso;
     float duracionClip = 1.45f;
     Sprite spriteSano;
+    bool cubiertaLista;
+    float cubiertaMinX;
+    float cubiertaMaxX;
+    float cubiertaTopeY;
+    Grace graceVigia;
 
     float VentanaContacto => Mathf.Max(0.1f, Time.fixedDeltaTime * 3f);
 
@@ -101,6 +106,19 @@ public class PuenteRompible : MonoBehaviour
     void Start()
     {
         EmparejarConLasPlataformas();
+        GuardarCubierta();
+    }
+
+    void GuardarCubierta()
+    {
+        if (colliderPuente == null)
+            return;
+
+        Bounds cubierta = colliderPuente.bounds;
+        cubiertaMinX = cubierta.min.x;
+        cubiertaMaxX = cubierta.max.x;
+        cubiertaTopeY = cubierta.max.y;
+        cubiertaLista = cubierta.size.x > 0.5f;
     }
 
     void EmparejarConLasPlataformas()
@@ -146,7 +164,10 @@ public class PuenteRompible : MonoBehaviour
     {
         if (soloCasiRompe || pisoSuelto || colapsado || grace == null)
             return;
-        if (!ContactoFresco() || !EstaEnLaMitad(grace))
+        if (!EstaEnLaMitad(grace))
+            return;
+        // El salto ya puso la velocidad hacia arriba: la suela sigue en la cubierta.
+        if (!ContactoFresco() && !SuelaSobreCubierta(grace))
             return;
 
         causante = grace;
@@ -176,6 +197,9 @@ public class PuenteRompible : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!colapsado && !pisoSuelto)
+            VigilarRotura();
+
         if (!colapsado || pisoSuelto || soloCasiRompe)
             return;
 
@@ -299,6 +323,51 @@ public class PuenteRompible : MonoBehaviour
         IniciarColapso();
     }
 
+    void VigilarRotura()
+    {
+        if (soloCasiRompe || !cubiertaLista)
+            return;
+
+        if (graceVigia == null)
+            graceVigia = FindObjectOfType<Grace>();
+        Grace grace = graceVigia;
+        if (grace == null)
+            return;
+
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        float x = cuerpo != null
+            ? cuerpo.bounds.center.x
+            : grace.CuerpoRigido != null
+                ? grace.CuerpoRigido.position.x
+                : grace.transform.position.x;
+        float pie = cuerpo != null
+            ? cuerpo.bounds.min.y
+            : grace.CuerpoRigido != null
+                ? grace.CuerpoRigido.position.y
+                : grace.transform.position.y;
+
+        float centro = (cubiertaMinX + cubiertaMaxX) * 0.5f;
+        float semi = (cubiertaMaxX - cubiertaMinX) * fraccionZonaCentral * 0.5f;
+        if (x < centro - semi || x > centro + semi)
+            return;
+
+        float tope = agrietado ? cubiertaTopeY - profundidadUsada : cubiertaTopeY;
+        if (pie > tope + 0.45f || pie < tope - 0.5f)
+            return;
+
+        Rigidbody2D cuerpoRb = grace.CuerpoRigido;
+        float vx = cuerpoRb != null ? cuerpoRb.velocity.x : 0f;
+        float vy = cuerpoRb != null ? cuerpoRb.velocity.y : 0f;
+        bool corre = grace.EstaCorriendo && Mathf.Abs(vx) > 1.2f;
+        bool cayoDelSalto = grace.SaltoReciente && vy <= 1.2f;
+        if (!corre && !cayoDelSalto)
+            return;
+
+        causante = grace;
+        jugadorSobrePuente = grace;
+        IniciarColapso();
+    }
+
     bool ContactoFresco()
     {
         return Time.time - ultimoContacto <= VentanaContacto;
@@ -382,7 +451,41 @@ public class PuenteRompible : MonoBehaviour
             return true;
         }
 
-        return false;
+        // El capsule deja el contacto a media altura y el filtro de arriba lo tira.
+        // Si la suela está sobre la cubierta, está parada en el puente.
+        return CuerpoApoyado(Grace.En(collision.collider));
+    }
+
+    bool CuerpoApoyado(Grace grace)
+    {
+        if (grace == null)
+            return false;
+
+        Rigidbody2D cuerpoRb = grace.CuerpoRigido;
+        if (cuerpoRb != null && cuerpoRb.velocity.y > 2.2f)
+            return false;
+
+        return SuelaSobreCubierta(grace);
+    }
+
+    bool SuelaSobreCubierta(Grace grace)
+    {
+        if (grace == null)
+            return false;
+
+        Collider2D activo = ColliderActivo();
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        if (activo == null || !activo.enabled || cuerpo == null || !cuerpo.enabled)
+            return false;
+
+        Bounds cubierta = activo.bounds;
+        float x = cuerpo.bounds.center.x;
+        if (x < cubierta.min.x + 0.15f || x > cubierta.max.x - 0.15f)
+            return false;
+
+        float superficie = AlturaMundoEnX(x);
+        float pie = cuerpo.bounds.min.y;
+        return pie <= superficie + 0.22f && pie >= superficie - 0.12f;
     }
 
     bool EstaEnLaMitad(Grace grace)
@@ -391,9 +494,11 @@ public class PuenteRompible : MonoBehaviour
             return false;
 
         Bounds cubierta = colliderPuente.bounds;
-        float x = grace.CuerpoRigido != null
-            ? grace.CuerpoRigido.position.x
-            : grace.transform.position.x;
+        float x = grace.ColisionCuerpo != null
+            ? grace.ColisionCuerpo.bounds.center.x
+            : grace.CuerpoRigido != null
+                ? grace.CuerpoRigido.position.x
+                : grace.transform.position.x;
         float semi = cubierta.size.x * fraccionZonaCentral * 0.5f;
         return x >= cubierta.center.x - semi && x <= cubierta.center.x + semi;
     }

@@ -3,7 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// La plataforma espera en el último muelle de la parte 1.
-/// Cuando Grace se para en el medio, el brazo gira por arriba
+/// Del medio de la plataforma hasta el final, Grace queda quieta donde aterrizó
+/// y el brazo gira por arriba.
 /// y la deja en el muelle del galpón.
 /// El eje está en el círculo del pilote. La plataforma cuelga de la punta.
 /// </summary>
@@ -40,29 +41,28 @@ public class GruaZona : MonoBehaviour
             return;
 
         Grace grace = FindObjectOfType<Grace>();
-        if (grace == null)
+        if (grace == null || !grace.ListaParaLaGrua)
+            return;
+
+        Collider2D cuerpo = grace.ColisionCuerpo;
+        if (cuerpo == null)
             return;
 
         Bounds pisoB = piso.bounds;
-        Vector2 centro = new Vector2(plataforma.position.x, pisoB.max.y + 0.2f);
-        Vector2 tamano = new Vector2(Mathf.Max(1.6f, zonaCentro * 2f), 0.7f);
-        Collider2D[] toques = Physics2D.OverlapBoxAll(centro, tamano, 0f);
-        for (int i = 0; i < toques.Length; i++)
-        {
-            if (toques[i] == null || toques[i] == piso)
-                continue;
-
-            Grace encima = Grace.En(toques[i]);
-            if (encima == null || !encima.ListaParaLaGrua)
-                continue;
-
-            ocupada = true;
-            Rigidbody2D cuerpoRb = encima.CuerpoRigido;
-            if (cuerpoRb != null)
-                cuerpoRb.velocity = Vector2.zero;
-            StartCoroutine(Subir(encima));
+        float x = cuerpo.bounds.center.x;
+        float desde = pisoB.center.x - zonaCentro;
+        if (x < desde || x > pisoB.max.x + 0.15f)
             return;
-        }
+
+        float pie = cuerpo.bounds.min.y;
+        if (pie > pisoB.max.y + 0.55f || pie < pisoB.max.y - 0.6f)
+            return;
+
+        ocupada = true;
+        Rigidbody2D cuerpoRb = grace.CuerpoRigido;
+        if (cuerpoRb != null)
+            cuerpoRb.velocity = Vector2.zero;
+        StartCoroutine(Subir(grace));
     }
 
     void LateUpdate()
@@ -78,7 +78,12 @@ public class GruaZona : MonoBehaviour
         grace.EngancharEnGrua(plataforma);
 
         float pisoLocal = piso.offset.y + piso.size.y * 0.5f;
-        grace.AcomodarEnAncla(new Vector3(0f, pisoLocal - grace.DistanciaPies(), 0f));
+        Transform raiz = grace.CuerpoRigido != null ? grace.CuerpoRigido.transform : grace.transform;
+        Vector3 local = raiz.localPosition;
+        local.y = pisoLocal - grace.DistanciaPies();
+        local.z = 0f;
+        grace.AcomodarEnAncla(local);
+        float xLocal = local.x;
 
         float t = 0f;
         while (t < duracionGiro)
@@ -91,7 +96,7 @@ public class GruaZona : MonoBehaviour
 
         angulo = anguloFinal;
 
-        Vector3 pies = plataforma.TransformPoint(new Vector3(0f, pisoLocal, 0f));
+        Vector3 pies = plataforma.TransformPoint(new Vector3(xLocal, pisoLocal, 0f));
         grace.SoltarDeGrua(pies);
     }
 
