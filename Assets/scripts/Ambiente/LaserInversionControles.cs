@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Zona entre el láser y el tótem: controles invertidos.
@@ -45,7 +44,6 @@ public class LaserInversionControles : MonoBehaviour
     bool zonaCerrada;
     public bool FueImpactado { get; private set; }
     bool hazMortal;
-    bool yaMato;
     float prenderRojoEn = -1f;
     Grace grace;
 
@@ -92,7 +90,6 @@ public class LaserInversionControles : MonoBehaviour
         EntradaJuego.ActualizarDireccionFija();
         ActualizarInversionPorZona();
         ActualizarHazMortal();
-        IntentarMatarPorHaz();
     }
 
     public void CerrarZona()
@@ -178,11 +175,6 @@ public class LaserInversionControles : MonoBehaviour
         AplicarVisual(encendido: true);
     }
 
-    void ReiniciarEscena()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
     bool ImpactadoPorLaser()
     {
         if (colision == null || !colision.enabled || grace == null)
@@ -241,52 +233,6 @@ public class LaserInversionControles : MonoBehaviour
 
         emisor.color = Color.white;
         emisor.sprite = nuevo;
-    }
-
-    void IntentarMatarPorHaz()
-    {
-        if (!hazMortal || zonaCerrada || yaMato || grace == null)
-            return;
-
-        Rigidbody2D rb = grace.CuerpoRigido;
-        if (rb != null && rb.velocity.y > 1.5f)
-            return;
-
-        if (laserDie == null)
-            laserDie = transform.Find("laser-die");
-        if (laserDie == null)
-            return;
-
-        Collider2D zonaCol = laserDie.GetComponent<Collider2D>();
-        Collider2D colGrace = grace.ColisionCuerpo;
-        if (zonaCol == null || !zonaCol.enabled || colGrace == null || !colGrace.enabled)
-            return;
-
-        Vector2 pie = new Vector2(colGrace.bounds.center.x, colGrace.bounds.min.y + 0.06f);
-        Vector2 tamPie = new Vector2(0.22f, 0.16f);
-
-        var filtro = new ContactFilter2D();
-        filtro.NoFilter();
-        filtro.useTriggers = true;
-
-        var hits = new Collider2D[8];
-        int n = Physics2D.OverlapBox(pie, tamPie, 0f, filtro, hits);
-        bool toca = false;
-        for (int i = 0; i < n; i++)
-        {
-            if (hits[i] == zonaCol)
-            {
-                toca = true;
-                break;
-            }
-        }
-
-        if (!toca)
-            return;
-
-        yaMato = true;
-        grace.MorirPorContainer();
-        Invoke(nameof(ReiniciarEscena), Grace.DuracionAnimacionMuerte);
     }
 
     public static void SetSpriteSinCorrerse(SpriteRenderer sr, Sprite nuevo, bool soloVertical = false)
