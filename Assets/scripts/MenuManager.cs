@@ -16,6 +16,7 @@ public class MenuManager : MonoBehaviour
 
     [Header("Cinematica")]
     public VideoClip cinematicaIntro;
+    public AudioClip musicaCinematica;
 
     [SerializeField] AudioClip menuMusic;
 
@@ -41,7 +42,7 @@ public class MenuManager : MonoBehaviour
 
         AudioManager.Instance?.StopMusic();
         AudioManager.Instance?.StopAmbient();
-        CinematicaIntro.Reproducir(cinematicaIntro, gameSceneName);
+        CinematicaIntro.Reproducir(cinematicaIntro, gameSceneName, musicaCinematica);
     }
 
     public void OnOptionsButton() => OpenCanvas(optionsCanvas);
