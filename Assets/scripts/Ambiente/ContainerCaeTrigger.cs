@@ -254,11 +254,15 @@ public class ContainerCaeTrigger : MonoBehaviour
         if (sr == null || spriteEnElPiso == null)
             return;
 
-        float anchoAntes = sr.bounds.size.x;
+        // container Cae_0 mide 406 px de recuadro, pero el dibujo opaco son 380.
+        // containerSuelto: el cajón (sin cadenas ni margen) va de x 76..1216.
+        Sprite colgado = sr.sprite;
+        float anchoRecuadro = colgado.rect.width / colgado.pixelsPerUnit * Mathf.Abs(caja.lossyScale.x);
+        const float opacoSobreRecuadro = 380f / 406f;
+        float anchoVisible = anchoRecuadro * opacoSobreRecuadro;
+
         sr.sprite = spriteEnElPiso;
 
-        // El png es cuadrado y trae cadenas arriba. El cuerpo del cajón
-        // va de x 76..1216 y de y 238..804, medido desde abajo, en 1254 px.
         const float lienzo = 12.54f;
         const float cuerpoIzq = 0.76f;
         const float cuerpoDer = 12.16f;
@@ -271,7 +275,7 @@ public class ContainerCaeTrigger : MonoBehaviour
         float localArriba = cuerpoArriba - mitad;
 
         float anchoCuerpo = cuerpoDer - cuerpoIzq;
-        float escala = anchoAntes / Mathf.Max(0.01f, anchoCuerpo);
+        float escala = anchoVisible / Mathf.Max(0.01f, anchoCuerpo);
         caja.localScale = new Vector3(escala, escala, 1f);
         caja.position = new Vector3(xZonaImpacto, suelo - localAbajo * escala, caja.position.z);
 
