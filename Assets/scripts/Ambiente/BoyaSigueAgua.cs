@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Avanza a la misma velocidad que la franja de agua más cercana y se mece encima.
+/// Cada boya avanza a la velocidad de la franja de agua que tiene debajo y se mece encima.
 /// </summary>
 public class BoyaSigueAgua : MonoBehaviour
 {
@@ -13,16 +15,25 @@ public class BoyaSigueAgua : MonoBehaviour
     Quaternion rotacionInicial;
     float fase;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void Registrar()
+    {
+        SceneManager.sceneLoaded -= AlCargarEscena;
+        SceneManager.sceneLoaded += AlCargarEscena;
+    }
+
+    static void AlCargarEscena(Scene escena, LoadSceneMode modo)
+    {
+        EngancharBoyasDeLaEscena();
+    }
+
     static void EngancharBoyasDeLaEscena()
     {
-        SpriteRenderer[] sprites = FindObjectsOfType<SpriteRenderer>();
+        SpriteRenderer[] sprites = FindObjectsOfType<SpriteRenderer>(true);
         for (int i = 0; i < sprites.Length; i++)
         {
             SpriteRenderer sprite = sprites[i];
-            if (sprite == null || sprite.sprite == null)
-                continue;
-            if (!sprite.sprite.name.StartsWith("boya"))
+            if (sprite == null || !EsBoya(sprite))
                 continue;
             if (sprite.GetComponent<BoyaSigueAgua>() != null)
                 continue;
@@ -31,18 +42,27 @@ public class BoyaSigueAgua : MonoBehaviour
         }
     }
 
+    static bool EsBoya(SpriteRenderer sprite)
+    {
+        if (sprite.gameObject.name.StartsWith("boya", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return sprite.sprite != null
+            && sprite.sprite.name.StartsWith("boya", StringComparison.OrdinalIgnoreCase);
+    }
+
     void Start()
     {
         posicionInicial = transform.position;
         rotacionInicial = transform.rotation;
         fase = posicionInicial.x * 0.37f;
-        agua = FranjaMasCercana();
+        agua = FranjaDebajo();
     }
 
     void LateUpdate()
     {
         if (agua == null)
-            agua = FranjaMasCercana();
+            agua = FranjaDebajo();
         if (agua == null)
             return;
 
@@ -58,12 +78,30 @@ public class BoyaSigueAgua : MonoBehaviour
         transform.rotation = rotacionInicial * Quaternion.Euler(0f, 0f, inclinacion);
     }
 
-    MovimientoAgua FranjaMasCercana()
+    MovimientoAgua FranjaDebajo()
     {
         MovimientoAgua[] franjas = FindObjectsOfType<MovimientoAgua>();
         MovimientoAgua mejor = null;
         float menorDistancia = float.MaxValue;
-        float altura = posicionInicial.y;
+        float x = posicionInicial.x;
+        float y = posicionInicial.y;
+
+        for (int i = 0; i < franjas.Length; i++)
+        {
+            MovimientoAgua franja = franjas[i];
+            if (franja == null || !CubreEnX(franja, x))
+                continue;
+
+            float distancia = Mathf.Abs(franja.AlturaDeReposo - y);
+            if (distancia >= menorDistancia)
+                continue;
+
+            menorDistancia = distancia;
+            mejor = franja;
+        }
+
+        if (mejor != null)
+            return mejor;
 
         for (int i = 0; i < franjas.Length; i++)
         {
@@ -71,7 +109,7 @@ public class BoyaSigueAgua : MonoBehaviour
             if (franja == null)
                 continue;
 
-            float distancia = Mathf.Abs(franja.AlturaDeReposo - altura);
+            float distancia = Mathf.Abs(franja.AlturaDeReposo - y);
             if (distancia >= menorDistancia)
                 continue;
 
@@ -80,5 +118,15 @@ public class BoyaSigueAgua : MonoBehaviour
         }
 
         return mejor;
+    }
+
+    static bool CubreEnX(MovimientoAgua franja, float x)
+    {
+        SpriteRenderer sprite = franja.GetComponent<SpriteRenderer>();
+        if (sprite == null || sprite.sprite == null)
+            return false;
+
+        Bounds zona = sprite.bounds;
+        return x >= zona.min.x - 1.5f && x <= zona.max.x + 1.5f;
     }
 }
