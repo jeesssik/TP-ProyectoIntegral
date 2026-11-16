@@ -8,7 +8,9 @@ public class MovimientoAgua : MonoBehaviour
     public float velocidadY = 1f;
 
     Vector3 posicionInicial;
-    float periodo = -1f;
+    float paso = -1f;
+    float xDerechaReposo;
+    bool franjaLista;
 
     static readonly List<MovimientoAgua> activas = new List<MovimientoAgua>();
 
@@ -20,32 +22,39 @@ public class MovimientoAgua : MonoBehaviour
     void OnDisable()
     {
         activas.Remove(this);
-        periodo = -1f;
+        franjaLista = false;
+        paso = -1f;
     }
 
-    void Start()
+    void Awake()
     {
         posicionInicial = transform.position;
     }
 
+    public float AlturaDeReposo => posicionInicial.y;
+
+    public float PosicionX => transform.position.x;
+
     void Update()
     {
-        float avance = Time.time * velocidadX;
-        if (periodo < 0f)
-            periodo = CalcularPeriodo();
+        if (!franjaLista)
+            MedirFranja();
 
-        // La misma imagen se repite al lado de la otra. Al recorrer un ancho,
-        // cada pieza ocupa el lugar de la anterior y el dibujo no se corta.
-        if (periodo > 0.5f)
-            avance = Mathf.Repeat(avance, periodo);
+        Vector3 p = transform.position;
+        p.x += velocidadX * Time.deltaTime;
+        p.y = posicionInicial.y + FlotacionAgua.OffsetY(amplitudY, velocidadY);
+        transform.position = p;
 
-        transform.position = posicionInicial + new Vector3(
-            avance,
-            FlotacionAgua.OffsetY(amplitudY, velocidadY),
-            0f);
+        // Sale por la derecha y vuelve a entrar por la izquierda.
+        // El resto de la franja sigue de largo, sin volver todas juntas al inicio.
+        if (paso > 0.5f && p.x > xDerechaReposo + paso && EsLaDeMasALaDerecha())
+        {
+            p.x = XMasALaIzquierda() - paso;
+            transform.position = p;
+        }
     }
 
-    float CalcularPeriodo()
+    void MedirFranja()
     {
         float ancho = AnchoDeLaFranja();
         var saltos = new List<float>();
@@ -67,11 +76,51 @@ public class MovimientoAgua : MonoBehaviour
                 saltos.Add(dx);
         }
 
-        if (saltos.Count == 0)
-            return ancho;
+        xDerechaReposo = posicionInicial.x;
+        for (int i = 0; i < xs.Count; i++)
+            xDerechaReposo = Mathf.Max(xDerechaReposo, xs[i]);
 
-        saltos.Sort();
-        return saltos[saltos.Count / 2];
+        if (saltos.Count == 0)
+            paso = ancho;
+        else
+        {
+            saltos.Sort();
+            paso = saltos[saltos.Count / 2];
+        }
+
+        franjaLista = true;
+    }
+
+    bool EsLaDeMasALaDerecha()
+    {
+        float x = transform.position.x;
+        for (int i = 0; i < activas.Count; i++)
+        {
+            MovimientoAgua otra = activas[i];
+            if (otra == null || otra == this || !MismaFranja(otra))
+                continue;
+            if (otra.transform.position.x > x)
+                return false;
+        }
+
+        return true;
+    }
+
+    float XMasALaIzquierda()
+    {
+        float izquierda = transform.position.x;
+        bool hayOtra = false;
+        for (int i = 0; i < activas.Count; i++)
+        {
+            MovimientoAgua otra = activas[i];
+            if (otra == null || otra == this || !MismaFranja(otra))
+                continue;
+
+            hayOtra = true;
+            izquierda = Mathf.Min(izquierda, otra.transform.position.x);
+        }
+
+        return hayOtra ? izquierda : transform.position.x;
     }
 
     float AnchoDeLaFranja()
