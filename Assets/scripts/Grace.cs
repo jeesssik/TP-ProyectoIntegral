@@ -53,6 +53,8 @@ public class Grace : MonoBehaviour
     bool muerteAlAterrizar;
     bool caidaVacioInicio;
     bool saltoVacioInicio;
+    bool apoyadaEnElevador;
+    bool caidaDelElevador;
     bool estirandoSalto;
     bool entrandoEnCaida;
     float relojEstiron;
@@ -640,6 +642,7 @@ public class Grace : MonoBehaviour
         if (puente != null && puente.EnRoceDeSalida(this) && golpe.collider.GetComponent<PuenteRompible>() != puente)
             return false;
 
+        apoyadaEnElevador = golpe.collider.GetComponentInParent<ElevadorGrua>() != null;
         return true;
     }
 
@@ -668,6 +671,8 @@ public class Grace : MonoBehaviour
         }
 
         estaEnSuelo = toca;
+        if (!estaEnSuelo && apoyadaEnElevador && !saltoEnElAire && !yaMurio)
+            caidaDelElevador = true;
         if (!estaEnSuelo)
             IntentarCaerDelPuenteRoto();
         if (estaEnSuelo)
@@ -874,7 +879,45 @@ public class Grace : MonoBehaviour
         animator.SetBool("IsGrounded", estaEnSuelo);
         animator.SetBool("IsRunning", estaCorriendo && movimiento != 0f);
         animator.SetFloat("VerticalSpeed", rb.velocity.y);
+        ActualizarCaidaLibre();
+    }
 
+    void ActualizarCaidaLibre()
+    {
+        if (!TieneParametro("IsFalling"))
+            return;
+
+        if (!caidaDelElevador)
+            return;
+
+        bool enElAire = !estaEnSuelo && !saltoEnElAire && !yaMurio && rb.velocity.y < -0.35f;
+        animator.SetBool("IsFalling", enElAire);
+        if (enElAire)
+        {
+            if (!YaVaA(EstadoCaidaOla))
+                animator.CrossFadeInFixedTime(EstadoCaidaOla, 0.12f);
+            return;
+        }
+
+        if (!estaEnSuelo)
+            return;
+
+        animator.SetBool("IsFalling", false);
+        caidaDelElevador = false;
+        if (animator.IsInTransition(0) || !animator.GetCurrentAnimatorStateInfo(0).IsName(EstadoCaidaOla))
+            return;
+
+        string destino = estaCorriendo && movimiento != 0f
+            ? "run"
+            : movimiento != 0f ? "walk" : "graceIdle";
+        animator.CrossFadeInFixedTime(destino, 0.12f);
+    }
+
+    bool YaVaA(string nombre)
+    {
+        if (animator.IsInTransition(0) && animator.GetNextAnimatorStateInfo(0).IsName(nombre))
+            return true;
+        return animator.GetCurrentAnimatorStateInfo(0).IsName(nombre);
     }
 
     void AlinearVisual()

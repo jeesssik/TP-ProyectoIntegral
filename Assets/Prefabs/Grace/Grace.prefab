@@ -124,8 +124,8 @@ MonoBehaviour:
   runStepInterval: 0.3
   walkStepDuration: 0.18
   walkStepVariantCount: 4
-  walkStepVolume: 0.45
-  runStepVolume: 0.4
+  walkStepVolume: 0.2
+  runStepVolume: 0.2
   walkStepMinPitch: 0.94
   walkStepMaxPitch: 1
   walkStepLowPassCutoff: 4200

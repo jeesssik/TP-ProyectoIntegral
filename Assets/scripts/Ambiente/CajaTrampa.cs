@@ -8,6 +8,12 @@ public class CajaTrampa : MonoBehaviour
     public float fpsImpulso = 18f;
     public int cuadroDeLanzamiento = 2;
 
+    [Header("Boing")]
+    public AudioClip sonidoBoing;
+    const float inicioBoing = 0.05f;
+    const float duracionBoing = 0.62f;
+    const float volumenBoing = 0.34f;
+
     bool disparada;
     BoxCollider2D caja;
     SpriteRenderer vista;
@@ -48,6 +54,7 @@ public class CajaTrampa : MonoBehaviour
         if (impulso == null || impulso.Length == 0)
         {
             grace.LanzarAlCielo();
+            SonarBoing();
             yield break;
         }
 
@@ -60,13 +67,30 @@ public class CajaTrampa : MonoBehaviour
             {
                 lanzo = true;
                 grace.LanzarAlCielo();
+                SonarBoing();
             }
 
             yield return new WaitForSeconds(paso);
         }
 
         if (!lanzo)
+        {
             grace.LanzarAlCielo();
+            SonarBoing();
+        }
+    }
+
+    void SonarBoing()
+    {
+        AudioClip clip = sonidoBoing;
+#if UNITY_EDITOR
+        if (clip == null)
+            clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/SFX/boing.mp3");
+#endif
+        if (clip == null || AudioManager.Instance == null)
+            return;
+
+        AudioManager.Instance.PlaySFXForDuration(clip, duracionBoing, volumenBoing, inicioBoing);
     }
 
     void Mostrar(Sprite[] secuencia, int indice)

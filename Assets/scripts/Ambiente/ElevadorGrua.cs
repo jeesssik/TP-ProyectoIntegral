@@ -13,11 +13,19 @@ public class ElevadorGrua : MonoBehaviour
     public float yOrigenContainer = 6.2f;
     public float yOrigenHilo = 13.0859f;
 
+    [Header("Cadena")]
+    public AudioClip sonidoCadena;
+    [Range(0f, 1f)] public float volumenCadena = 0.12f;
+
+    const float SegundosDeFade = 0.35f;
+
     Rigidbody2D rb;
     BoxCollider2D piso;
     float yHiloInicio;
     float yContainerInicio;
     float atrapadaDesde = -1f;
+    AudioSource cadena;
+    float volumenSuave;
 
     void Awake()
     {
@@ -46,6 +54,80 @@ public class ElevadorGrua : MonoBehaviour
         float y = Mathf.Lerp(yBaja, yAlta, fase);
         Aplicar(y);
         SoltarSiQuedoAtrapada();
+    }
+
+    void Update()
+    {
+        ActualizarCadena();
+    }
+
+    void OnDisable()
+    {
+        if (cadena != null)
+            cadena.Stop();
+        volumenSuave = 0f;
+    }
+
+    void ActualizarCadena()
+    {
+        AudioClip clip = sonidoCadena;
+#if UNITY_EDITOR
+        if (clip == null)
+            clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/SFX/chain.mp3");
+#endif
+        if (clip == null)
+            return;
+
+        if (cadena == null)
+        {
+            cadena = gameObject.AddComponent<AudioSource>();
+            cadena.playOnAwake = false;
+            cadena.loop = true;
+            cadena.spatialBlend = 0f;
+            cadena.clip = clip;
+        }
+        else if (cadena.clip != clip)
+            cadena.clip = clip;
+
+        float angulo = Time.time * (Mathf.PI * 2f / Mathf.Max(0.05f, periodo));
+        float viaje = Mathf.SmoothStep(0f, 1f, Mathf.Abs(Mathf.Cos(angulo)));
+        float techo = TechoCadena();
+        float objetivo = techo * viaje * PresenciaEnPantalla();
+        float paso = Mathf.Max(volumenCadena, techo) * Time.unscaledDeltaTime / SegundosDeFade;
+        volumenSuave = Mathf.MoveTowards(volumenSuave, objetivo, Mathf.Max(0.00005f, paso));
+        cadena.volume = volumenSuave;
+
+        if (volumenSuave > 0.0004f)
+        {
+            if (!cadena.isPlaying)
+                cadena.Play();
+        }
+        else if (cadena.isPlaying)
+            cadena.Stop();
+    }
+
+    float TechoCadena()
+    {
+        if (Time.timeScale <= 0f || AudioManager.Instance == null || AudioManager.Instance.GetSFXMuted())
+            return 0f;
+
+        return AudioManager.Instance.GetSFXVolume() * volumenCadena;
+    }
+
+    float PresenciaEnPantalla()
+    {
+        Camera camara = Camera.main;
+        if (camara == null)
+            return 0f;
+
+        float mitad = camara.orthographic
+            ? camara.orthographicSize * camara.aspect
+            : 12f;
+        float distancia = Mathf.Abs(transform.position.x - camara.transform.position.x);
+        float borde = mitad + 4f;
+        float nucleo = mitad * 0.55f;
+        float t = Mathf.InverseLerp(borde, nucleo, distancia);
+        return Mathf.SmoothStep(0f, 1f, t);
     }
 
     // Si cae al costado, entre el container y el muelle, el contacto lateral

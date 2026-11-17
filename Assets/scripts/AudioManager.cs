@@ -36,6 +36,7 @@ public class AudioManager : MonoBehaviour
 
     bool musicaDeNivel;
     bool musicaPausadaPorJuego;
+    bool ambientePausadoPorJuego;
 
     public float GetMusicVolume() => musicVolume;
     public float GetAmbientVolume() => ambientVolume;
@@ -130,10 +131,16 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
+        bool juegoPausado = Time.timeScale <= 0f;
+        ActualizarMusicaDeNivel(juegoPausado);
+        ActualizarAmbiente(juegoPausado);
+    }
+
+    void ActualizarMusicaDeNivel(bool juegoPausado)
+    {
         if (!musicaDeNivel || musicSource == null || musicSource.clip == null)
             return;
 
-        bool juegoPausado = Time.timeScale <= 0f;
         if (juegoPausado && !musicaPausadaPorJuego)
         {
             musicSource.Pause();
@@ -143,6 +150,24 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.UnPause();
             musicaPausadaPorJuego = false;
+            ApplyVolumes();
+        }
+    }
+
+    void ActualizarAmbiente(bool juegoPausado)
+    {
+        if (ambientSource == null || ambientSource.clip == null)
+            return;
+
+        if (juegoPausado && !ambientePausadoPorJuego)
+        {
+            ambientSource.Pause();
+            ambientePausadoPorJuego = true;
+        }
+        else if (!juegoPausado && ambientePausadoPorJuego)
+        {
+            ambientSource.UnPause();
+            ambientePausadoPorJuego = false;
             ApplyVolumes();
         }
     }
@@ -158,6 +183,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
+        ambientePausadoPorJuego = false;
         ambientSource.clip = clip;
         ambientSource.loop = true;
         ambientSource.spatialBlend = 0f;
@@ -170,6 +196,7 @@ public class AudioManager : MonoBehaviour
         if (ambientSource == null)
             return;
 
+        ambientePausadoPorJuego = false;
         ambientSource.Stop();
         ambientSource.clip = null;
     }

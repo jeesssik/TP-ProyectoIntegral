@@ -16116,6 +16116,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 510af1e6f349446da7aa7a2a843116c7, type: 3}
   fpsImpulso: 18
   cuadroDeLanzamiento: 2
+  sonidoBoing: {fileID: 8300000, guid: 1b2dc5b90a8444ceeaf8d3d51179bb11, type: 3}
 --- !u!1 &770061050
 GameObject:
   m_ObjectHideFlags: 0
@@ -26169,6 +26170,8 @@ MonoBehaviour:
   yAlta: 1.85
   yOrigenContainer: 6.2
   yOrigenHilo: 13.0859
+  sonidoCadena: {fileID: 8300000, guid: b5f0815d7513c4ac2b8887877c3d3a1f, type: 3}
+  volumenCadena: 0.12
 --- !u!61 &1238032251
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -27375,6 +27378,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 510af1e6f349446da7aa7a2a843116c7, type: 3}
   fpsImpulso: 18
   cuadroDeLanzamiento: 2
+  sonidoBoing: {fileID: 8300000, guid: 1b2dc5b90a8444ceeaf8d3d51179bb11, type: 3}
 --- !u!212 &1310219286
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -28336,8 +28340,8 @@ MonoBehaviour:
   runStepInterval: 0.3
   walkStepDuration: 0.18
   walkStepVariantCount: 4
-  walkStepVolume: 0.45
-  runStepVolume: 0.4
+  walkStepVolume: 0.2
+  runStepVolume: 0.2
   walkStepMinPitch: 0.94
   walkStepMaxPitch: 1
   walkStepLowPassCutoff: 4200

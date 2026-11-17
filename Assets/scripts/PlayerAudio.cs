@@ -7,8 +7,8 @@ public class PlayerAudio : MonoBehaviour
     [SerializeField] float runStepInterval = 0.3f;
     [SerializeField] float walkStepDuration = 0.18f;
     [SerializeField, Min(1)] int walkStepVariantCount = 4;
-    [SerializeField, Range(0f, 1f)] float walkStepVolume = 0.45f;
-    [SerializeField, Range(0f, 1f)] float runStepVolume = 0.4f;
+    [SerializeField, Range(0f, 1f)] float walkStepVolume = 0.2f;
+    [SerializeField, Range(0f, 1f)] float runStepVolume = 0.2f;
     [SerializeField, Range(0.8f, 1.2f)] float walkStepMinPitch = 0.94f;
     [SerializeField, Range(0.8f, 1.2f)] float walkStepMaxPitch = 1f;
     [SerializeField, Range(1000f, 22000f)] float walkStepLowPassCutoff = 4200f;
